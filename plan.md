@@ -48,6 +48,18 @@ replace the console message with a proper email message
 
 title
 
+## Allow users to be able to cancel their order
+
+e.g. by texting/emailing something like "STOP"
+
+## Create an area for users to see all their orders
+
+have a place where users can see all their orders/their order history (e.g. a secret link that takes them to a site, etc.). this could also be a place where a user can request to stop getting notifications (e.g. maybe they can click an 'x' that appears next to a specific order to cancel it immediately)
+
+## Add spam protection
+
+mobile/email verification when a user initially signs up, ddos mitigation, etc.
+
 ## Add Stripe integration????
 
 depends on server costs/expected users
