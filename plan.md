@@ -8,11 +8,13 @@ the landing page should be the area where the user can sign up to the service by
 
 again, since the site is nonfunctional for now, submitting the form should do something basic like display a 'success!' message to the user.
 
+maybe add ci/cd for recruiter points???
+
 ## Database design + storage
 
-design a database and its appropriate relations. should we have just a user table that stores a name, email, or phone? what about a user and class table with a foreign key to the users that have signed up for notifications to that class? that way we can minimize the amount of http requests we have to make to vsb and save time/money, etc.
+design a database and its appropriate relations. should we have just a user table/collection that stores a name, email, or phone? what about a user and class table/collection with a foreign key to the users that have signed up for notifications to that class? that way we can minimize the amount of http requests we have to make to vsb and save time/money, etc.
 
-once the user model has been agreed upon create the database with the corresponding tables
+once the user model has been agreed upon create the database with the corresponding tables/collections. create indexes for faster read performance
 
 ## Scrape VSB Concordia
 
@@ -28,15 +30,15 @@ change the code so that data for multiple classes gets scraped and stored in the
 
 ## Persist the data
 
-now that the json has been validated, change the code to make the data go to the database instead of a json file. if the class already exists in the table, update the existing entry. otherwise, add the class as a new record
+now that the json has been validated, change the code to make the data go to the database instead of a json file. if the class already exists in the collection, update the existing entry. otherwise, add the class as a new record
 
 ## Update the website
 
-add the ability to enter in a name/email/phone number/class and have it added to the users table in the database. then update the scraping code to make it such that as soon as a new user signs up for notifications, begin the scraping process immediately for them. if the class they are interested in already exists in the db, simply add the user as a foreign key to the existing class record
+add the ability to enter in a name/email/phone number/class and have it added to the users collection in the database. then update the scraping code to make it such that as soon as a new user signs up for notifications, begin the scraping process immediately for them. if the class they are interested in already exists in the db, simply add the user as a foreign key to the existing class record
 
 ## Update what happens when a class opens up
 
-if a certain class becomes open, notify all users who signed up for notifications to that class (e.g. as soon as the "Status" column in the database table becomes "Open", notify all users in the "FK_Users" column)
+if a certain class becomes open, notify all users who signed up for notifications to that class (e.g. as soon as the "Status" column in the database collection becomes "Open", notify all users in the "FK_Users" column)
 
 for the time being, displaying a simple "User 1, 43, 79 notified!" in the console will suffice
 
