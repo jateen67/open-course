@@ -1,5 +1,19 @@
 # Plan
 
+## Tech
+
+react, ts, python, mongo, docker
+
+react and ts because its the frontend tech we are most comfortable and productive with (also very modern)
+
+python because its obviously well known for web scraping and because of a library called [httpx](https://www.python-httpx.org) (which is mentioned later on in this doc). we can do async web scraping using this library which is ideal if we want to achieve max speed
+
+mongo because sql seems overkill; i dont see a need for a very complicated database diagram but we will discuss this further to see if sql is needed. nosql databases are also easier to allocate and setup too imo
+
+docker because buzzwords
+
+we can negotiate the tech
+
 ## Make a nonfunctional website
 
 create a website that tells the user what our service does (maybe some navbar items that route to an 'about' page, etc.)
@@ -20,7 +34,7 @@ once the user model has been agreed upon create the database with the correspond
 
 ## Scrape VSB Concordia
 
-find some libraries and use them to scrape VSB Concordia (python + [httpx](https://www.python-httpx.org) seems like the best bet so that we can make the scraping asynchronous for maximum speed and efficiency).
+find some libraries and use them to scrape VSB Concordia (python + httpx seems like the best bet so that we can make the scraping asynchronous for maximum speed and efficiency).
 
 scrape some initial data just 1 time. once the data has been collected, simply store it in a json file for the time being (e.g. {"Class": "COMP248", "Status": "Open", "Time": "Jul 3, 2024 14:34:57 +0500", "FK_Users": "1, 43, 78"})
 
