@@ -20,7 +20,7 @@ once the user model has been agreed upon create the database with the correspond
 
 ## Scrape VSB Concordia
 
-find some libraries and use them to scrape VSB Concordia (python + httpx seems like the best bet so that we can make an asynchronous multithreaded service for maximum speed and efficiency).
+find some libraries and use them to scrape VSB Concordia (python + [httpx](https://www.python-httpx.org) seems like the best bet so that we can make the scraping asynchronous for maximum speed and efficiency).
 
 scrape some initial data just 1 time. once the data has been collected, simply store it in a json file for the time being (e.g. {"Class": "COMP248", "Status": "Open", "Time": "Jul 3, 2024 14:34:57 +0500", "FK_Users": "1, 43, 78"})
 
