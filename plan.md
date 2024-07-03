@@ -22,7 +22,7 @@ the landing page should be the area where the user can sign up to the service by
 
 again, since the site is nonfunctional for now, submitting the form should do something basic like display a 'success!' message to the user.
 
-ci/cd for recruiter points???
+ci/cd for extra points???
 
 ## Database design + storage
 
