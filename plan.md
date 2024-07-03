@@ -8,11 +8,13 @@ the landing page should be the area where the user can sign up to the service by
 
 again, since the site is nonfunctional for now, submitting the form should do something basic like display a 'success!' message to the user.
 
-maybe add ci/cd for recruiter points???
+ci/cd for recruiter points???
 
 ## Database design + storage
 
-design a database and its appropriate relations. should we have just a user table/collection that stores a name, email, or phone? what about a user and class table/collection with a foreign key to the users that have signed up for notifications to that class? that way we can minimize the amount of http requests we have to make to vsb and save time/money, etc.
+design a database and its appropriate relations. choose between sql and mongo (personally leaning towards mongo). should we have just a user table/collection that stores a name, email, or phone? what about a user and class table/collection with a foreign key to the users that have signed up for notifications to that class? that way we can minimize the amount of http requests we have to make to vsb and save time/money, etc.
+
+to discuss further
 
 once the user model has been agreed upon create the database with the corresponding tables/collections. create indexes for faster read performance
 
