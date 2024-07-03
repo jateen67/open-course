@@ -48,13 +48,9 @@ replace the console message with a proper email message
 
 title
 
-## Allow users to be able to cancel their order
+## Allow users to be able to manage/cancel their order
 
-e.g. by texting/emailing something like "STOP"
-
-## Create an area for users to see all their orders
-
-have a place where users can see all their orders/their order history (e.g. a secret link that takes them to a site, etc.). this could also be a place where a user can request to stop getting notifications (e.g. maybe they can click an 'x' that appears next to a specific order to cancel it immediately)
+e.g. by texting/emailing something like "ORDERS" to see/manage all orders or "STOP" to stop receiving notifications
 
 ## Add spam protection
 
