@@ -26,15 +26,15 @@ ci/cd for extra points???
 
 ## Database design + storage
 
-design a database and its appropriate relations. choose between sql and mongo (personally leaning towards mongo). should we have just a user table/collection that stores a name, email, or phone? what about a user and class table/collection with a foreign key to the users that have signed up for notifications to that class? that way we can minimize the amount of http requests we have to make to vsb and save time/money, etc.
+design a database and its appropriate relations. choose between sql and mongo (personally leaning towards mongo). should we have just a user table/collection that stores a name, email, or phone? what about a user and class table/collection with a foreign key to the users that have signed up for notifications to that class? that way we can minimize the amount of http requests we have to make to the target site and save time/money, etc.
 
 to discuss further
 
 once the user model has been agreed upon create the database with the corresponding tables/collections. create indexes for faster read performance
 
-## Scrape VSB Concordia
+## Scrape VSB Concordia (or other site)
 
-find some libraries and use them to scrape VSB Concordia (python + httpx seems like the best bet so that we can make the scraping asynchronous for maximum speed and efficiency).
+find some libraries and use them to scrape the target site (python + httpx seems like the best bet so that we can make the scraping asynchronous for maximum speed and efficiency).
 
 scrape some initial data just 1 time. once the data has been collected, simply store it in a json file for the time being (e.g. {"Class": "COMP248", "Status": "Open", "Time": "Jul 3, 2024 14:34:57 +0500", "FK_Users": "1, 43, 78"})
 
