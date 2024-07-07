@@ -1,41 +1,44 @@
-import time
 import asyncio
 import httpx
+from bs4 import BeautifulSoup
 
 
 async def fetch_httpx():
     urls = [
-        "https://en.wikipedia.org/wiki/Badlands",
-        "https://en.wikipedia.org/wiki/Canyon",
-        "https://en.wikipedia.org/wiki/Cave",
-        "https://en.wikipedia.org/wiki/Cliff",
-        "https://en.wikipedia.org/wiki/Coast",
-        "https://en.wikipedia.org/wiki/Continent",
-        "https://en.wikipedia.org/wiki/Coral_reef",
-        "https://en.wikipedia.org/wiki/Desert",
-        "https://en.wikipedia.org/wiki/Forest",
-        "https://en.wikipedia.org/wiki/Geyser",
-        "https://en.wikipedia.org/wiki/Mountain_range",
-        "https://en.wikipedia.org/wiki/Peninsula",
-        "https://en.wikipedia.org/wiki/Ridge",
-        "https://en.wikipedia.org/wiki/Savanna",
-        "https://en.wikipedia.org/wiki/Shoal",
-        "https://en.wikipedia.org/wiki/Steppe",
-        "https://en.wikipedia.org/wiki/Tundra",
-        "https://en.wikipedia.org/wiki/Valley",
-        "https://en.wikipedia.org/wiki/Volcano",
-        "https://en.wikipedia.org/wiki/Artificial_island",
-        "https://en.wikipedia.org/wiki/Lake",
+        "https://vsb.mcgill.ca/vsb/getclassdata.jsp?term=202409&course_0_0=COMP-204&rq_0_0=null&t=121&e=45&nouser=1&_=1720387283792",
     ]
 
     async with httpx.AsyncClient() as httpx_client:
         req = [httpx_client.get(addr) for addr in urls]
+        res = await asyncio.gather(*req, return_exceptions=True)
 
-        result = await asyncio.gather(*req)
+        for response in res:
+            if isinstance(response, httpx.Response):
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, "xml")
+
+                    errors_tags = soup.find_all("errors")
+                    course_tags = soup.find_all("course")
+                    block_tags = soup.find_all("block")
+
+                    for course_tag in course_tags:
+                        course_number = course_tag.get("key")
+                        course_title = course_tag.get("title")
+
+                    for block_tag in block_tags:
+                        section = block_tag.get("disp")
+                        open_seats = block_tag.get("os")
+                        waitlist_taken = block_tag.get("ws")
+                        waitlist_capacity = block_tag.get("wc")
+                        print(f"Class: {course_number} - {course_title}")
+                        print(f"Section: {section}")
+                        print(f"Open seats: {open_seats}")
+                        print(f"Waitlist: {waitlist_taken}/{waitlist_capacity}")
+
+                else:
+                    print(f"Error {response.status_code}: {response.text}")
+            else:
+                print(f"Request failed with exception: {response}")
 
 
-start = time.time()
 asyncio.run(fetch_httpx())
-end = time.time()
-
-print("Total Consumed Time using HTTPX", end - start)
