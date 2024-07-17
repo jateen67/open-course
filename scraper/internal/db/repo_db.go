@@ -1,23 +1,23 @@
 package db
 
 type UserDB interface {
-	GetUsers() ([]*user, error)
-	GetUser() (*user, error)
-	GetUserByName(name string) ([]*user, error)
-	GetUserByEmail(email string) (*user, error)
-	GetUserByPhone(phone int) (*user, error)
-	CreateUser(name, email string, phone int) error
+	GetUsers() ([]user, error)
+	GetUser(id int) (*user, error)
+	GetUsersByName(name string) ([]user, error)
+	GetUsersByEmail(email string) ([]user, error)
+	GetUsersByPhone(phone int) ([]user, error)
+	CreateUser(name, email string, phone int) (int64, error)
 }
 
 type CourseDB interface {
-	GetCourses() ([]*course, error)
-	GetCourse() (*course, error)
+	GetCourses() ([]course, error)
+	GetCourse(int) (*course, error)
 	GetCourseByCourseCode(courseCode string) (*course, error)
-	GetCoursesBySemester(semester string) ([]*course, error)
-	GetCoursesBySection(section string) ([]*course, error)
-	GetOpenCourses() ([]*course, error)
-	CreateCourse(courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) error
-	UpdateCourse(id, courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) error
+	GetCoursesBySemester(semester string) ([]course, error)
+	GetCoursesBySection(section string) ([]course, error)
+	GetOpenCourses() ([]course, error)
+	CreateCourse(courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) (int64, error)
+	UpdateCourse(id int, courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) error
 }
 
 type OrderDB interface {

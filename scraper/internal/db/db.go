@@ -43,8 +43,8 @@ func CreateTables(db *sql.DB) error {
         CREATE TABLE IF NOT EXISTS tbl_Users (
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-			phone INT UNIQUE NOT NULL,
+            email TEXT NOT NULL,
+			phone INT NOT NULL,
 			created_at TIMESTAMPTZ DEFAULT NOW()
         )
 
@@ -87,42 +87,6 @@ func CreateTables(db *sql.DB) error {
 	return err
 }
 
-func GetUsers(db *sql.DB) (*sql.Rows, error) {
-	query := "SELECT * FROM tbl_Users"
-	res, err := db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func GetUser(db *sql.DB, userID int) (*sql.Rows, error) {
-	query := "SELECT * FROM tbl_Users where id = $1"
-	res, err := db.Query(query, userID)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func GetUserByName(db *sql.DB, name string) (*sql.Rows, error) {
-	query := "SELECT TOP(1) * FROM tbl_Users WHERE name = $1"
-	res, err := db.Query(query, name)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func GetUserByEmail(db *sql.DB, email string) (*sql.Rows, error) {
-	query := "SELECT TOP(1) * FROM tbl_Users WHERE email = $1"
-	res, err := db.Query(query, email)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
 func UserExists(db *sql.DB, email string) (bool, error) {
 	query := "SELECT COUNT(*) FROM tbl_Users WHERE email= $1"
 	var count int
@@ -133,105 +97,9 @@ func UserExists(db *sql.DB, email string) (bool, error) {
 	return count > 0, nil
 }
 
-func GetUserByPhone(db *sql.DB, phone string) (*sql.Rows, error) {
-	query := "SELECT TOP(1) * FROM tbl_Users WHERE phone = $1"
-	res, err := db.Query(query, phone)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func CreateUser(db *sql.DB, name, email string, phone int) error {
+func CreateDefaultUser(db *sql.DB, name, email string, phone int) error {
 	query := "INSERT INTO tbl_Users (name, email, phone, created_at) VALUES ($1, $2, $3, $4)"
 	_, err := db.Exec(query, name, email, phone, time.Now())
-	return err
-}
-
-func GetCourses(db *sql.DB) (*sql.Rows, error) {
-	query := "SELECT * FROM tbl_Courses"
-	res, err := db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func GetCourse(db *sql.DB, courseID int) (*sql.Rows, error) {
-	query := "SELECT * FROM tbl_Courses where id = $1"
-	res, err := db.Query(query, courseID)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func GetCourseByCourseCode(db *sql.DB, courseCode string) (*sql.Rows, error) {
-	query := "SELECT * FROM tbl_Users WHERE course_code = $1"
-	res, err := db.Query(query, courseCode)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func GetCoursesBySemester(db *sql.DB, semester string) (*sql.Rows, error) {
-	query := "SELECT * FROM tbl_Users WHERE semester = $1"
-	res, err := db.Query(query, semester)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func GetCoursesBySection(db *sql.DB, section string) (*sql.Rows, error) {
-	query := "SELECT * FROM tbl_Users WHERE section = $1"
-	res, err := db.Query(query, section)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func GetOpenCourses(db *sql.DB) (*sql.Rows, error) {
-	query := "SELECT * FROM tbl_Users WHERE open_seats > 0"
-	res, err := db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func CreateCourse(db *sql.DB, courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) error {
-	query := `INSERT INTO tbl_Courses (
-	course_code,
-	course_title,
-	semester,
-	credits,
-	section,
-	open_seats,
-	waitlist_available,
-	waitlist_capacity,
-	created_at,
-	updated_at
-	) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
-	_, err := db.Exec(query, courseCode, courseTitle, semester, credits, section, openSeats, wa, wc, time.Now(), time.Now())
-	return err
-}
-
-func UpdateCourse(db *sql.DB, id, courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) error {
-	query := `UPDATE tbl_Courses SET 
-	course_code = $2,
-	course_title = $3,
-	semester = $4,
-	credits = $5,
-	section = $6,
-	open_seats = $7,
-	waitlist_available = $8,
-	waitlist_capacity = $9,
-	updated_at = $10
-	WHERE id = $1`
-	_, err := db.Exec(query, id, courseCode, courseTitle, semester, credits, section, openSeats, wa, wc, time.Now())
 	return err
 }
 

@@ -7,13 +7,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/jateen67/scraper/db"
+	"github.com/jateen67/scraper/internal/db"
 )
 
 const port = "80"
 
 func main() {
-	// start postgres
 	database, err := db.ConnectToDB()
 	if err != nil {
 		log.Fatalf("could not connect to postgres: %v", err)
@@ -35,7 +34,7 @@ func main() {
 	}
 
 	if !userExists {
-		err = db.CreateUser(database, "john", "johndoe@test.com", 6789998212)
+		err = db.CreateDefaultUser(database, "john", "johndoe@test.com", 6789998212)
 		if err != nil {
 			log.Fatalf("error inserting user: %v", err)
 		}
@@ -44,16 +43,19 @@ func main() {
 		log.Println("user already inserted")
 	}
 
-	userDB := db.NewDBImpl(database)
-	// start auth server
-	srv := newServer(userDB).Router
-	log.Println("starting authentication server...")
+	userDB := db.NewUserDBImpl(database)
+	courseDB := db.NewCourseDBImpl(database)
+	orderDB := db.NewOrderDBImpl(database)
+	notificationDB := db.NewNotificationDBImpl(database)
+	notificationTypeDB := db.NewNotificationTypeDBImpl(database)
+	srv := newServer(userDB, courseDB, orderDB, notificationDB, notificationTypeDB).Router
+	log.Println("starting scraper server...")
 	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
 
 	if errors.Is(err, http.ErrServerClosed) {
-		log.Println("auth server closed")
+		log.Println("scraper server closed")
 	} else if err != nil {
-		log.Println("error starting auth server:", err)
+		log.Println("error starting scraper server: ", err)
 		os.Exit(1)
 	}
 }
