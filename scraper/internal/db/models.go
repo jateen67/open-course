@@ -2,14 +2,6 @@ package db
 
 import "time"
 
-type user struct {
-	ID        int       `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Phone     int       `json:"phone"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 type course struct {
 	ID                int       `json:"id"`
 	CourseCode        string    `json:"course_code"`
@@ -26,7 +18,9 @@ type course struct {
 
 type order struct {
 	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Phone     int       `json:"phone"`
 	CourseID  int       `json:"course_id"`
 	IsActive  bool      `json:"is_active"`
 	CreatedAt time.Time `json:"created_at"`

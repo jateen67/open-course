@@ -8,14 +8,13 @@ import (
 
 type server struct {
 	Router             chi.Router
-	UserDB             db.UserDB
 	CourseDB           db.CourseDB
 	OrderDB            db.OrderDB
 	NotificationDB     db.NotificationDB
 	NotificationTypeDB db.NotificationTypeDB
 }
 
-func newServer(userDB db.UserDB,
+func newServer(
 	courseDB db.CourseDB,
 	orderDB db.OrderDB,
 	notificationDB db.NotificationDB,
@@ -31,7 +30,6 @@ func newServer(userDB db.UserDB,
 
 	s := &server{
 		Router:             r,
-		UserDB:             userDB,
 		CourseDB:           courseDB,
 		OrderDB:            orderDB,
 		NotificationDB:     notificationDB,

@@ -6,14 +6,15 @@ import (
 	"net/http"
 )
 
-type userPayload struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Phone int    `json:"phone"`
+type orderPayload struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Phone    int    `json:"phone"`
+	CourseID int    `json:"course_id"`
 }
 
 func (s *server) signup(w http.ResponseWriter, r *http.Request) {
-	var reqPayload userPayload
+	var reqPayload orderPayload
 
 	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {
@@ -21,7 +22,7 @@ func (s *server) signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := s.UserDB.CreateUser(reqPayload.Name, reqPayload.Email, reqPayload.Phone)
+	id, err := s.OrderDB.CreateOrder(reqPayload.Name, reqPayload.Email, reqPayload.Phone, reqPayload.CourseID)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return

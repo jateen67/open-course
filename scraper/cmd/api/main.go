@@ -43,12 +43,11 @@ func main() {
 		log.Println("user already inserted")
 	}
 
-	userDB := db.NewUserDBImpl(database)
 	courseDB := db.NewCourseDBImpl(database)
 	orderDB := db.NewOrderDBImpl(database)
 	notificationDB := db.NewNotificationDBImpl(database)
 	notificationTypeDB := db.NewNotificationTypeDBImpl(database)
-	srv := newServer(userDB, courseDB, orderDB, notificationDB, notificationTypeDB).Router
+	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB).Router
 	log.Println("starting scraper server...")
 	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
 

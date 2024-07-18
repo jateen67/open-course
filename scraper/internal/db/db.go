@@ -40,14 +40,6 @@ func ConnectToDB() (*sql.DB, error) {
 
 func CreateTables(db *sql.DB) error {
 	query := `
-        CREATE TABLE IF NOT EXISTS tbl_Users (
-            id SERIAL PRIMARY KEY,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-			phone INT NOT NULL,
-			created_at TIMESTAMPTZ DEFAULT NOW()
-        )
-
 		CREATE TABLE IF NOT EXISTS tbl_Courses (
             id SERIAL PRIMARY KEY,
             course_code VARCHAR(10) NOT NULL,
@@ -64,8 +56,10 @@ func CreateTables(db *sql.DB) error {
 
 		CREATE TABLE IF NOT EXISTS tbl_Orders (
             id SERIAL PRIMARY KEY,
-            user_id INT REFERENCES tbl_Users (id),
-            course_id INT REFERENCES tbl_Courses (id),
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+			phone INT NOT NULL,
+			course_id INT REFERENCES tbl_Courses (id),
 			is_active BIT NOT NULL,
 			created_at TIMESTAMPTZ DEFAULT NOW()
 			updated_at TIMESTAMPTZ DEFAULT NOW()

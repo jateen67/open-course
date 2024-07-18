@@ -2,47 +2,228 @@ package db
 
 import (
 	"database/sql"
+	"time"
 )
 
 type OrderDBImpl struct {
 	DB *sql.DB
 }
 
-// CreateOrder implements OrderDB.
-func (o *OrderDBImpl) CreateOrder(userID int, courseID int) error {
-	panic("unimplemented")
-}
-
-// GetActiveOrders implements OrderDB.
-func (o *OrderDBImpl) GetActiveOrders() ([]*order, error) {
-	panic("unimplemented")
-}
-
-// GetOrder implements OrderDB.
-func (o *OrderDBImpl) GetOrder() (*order, error) {
-	panic("unimplemented")
-}
-
-// GetOrders implements OrderDB.
-func (o *OrderDBImpl) GetOrders() ([]*order, error) {
-	panic("unimplemented")
-}
-
-// GetOrdersByCourseID implements OrderDB.
-func (o *OrderDBImpl) GetOrdersByCourseID(courseID int) ([]*order, error) {
-	panic("unimplemented")
-}
-
-// GetOrdersByUserID implements OrderDB.
-func (o *OrderDBImpl) GetOrdersByUserID(userID int) (*order, error) {
-	panic("unimplemented")
-}
-
-// UpdateOrder implements OrderDB.
-func (o *OrderDBImpl) UpdateOrder(id int, userID int, courseID int) error {
-	panic("unimplemented")
-}
-
 func NewOrderDBImpl(db *sql.DB) *OrderDBImpl {
 	return &OrderDBImpl{DB: db}
+}
+
+func (d *OrderDBImpl) GetOrders() ([]order, error) {
+	query := "SELECT * FROM tbl_Orders"
+	rows, err := d.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []order
+
+	for rows.Next() {
+		var order order
+		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
+			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
+			&order.UpdatedAt); err != nil {
+			return orders, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err = rows.Err(); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (d *OrderDBImpl) GetOrder(orderID int) (*order, error) {
+	query := "SELECT * FROM tbl_Orders where id = $1"
+	var order order
+	if err := d.DB.QueryRow(query, orderID).Scan(&order); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, err
+	}
+
+	return &order, nil
+}
+
+func (d *OrderDBImpl) GetOrdersByUserEmail(email string) ([]order, error) {
+	query := "SELECT * FROM tbl_Orders WHERE email = $1"
+	rows, err := d.DB.Query(query, email)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []order
+
+	for rows.Next() {
+		var order order
+		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
+			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
+			&order.UpdatedAt); err != nil {
+			return orders, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err = rows.Err(); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (d *OrderDBImpl) GetOrdersByUserName(name string) ([]order, error) {
+	query := "SELECT * FROM tbl_Orders WHERE name = $1"
+	rows, err := d.DB.Query(query, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []order
+
+	for rows.Next() {
+		var order order
+		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
+			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
+			&order.UpdatedAt); err != nil {
+			return orders, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err = rows.Err(); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (d *OrderDBImpl) GetOrdersByUserPhone(phone int) ([]order, error) {
+	query := "SELECT * FROM tbl_Orders WHERE phone = $1"
+	rows, err := d.DB.Query(query, phone)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []order
+
+	for rows.Next() {
+		var order order
+		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
+			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
+			&order.UpdatedAt); err != nil {
+			return orders, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err = rows.Err(); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (d *OrderDBImpl) GetActiveOrders() ([]order, error) {
+	query := "SELECT * FROM tbl_Orders WHERE is_active = 1"
+	rows, err := d.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []order
+
+	for rows.Next() {
+		var order order
+		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
+			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
+			&order.UpdatedAt); err != nil {
+			return orders, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err = rows.Err(); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (d *OrderDBImpl) GetOrdersByCourseID(courseID int) ([]order, error) {
+	query := "SELECT * FROM tbl_Orders WHERE course_id = $1"
+	rows, err := d.DB.Query(query, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []order
+
+	for rows.Next() {
+		var order order
+		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
+			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
+			&order.UpdatedAt); err != nil {
+			return orders, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err = rows.Err(); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (d *OrderDBImpl) CreateOrder(name, email string, phone, courseID int) (int64, error) {
+	query := `INSERT INTO tbl_Orders (
+		name,
+		email,
+		phone,
+		course_id,
+		is_active,
+		created_at,
+		updated_at
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+	res, err := d.DB.Exec(query, name, email, phone, courseID, 1, time.Now(), time.Now())
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (d *OrderDBImpl) UpdateOrder(id int, name, email string, phone int, courseID int, isActive bool) error {
+	query := `UPDATE tbl_Orders SET 
+		name = $2,
+		email = $3,
+		phone = $4,
+		course_id = $5,
+		is_active = $6,
+		updated_at = $7
+		WHERE id = $1`
+	_, err := d.DB.Exec(query, id, name, email, phone, courseID, isActive, time.Now())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
