@@ -11,6 +11,7 @@ the order service is the way the user creates an order (adds a new course in tbl
 ### backend:
 
 note: must install [make](https://www.gnu.org/software/make/) to use the shortcut to start the backend service
+if you dont have make installed just manually type the commands in said makefile
 
 most important commands:
 `make up_build` to build and start all backend docker containers

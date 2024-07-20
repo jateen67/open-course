@@ -28,8 +28,6 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// add course to tbl_Courses
-
 	id, err := s.OrderDB.CreateOrder(reqPayload.Name, reqPayload.Email, reqPayload.Phone, reqPayload.CourseID)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
