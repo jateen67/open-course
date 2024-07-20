@@ -60,7 +60,7 @@ func CreateTables(db *sql.DB) error {
             email TEXT NOT NULL,
 			phone TEXT NOT NULL,
 			course_id INT REFERENCES tbl_Courses (id),
-			is_active BIT NOT NULL,
+			is_active BOOLEAN NOT NULL,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
         );

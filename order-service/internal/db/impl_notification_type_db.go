@@ -12,7 +12,7 @@ func NewNotificationTypeDBImpl(db *sql.DB) *NotificationTypeDBImpl {
 	return &NotificationTypeDBImpl{DB: db}
 }
 
-func (d *NotificationTypeDBImpl) GetNotificationTypes() ([]notificationType, error) {
+func (d *NotificationTypeDBImpl) GetNotificationTypes() ([]NotificationType, error) {
 	query := "SELECT * FROM tbl_Notification_Types"
 	rows, err := d.DB.Query(query)
 	if err != nil {
@@ -20,10 +20,10 @@ func (d *NotificationTypeDBImpl) GetNotificationTypes() ([]notificationType, err
 	}
 	defer rows.Close()
 
-	var notificationTypes []notificationType
+	var notificationTypes []NotificationType
 
 	for rows.Next() {
-		var notificationType notificationType
+		var notificationType NotificationType
 		if err := rows.Scan(&notificationType.ID, &notificationType.Type); err != nil {
 			return notificationTypes, err
 		}

@@ -13,7 +13,7 @@ func NewNotificationDBImpl(db *sql.DB) *NotificationDBImpl {
 	return &NotificationDBImpl{DB: db}
 }
 
-func (d *NotificationDBImpl) GetNotifications() ([]notification, error) {
+func (d *NotificationDBImpl) GetNotifications() ([]Notification, error) {
 	query := "SELECT * FROM tbl_Notifications"
 	rows, err := d.DB.Query(query)
 	if err != nil {
@@ -21,10 +21,10 @@ func (d *NotificationDBImpl) GetNotifications() ([]notification, error) {
 	}
 	defer rows.Close()
 
-	var notifications []notification
+	var notifications []Notification
 
 	for rows.Next() {
-		var notification notification
+		var notification Notification
 		if err := rows.Scan(&notification.ID, &notification.OrderID, &notification.NotificationTypeID,
 			&notification.TimeSent); err != nil {
 			return notifications, err
@@ -39,9 +39,9 @@ func (d *NotificationDBImpl) GetNotifications() ([]notification, error) {
 	return notifications, nil
 }
 
-func (d *NotificationDBImpl) GetNotification(notificationID int) (*notification, error) {
+func (d *NotificationDBImpl) GetNotification(notificationID int) (*Notification, error) {
 	query := "SELECT * FROM tbl_Notifications WHERE id = $1"
-	var notification notification
+	var notification Notification
 	if err := d.DB.QueryRow(query, notificationID).Scan(&notification); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
@@ -52,7 +52,7 @@ func (d *NotificationDBImpl) GetNotification(notificationID int) (*notification,
 	return &notification, nil
 }
 
-func (d *NotificationDBImpl) GetNotificationsByNotificationTypeID(notificationTypeID int) ([]notification, error) {
+func (d *NotificationDBImpl) GetNotificationsByNotificationTypeID(notificationTypeID int) ([]Notification, error) {
 	query := "SELECT * FROM tbl_Notifications WHERE notification_type_id = $1"
 	rows, err := d.DB.Query(query, notificationTypeID)
 	if err != nil {
@@ -60,10 +60,10 @@ func (d *NotificationDBImpl) GetNotificationsByNotificationTypeID(notificationTy
 	}
 	defer rows.Close()
 
-	var notifications []notification
+	var notifications []Notification
 
 	for rows.Next() {
-		var notification notification
+		var notification Notification
 		if err := rows.Scan(&notification.ID, &notification.OrderID, &notification.NotificationTypeID,
 			&notification.TimeSent); err != nil {
 			return notifications, err
@@ -78,7 +78,7 @@ func (d *NotificationDBImpl) GetNotificationsByNotificationTypeID(notificationTy
 	return notifications, nil
 }
 
-func (d *NotificationDBImpl) GetNotificationsByOrderID(orderID int) ([]notification, error) {
+func (d *NotificationDBImpl) GetNotificationsByOrderID(orderID int) ([]Notification, error) {
 	query := "SELECT * FROM tbl_Notifications WHERE order_id = $1"
 	rows, err := d.DB.Query(query, orderID)
 	if err != nil {
@@ -86,10 +86,10 @@ func (d *NotificationDBImpl) GetNotificationsByOrderID(orderID int) ([]notificat
 	}
 	defer rows.Close()
 
-	var notifications []notification
+	var notifications []Notification
 
 	for rows.Next() {
-		var notification notification
+		var notification Notification
 		if err := rows.Scan(&notification.ID, &notification.OrderID, &notification.NotificationTypeID,
 			&notification.TimeSent); err != nil {
 			return notifications, err

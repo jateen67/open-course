@@ -1,6 +1,7 @@
 package main
 
 func (s *server) routes() {
-	s.Router.Post("/", s.createOrder)
-	s.Router.Put("/", s.editOrder)
+	s.Router.Get("/courses", s.getAllCourses)
+	s.Router.Post("/orders", s.createOrder)
+	s.Router.Put("/orders", s.editOrder)
 }

@@ -1,8 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { faker } from "@faker-js/faker";
 
 export default function Test() {
-  const [sent, setSent] = useState<string>("Nothing sent yet...");
-  const [received, setReceived] = useState<string>("Nothing received yet...");
+  const [sent, setSent] = useState<string>("nothing sent yet...");
+  const [received, setReceived] = useState<string>("nothing received yet...");
+  const [numCourses, setNumCourses] = useState<number>(0);
+
+  useEffect(() => {
+    getAllCourses();
+  }, []);
+
+  const getAllCourses = async () => {
+    const response = await fetch("http://localhost:8081/courses");
+    const data = await response.json();
+    setNumCourses(data.length);
+  };
 
   const makeRequest = async (url: string, payload: object, method: string) => {
     const headers = new Headers();
@@ -22,33 +34,33 @@ export default function Test() {
 
   const OrderCreation = async () => {
     const payload = {
-      name: "jateen",
-      email: "kalsijatin67@icloud.com",
-      phone: "4389893868",
-      course_id: 1,
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      phone: faker.phone.number(),
+      course_id: Math.floor(Math.random() * numCourses) + 1,
     };
 
-    await makeRequest("http://localhost:8081/", payload, "POST");
+    await makeRequest("http://localhost:8081/orders", payload, "POST");
   };
 
   const twilioOrderEnable = async () => {
     const payload = {
-      phone: "6789998212",
-      course_id: 1,
-      is_active: 1,
+      phone: "",
+      course_id: -1,
+      is_active: true,
     };
 
-    await makeRequest("http://localhost:8081/", payload, "PUT");
+    await makeRequest("http://localhost:8081/orders", payload, "PUT");
   };
 
   const twilioOrderDisable = async () => {
     const payload = {
-      phone: "6789998212",
-      course_id: 1,
-      is_active: 0,
+      phone: "",
+      course_id: -1,
+      is_active: false,
     };
 
-    await makeRequest("http://localhost:8081/", payload, "PUT");
+    await makeRequest("http://localhost:8081/orders", payload, "PUT");
   };
 
   return (
@@ -62,6 +74,9 @@ export default function Test() {
           <a onClick={twilioOrderEnable}>test twilio order enable</a>
           <br></br>
           <a onClick={twilioOrderDisable}>test twilio order disable</a>
+          <br></br>
+          <a onClick={getAllCourses}>test get all courses</a>
+          <br></br>
         </div>
       </div>
       <div>

@@ -13,7 +13,7 @@ func NewCourseDBImpl(db *sql.DB) *CourseDBImpl {
 	return &CourseDBImpl{DB: db}
 }
 
-func (d *CourseDBImpl) GetCourses() ([]course, error) {
+func (d *CourseDBImpl) GetCourses() ([]Course, error) {
 	query := "SELECT * FROM tbl_Courses"
 	rows, err := d.DB.Query(query)
 	if err != nil {
@@ -21,10 +21,10 @@ func (d *CourseDBImpl) GetCourses() ([]course, error) {
 	}
 	defer rows.Close()
 
-	var courses []course
+	var courses []Course
 
 	for rows.Next() {
-		var course course
+		var course Course
 		if err := rows.Scan(&course.ID, &course.CourseCode, &course.CourseTitle,
 			&course.Semester, &course.Credits, &course.Section, &course.OpenSeats,
 			&course.WaitlistAvailable, &course.WaitlistCapacity, &course.CreatedAt,
@@ -41,9 +41,9 @@ func (d *CourseDBImpl) GetCourses() ([]course, error) {
 	return courses, nil
 }
 
-func (d *CourseDBImpl) GetCourse(courseID int) (*course, error) {
+func (d *CourseDBImpl) GetCourse(courseID int) (*Course, error) {
 	query := "SELECT * FROM tbl_Courses where id = $1"
-	var course course
+	var course Course
 	if err := d.DB.QueryRow(query, courseID).Scan(&course); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
@@ -54,9 +54,9 @@ func (d *CourseDBImpl) GetCourse(courseID int) (*course, error) {
 	return &course, nil
 }
 
-func (d *CourseDBImpl) GetCourseByCourseCode(courseCode string) (*course, error) {
+func (d *CourseDBImpl) GetCourseByCourseCode(courseCode string) (*Course, error) {
 	query := "SELECT * FROM tbl_Courses WHERE course_code = $1"
-	var course course
+	var course Course
 	if err := d.DB.QueryRow(query, courseCode).Scan(&course); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
@@ -67,7 +67,7 @@ func (d *CourseDBImpl) GetCourseByCourseCode(courseCode string) (*course, error)
 	return &course, nil
 }
 
-func (d *CourseDBImpl) GetCoursesBySemester(semester string) ([]course, error) {
+func (d *CourseDBImpl) GetCoursesBySemester(semester string) ([]Course, error) {
 	query := "SELECT * FROM tbl_Courses WHERE semester = $1"
 	rows, err := d.DB.Query(query, semester)
 	if err != nil {
@@ -75,10 +75,10 @@ func (d *CourseDBImpl) GetCoursesBySemester(semester string) ([]course, error) {
 	}
 	defer rows.Close()
 
-	var courses []course
+	var courses []Course
 
 	for rows.Next() {
-		var course course
+		var course Course
 		if err := rows.Scan(&course.ID, &course.CourseCode, &course.CourseTitle,
 			&course.Semester, &course.Credits, &course.Section, &course.OpenSeats,
 			&course.WaitlistAvailable, &course.WaitlistCapacity, &course.CreatedAt,
@@ -95,7 +95,7 @@ func (d *CourseDBImpl) GetCoursesBySemester(semester string) ([]course, error) {
 	return courses, nil
 }
 
-func (d *CourseDBImpl) GetCoursesBySection(section string) ([]course, error) {
+func (d *CourseDBImpl) GetCoursesBySection(section string) ([]Course, error) {
 	query := "SELECT * FROM tbl_Courses WHERE section = $1"
 	rows, err := d.DB.Query(query, section)
 	if err != nil {
@@ -103,10 +103,10 @@ func (d *CourseDBImpl) GetCoursesBySection(section string) ([]course, error) {
 	}
 	defer rows.Close()
 
-	var courses []course
+	var courses []Course
 
 	for rows.Next() {
-		var course course
+		var course Course
 		if err := rows.Scan(&course.ID, &course.CourseCode, &course.CourseTitle,
 			&course.Semester, &course.Credits, &course.Section, &course.OpenSeats,
 			&course.WaitlistAvailable, &course.WaitlistCapacity, &course.CreatedAt,
@@ -123,7 +123,7 @@ func (d *CourseDBImpl) GetCoursesBySection(section string) ([]course, error) {
 	return courses, nil
 }
 
-func (d *CourseDBImpl) GetOpenCourses() ([]course, error) {
+func (d *CourseDBImpl) GetOpenCourses() ([]Course, error) {
 	query := "SELECT * FROM tbl_Courses WHERE open_seats > 0"
 	rows, err := d.DB.Query(query)
 	if err != nil {
@@ -131,10 +131,10 @@ func (d *CourseDBImpl) GetOpenCourses() ([]course, error) {
 	}
 	defer rows.Close()
 
-	var courses []course
+	var courses []Course
 
 	for rows.Next() {
-		var course course
+		var course Course
 		if err := rows.Scan(&course.ID, &course.CourseCode, &course.CourseTitle,
 			&course.Semester, &course.Credits, &course.Section, &course.OpenSeats,
 			&course.WaitlistAvailable, &course.WaitlistCapacity, &course.CreatedAt,

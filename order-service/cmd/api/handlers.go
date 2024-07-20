@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,7 +17,7 @@ type orderCreationPayload struct {
 type orderEditPayload struct {
 	Phone    string `json:"phone"`
 	CourseID int    `json:"course_id"`
-	IsActive bool   `json:"is_empty"`
+	IsActive bool   `json:"is_active"`
 }
 
 func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
@@ -75,4 +76,14 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("order service: successful update")
+}
+
+func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
+	courses, err := s.CourseDB.GetCourses()
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(courses)
 }

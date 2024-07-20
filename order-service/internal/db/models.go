@@ -2,7 +2,7 @@ package db
 
 import "time"
 
-type course struct {
+type Course struct {
 	ID                int       `json:"id"`
 	CourseCode        string    `json:"course_code"`
 	CourseTitle       string    `json:"course_title"`
@@ -16,7 +16,7 @@ type course struct {
 	UpdatedAt         time.Time `json:"updated_at"`
 }
 
-type order struct {
+type Order struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
@@ -27,14 +27,14 @@ type order struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type notification struct {
+type Notification struct {
 	ID                 int       `json:"id"`
 	OrderID            int       `json:"order_id"`
 	NotificationTypeID int       `json:"notification_type_id"`
 	TimeSent           time.Time `json:"time_sent"`
 }
 
-type notificationType struct {
+type NotificationType struct {
 	ID   int    `json:"id"`
 	Type string `json:"type"`
 }

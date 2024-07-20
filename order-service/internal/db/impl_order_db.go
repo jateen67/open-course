@@ -13,7 +13,7 @@ func NewOrderDBImpl(db *sql.DB) *OrderDBImpl {
 	return &OrderDBImpl{DB: db}
 }
 
-func (d *OrderDBImpl) GetOrders() ([]order, error) {
+func (d *OrderDBImpl) GetOrders() ([]Order, error) {
 	query := "SELECT * FROM tbl_Orders"
 	rows, err := d.DB.Query(query)
 	if err != nil {
@@ -21,10 +21,10 @@ func (d *OrderDBImpl) GetOrders() ([]order, error) {
 	}
 	defer rows.Close()
 
-	var orders []order
+	var orders []Order
 
 	for rows.Next() {
-		var order order
+		var order Order
 		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
@@ -40,9 +40,9 @@ func (d *OrderDBImpl) GetOrders() ([]order, error) {
 	return orders, nil
 }
 
-func (d *OrderDBImpl) GetOrder(orderID int) (*order, error) {
+func (d *OrderDBImpl) GetOrder(orderID int) (*Order, error) {
 	query := "SELECT * FROM tbl_Orders where id = $1"
-	var order order
+	var order Order
 	if err := d.DB.QueryRow(query, orderID).Scan(&order); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
@@ -53,7 +53,7 @@ func (d *OrderDBImpl) GetOrder(orderID int) (*order, error) {
 	return &order, nil
 }
 
-func (d *OrderDBImpl) GetOrdersByUserEmail(email string) ([]order, error) {
+func (d *OrderDBImpl) GetOrdersByUserEmail(email string) ([]Order, error) {
 	query := "SELECT * FROM tbl_Orders WHERE email = $1"
 	rows, err := d.DB.Query(query, email)
 	if err != nil {
@@ -61,10 +61,10 @@ func (d *OrderDBImpl) GetOrdersByUserEmail(email string) ([]order, error) {
 	}
 	defer rows.Close()
 
-	var orders []order
+	var orders []Order
 
 	for rows.Next() {
-		var order order
+		var order Order
 		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
@@ -80,7 +80,7 @@ func (d *OrderDBImpl) GetOrdersByUserEmail(email string) ([]order, error) {
 	return orders, nil
 }
 
-func (d *OrderDBImpl) GetOrdersByUserName(name string) ([]order, error) {
+func (d *OrderDBImpl) GetOrdersByUserName(name string) ([]Order, error) {
 	query := "SELECT * FROM tbl_Orders WHERE name = $1"
 	rows, err := d.DB.Query(query, name)
 	if err != nil {
@@ -88,10 +88,10 @@ func (d *OrderDBImpl) GetOrdersByUserName(name string) ([]order, error) {
 	}
 	defer rows.Close()
 
-	var orders []order
+	var orders []Order
 
 	for rows.Next() {
-		var order order
+		var order Order
 		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
@@ -107,7 +107,7 @@ func (d *OrderDBImpl) GetOrdersByUserName(name string) ([]order, error) {
 	return orders, nil
 }
 
-func (d *OrderDBImpl) GetOrdersByUserPhone(phone string) ([]order, error) {
+func (d *OrderDBImpl) GetOrdersByUserPhone(phone string) ([]Order, error) {
 	query := "SELECT * FROM tbl_Orders WHERE phone = $1"
 	rows, err := d.DB.Query(query, phone)
 	if err != nil {
@@ -115,10 +115,10 @@ func (d *OrderDBImpl) GetOrdersByUserPhone(phone string) ([]order, error) {
 	}
 	defer rows.Close()
 
-	var orders []order
+	var orders []Order
 
 	for rows.Next() {
-		var order order
+		var order Order
 		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
@@ -134,7 +134,7 @@ func (d *OrderDBImpl) GetOrdersByUserPhone(phone string) ([]order, error) {
 	return orders, nil
 }
 
-func (d *OrderDBImpl) GetActiveOrders() ([]order, error) {
+func (d *OrderDBImpl) GetActiveOrders() ([]Order, error) {
 	query := "SELECT * FROM tbl_Orders WHERE is_active = 1"
 	rows, err := d.DB.Query(query)
 	if err != nil {
@@ -142,10 +142,10 @@ func (d *OrderDBImpl) GetActiveOrders() ([]order, error) {
 	}
 	defer rows.Close()
 
-	var orders []order
+	var orders []Order
 
 	for rows.Next() {
-		var order order
+		var order Order
 		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
@@ -161,7 +161,7 @@ func (d *OrderDBImpl) GetActiveOrders() ([]order, error) {
 	return orders, nil
 }
 
-func (d *OrderDBImpl) GetOrdersByCourseID(courseID int) ([]order, error) {
+func (d *OrderDBImpl) GetOrdersByCourseID(courseID int) ([]Order, error) {
 	query := "SELECT * FROM tbl_Orders WHERE course_id = $1"
 	rows, err := d.DB.Query(query, courseID)
 	if err != nil {
@@ -169,10 +169,10 @@ func (d *OrderDBImpl) GetOrdersByCourseID(courseID int) ([]order, error) {
 	}
 	defer rows.Close()
 
-	var orders []order
+	var orders []Order
 
 	for rows.Next() {
-		var order order
+		var order Order
 		if err := rows.Scan(&order.ID, &order.Name, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
@@ -213,7 +213,7 @@ func (d *OrderDBImpl) UpdateOrder(phone string, courseID int, isActive bool) err
 		course_id = $2,
 		is_active = $3,
 		updated_at = $4
-		WHERE name = phone = $1 AND course_id = $2`
+		WHERE phone = $1 AND course_id = $2`
 	_, err := d.DB.Exec(query, phone, courseID, isActive, time.Now())
 	if err != nil {
 		return err
