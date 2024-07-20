@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  order-service:
+    build:
+      context: order-service
+      dockerfile: order-service.Dockerfile
+    ports:
+      - "8081:80"
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_CONNECTION_STRING: "host=postgres port=5432 user=postgres password=password dbname=order_db sslmode=disable"
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: order_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
