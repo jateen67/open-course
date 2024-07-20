@@ -1,6 +1,6 @@
 ## order service
 
-the order service is the way the user creates an order (adds a new course in tbl_Courses if it doesnt exist and adds a new entry in tbl_Orders)
+the order service is the way the user creates an order (adds a new entry in tbl_Orders for an existing course in tbl_Courses -- in my mind tbl_Courses is filled with every single course offered by a university)
 
 ## how to start the app:
 
