@@ -24,3 +24,8 @@ other:
 `make build_order_service` to build the order-service go executable
 `make clean` to clean all backend go executables
 `make help` to get help with commands (TODO)
+
+## checking the database
+
+i use [beekeeper studio](https://www.beekeeperstudio.io/) since its very light weight and gets the job done but its your preference
+connect using the connection string in the docker-compose file once you start the backend containers
