@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/jateen67/management/internal/db"
+	"github.com/jateen67/order/internal/db"
 )
 
 type server struct {

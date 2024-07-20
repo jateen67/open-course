@@ -1,20 +1,20 @@
 version: '3'
 
 services:
-  management:
+  order:
     build:
-      context: management
-      dockerfile: management.Dockerfile
+      context: order
+      dockerfile: order.Dockerfile
     depends_on:
       - postgres
     environment:
-      POSTGRES_CONNECTION_STRING: "host=postgres port=5432 user=postgres password=password dbname=management_db sslmode=disable"
+      POSTGRES_CONNECTION_STRING: "host=postgres port=5432 user=postgres password=password dbname=order_db sslmode=disable"
   postgres:
     image: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: management_db
+      POSTGRES_DB: order_db
     ports:
       - "5432:5432"
     volumes:

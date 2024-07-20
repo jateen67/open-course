@@ -7,13 +7,13 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o /app/managementExec ./cmd/api
+RUN CGO_ENABLED=0 go build -o /app/orderExec ./cmd/api
 
 FROM alpine:latest
 
 RUN mkdir /app
 WORKDIR /app
 
-COPY --from=builder /app/managementExec .
+COPY --from=builder /app/orderExec .
 
-CMD ["./managementExec"]
+CMD ["./orderExec"]

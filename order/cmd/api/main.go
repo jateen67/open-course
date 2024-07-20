@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/jateen67/management/internal/db"
+	"github.com/jateen67/order/internal/db"
 )
 
 const port = "80"
@@ -78,13 +78,13 @@ func main() {
 	notificationDB := db.NewNotificationDBImpl(database)
 	notificationTypeDB := db.NewNotificationTypeDBImpl(database)
 	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB).Router
-	log.Println("starting management server...")
+	log.Println("starting order server...")
 	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
 
 	if errors.Is(err, http.ErrServerClosed) {
-		log.Println("management server closed")
+		log.Println("order server closed")
 	} else if err != nil {
-		log.Println("error starting management server: ", err)
+		log.Println("error starting order server: ", err)
 		os.Exit(1)
 	}
 }
