@@ -211,16 +211,14 @@ func (d *OrderDBImpl) CreateOrder(name, email, phone string, courseID int) (int6
 	return id, nil
 }
 
-func (d *OrderDBImpl) UpdateOrder(name, email, phone string, courseID int, isActive bool) error {
+func (d *OrderDBImpl) UpdateOrder(phone string, courseID int, isActive bool) error {
 	query := `UPDATE tbl_Orders SET 
-		name = $1,
-		email = $2,
-		phone = $3,
-		course_id = $4,
-		is_active = $5,
-		updated_at = $6
-		WHERE name = $1 AND email = $2 AND phone = $3 AND course_id = $4`
-	_, err := d.DB.Exec(query, name, email, phone, courseID, isActive, time.Now())
+		phone = $1,
+		course_id = $2,
+		is_active = $3,
+		updated_at = $4
+		WHERE name = phone = $1 AND course_id = $2`
+	_, err := d.DB.Exec(query, phone, courseID, isActive, time.Now())
 	if err != nil {
 		return err
 	}

@@ -6,16 +6,21 @@ import (
 	"net/http"
 )
 
-type orderPayload struct {
+type orderCreationPayload struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 	CourseID int    `json:"course_id"`
-	IsActive bool   `json:"is_active"`
 }
 
-func (s *server) signup(w http.ResponseWriter, r *http.Request) {
-	var reqPayload orderPayload
+type orderEditPayload struct {
+	Phone    string `json:"phone"`
+	CourseID int    `json:"course_id"`
+	IsActive bool   `json:"is_empty"`
+}
+
+func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
+	var reqPayload orderCreationPayload
 
 	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {
@@ -44,7 +49,7 @@ func (s *server) signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
-	var reqPayload orderPayload
+	var reqPayload orderEditPayload
 
 	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {
@@ -52,7 +57,7 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.OrderDB.UpdateOrder(reqPayload.Name, reqPayload.Email, reqPayload.Phone, reqPayload.CourseID, reqPayload.IsActive)
+	err = s.OrderDB.UpdateOrder(reqPayload.Phone, reqPayload.CourseID, reqPayload.IsActive)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -60,7 +65,7 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 
 	resPayload := jsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("user %s order for course %d updated successfully", reqPayload.Name, reqPayload.CourseID),
+		Message: fmt.Sprintf("user %s order for course %d updated successfully", reqPayload.Phone, reqPayload.CourseID),
 	}
 
 	err = s.writeJSON(w, resPayload, http.StatusOK)

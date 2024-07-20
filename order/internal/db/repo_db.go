@@ -20,7 +20,7 @@ type OrderDB interface {
 	GetOrdersByCourseID(courseID int) ([]order, error)
 	GetActiveOrders() ([]order, error)
 	CreateOrder(name, email, phone string, courseID int) (int64, error)
-	UpdateOrder(name, email, phone string, courseID int, isActive bool) error
+	UpdateOrder(phone string, courseID int, isActive bool) error
 }
 
 type NotificationDB interface {
