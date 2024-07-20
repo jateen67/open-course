@@ -1,7 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,react,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,react,visualstudiocode
 
-order/orderApp
+order-service/orderExec
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

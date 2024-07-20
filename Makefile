@@ -1,46 +1,46 @@
-ORDER_BINARY=orderApp
+ORDER_SERVICE_BINARY=orderExec
 
 
 # BUILD ORDER SERVICE
-build_order:
-	@echo "building order binary.."
-	cd order && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${ORDER_BINARY} ./cmd/api
-	@echo "order binary built!"
+build_order_service:
+	@echo "building order service binary.."
+	cd order-service && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${ORDER_SERVICE_BINARY} ./cmd/api
+	@echo "order service binary built!"
 
-# START DOCKER CONTAINER
+# START ALL DOCKER CONTAINERS
 up:
 	@echo "starting docker images..."
 	docker-compose up -d
 	@echo "docker images started!"
 
-# STOP DOCKER CONTAINER
+# STOP ALL DOCKER CONTAINERS
 down:
 	@echo "stopping docker images..."
 	docker-compose down
 	@echo "docker images stopped!"
 
 # BUILD AND START ALL DOCKER CONTAINERS
-up_build: build_order
+up_build: build_order_service
 	@echo "stopping running docker images..."
 	docker-compose down
 	@echo "building and starting docker images..."
 	docker-compose up --build -d
 	@echo "docker images built and started!"
 
-# BUILD AND START ONLY ORDER DOCKER CONTAINER
-order: build_order
-	@echo "building order docker image..."
-	- docker-compose stop order
-	- docker-compose rm -f order
-	docker-compose up --build -d order
-	docker-compose start order
-	@echo "order built and started!"
+# BUILD AND START ONLY ORDER SERVICE DOCKER CONTAINER
+order-service: build_order_service
+	@echo "building order-service docker image..."
+	- docker-compose stop order-service
+	- docker-compose rm -f order-service
+	docker-compose up --build -d order-service
+	docker-compose start order-service
+	@echo "order-service built and started!"
 
 # MISC.
 clean:
 	@echo "Cleaning..."
-	@cd order && rm -f ${ORDER_BINARY}
-	@cd order && go clean
+	@cd order-service && rm -f ${ORDER_SERVICE_BINARY}
+	@cd order-service && go clean
 	@echo "Cleaned!"
 
 help: Makefile
