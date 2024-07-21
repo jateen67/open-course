@@ -44,7 +44,19 @@ func (d *CourseDBImpl) GetCourses() ([]Course, error) {
 func (d *CourseDBImpl) GetCourse(courseID int) (*Course, error) {
 	query := "SELECT * FROM tbl_Courses where id = $1"
 	var course Course
-	if err := d.DB.QueryRow(query, courseID).Scan(&course); err != nil {
+	if err := d.DB.QueryRow(query, courseID).Scan(
+		&course.ID,
+		&course.CourseCode,
+		&course.CourseTitle,
+		&course.Semester,
+		&course.Section,
+		&course.Credits,
+		&course.OpenSeats,
+		&course.WaitlistAvailable,
+		&course.WaitlistCapacity,
+		&course.CreatedAt,
+		&course.UpdatedAt,
+	); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
 		}

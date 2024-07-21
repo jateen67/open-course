@@ -2,11 +2,19 @@ package event
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
-	"time"
+	"net/http"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
+
+type MailPayload struct {
+	From    string `json:"from"`
+	To      string `json:"to"`
+	Subject string `json:"subject"`
+	Message string `json:"message"`
+}
 
 func Listen(conn *amqp.Connection) error {
 	ch, err := conn.Channel()
@@ -56,16 +64,46 @@ func Listen(conn *amqp.Connection) error {
 	go func() {
 		for d := range msgs {
 			log.Printf("Received a message: %s", d.Body)
-			dotCount := bytes.Count(d.Body, []byte("."))
-			t := time.Duration(dotCount)
-			time.Sleep(t * time.Second)
-			log.Printf("Done")
+			mail := MailPayload{
+				From:    "from@example.com",
+				To:      "to@example.com",
+				Subject: "Class Seat Opened",
+				Message: string(d.Body),
+			}
+			err = sendMail(mail)
+			if err != nil {
+				log.Fatalf("could not send email: %s", err)
+			}
 			d.Ack(false)
 		}
 	}()
 
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	log.Printf(" [*] Waiting for messages")
 	<-forever
+
+	return nil
+}
+
+func sendMail(msg MailPayload) error {
+	jsonData, _ := json.MarshalIndent(msg, "", "\t")
+
+	request, err := http.NewRequest("POST", "http://mailer-service/mail", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusAccepted {
+		return err
+	}
 
 	return nil
 }

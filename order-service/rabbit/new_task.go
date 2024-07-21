@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -12,7 +13,7 @@ type emitter struct {
 	connection *amqp.Connection
 }
 
-func (e *emitter) Push(q *amqp.Queue) error {
+func (e *emitter) Push(q *amqp.Queue, courseCode, courseTitle, semester, section string) error {
 	ch, err := e.connection.Channel()
 	if err != nil {
 		return err
@@ -22,7 +23,7 @@ func (e *emitter) Push(q *amqp.Queue) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	body := "fuzzy pickles"
+	body := fmt.Sprintf("%s - %s (%s) has opened up for %s. Hurry and register!", courseCode, courseTitle, section, semester)
 	err = ch.PublishWithContext(ctx,
 		"",     // exchange
 		q.Name, // routing key
