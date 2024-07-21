@@ -1,5 +1,6 @@
 ORDER_SERVICE_BINARY=orderExec
 SCRAPER_SERVICE_BINARY=scraperExec
+MAILER_SERVICE_BINARY=mailerExec
 
 
 # BUILD ORDER SERVICE
@@ -14,6 +15,12 @@ build_scraper_service:
 	cd scraper-service && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${SCRAPER_SERVICE_BINARY} ./cmd/api
 	@echo "scraper service binary built!"
 
+# BUILD MAILER SERVICE
+build_mailer_service:
+	@echo "building mailer service binary.."
+	cd mailer-service && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${MAILER_SERVICE_BINARY} ./cmd/api
+	@echo "mailer service binary built!"
+
 # START ALL DOCKER CONTAINERS
 up:
 	@echo "starting docker images..."
@@ -27,7 +34,7 @@ down:
 	@echo "docker images stopped!"
 
 # BUILD AND START ALL DOCKER CONTAINERS
-up_build: build_order_service build_scraper_service
+up_build: build_order_service build_scraper_service build_mailer_service
 	@echo "stopping running docker images..."
 	docker-compose down
 	@echo "building and starting docker images..."
@@ -52,6 +59,15 @@ scraper-service: build_scraper_service
 	docker-compose start scraper-service
 	@echo "scraper-service built and started!"
 
+# BUILD AND START ONLY MAILER SERVICE DOCKER CONTAINER
+mailer-service: build_mailer_service
+	@echo "building mailer-service docker image..."
+	- docker-compose stop mailer-service
+	- docker-compose rm -f mailer-service
+	docker-compose up --build -d mailer-service
+	docker-compose start mailer-service
+	@echo "mailer-service built and started!"
+
 # MISC.
 clean:
 	@echo "cleaning..."
@@ -59,6 +75,8 @@ clean:
 	@cd order-service && go clean
 	@cd scraper-service && rm -f ${SCRAPER_SERVICE_BINARY}
 	@cd scraper-service && go clean
+	@cd mailer-service && rm -f ${MAILER_SERVICE_BINARY}
+	@cd mailer-service && go clean
 	@echo "cleaned!"
 
 help: Makefile

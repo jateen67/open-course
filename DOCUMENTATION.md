@@ -1,7 +1,3 @@
-## order service
-
-the order service is the way the user creates an order (adds a new entry in tbl_Orders for an existing course in tbl_Courses -- in my mind tbl_Courses is filled with every single course offered by a university)
-
 ## how to start the app:
 
 ### frontend:
@@ -33,7 +29,17 @@ enter `rake --tasks` to view the rakefile command equivalents
 i use [beekeeper studio](https://www.beekeeperstudio.io/) since its very light weight and gets the job done but its your preference
 connect using the connection string in the docker-compose file once you start the backend containers
 
+## order service
+
+the order service is the way the user creates an order (adds a new entry in tbl_Orders for an existing course in tbl_Courses -- in my mind tbl_Courses is filled with every single course offered by a university)
+
 ## rabbitmq
 
 go to `http://localhost:15672/` and signin using the conn vars in the docker-compose file
 whenever you perform an action (create new order or edit order), a message will be sent from the order-service to a rabbitmq queue which will then be sent to the scraper-service. to check that the message was received successfully, check to see if theres a spike in the graph in the rabbitmq management ui, or go into the logs of the scraper-service docker container to see the success message
+
+## mailer
+
+the email service allows the user to send an email out with [mailhog](https://github.com/mailhog/MailHog). it works by taking in a json payload from the client, converting it into a formatted email, then sending it via smtp.
+
+sent emails can be viewed by accessing the mailhog management ui at `http://localhost:8025/`

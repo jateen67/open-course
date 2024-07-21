@@ -63,6 +63,19 @@ export default function Test() {
     await makeRequest("http://localhost:8081/orders", payload, "PUT");
   };
 
+  const mailerTest = async () => {
+    const payload = {
+      mail: {
+        from: "me@example.com",
+        to: "you@example.com",
+        subject: "Test Email Subject",
+        message: "Hello, world! This is my email",
+      },
+    };
+
+    await makeRequest("http://localhost:8082/mail", payload, "POST");
+  };
+
   return (
     <div>
       <div>
@@ -76,6 +89,8 @@ export default function Test() {
           <a onClick={twilioOrderDisable}>test twilio order disable</a>
           <br></br>
           <a onClick={getAllCourses}>test get all courses</a>
+          <br></br>
+          <a onClick={mailerTest}>test mailer</a>
           <br></br>
         </div>
       </div>

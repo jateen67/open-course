@@ -3,6 +3,7 @@
 
 order-service/orderExec
 scraper-service/scraperExec
+mailer-service/mailerExec
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
