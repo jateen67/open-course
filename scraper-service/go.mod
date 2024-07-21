@@ -1,4 +1,4 @@
-module github.com/jateen67/scraper
+module github.com/jateen67/scraper-service
 
 go 1.20
 
@@ -14,6 +14,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/temoto/robotstxt v1.1.1 // indirect
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect

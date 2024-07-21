@@ -1,14 +1,18 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/jateen67/order-service/internal/db"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const port = "80"
@@ -45,6 +49,61 @@ func main() {
 		log.Println("error starting order service: ", err)
 		os.Exit(1)
 	}
+
+	log.Println("starting rabbitmq server...")
+	conn, err := connectToRabbitMQ()
+	if err != nil {
+		log.Fatalf("could not connect to rabbitmq: %s", err)
+	}
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Fatalf("could not open rabbitmq channel: %s", err)
+	}
+	defer ch.Close()
+
+	q, err := ch.QueueDeclare(
+		"task_queue", // name
+		true,         // durable
+		false,        // delete when unused
+		false,        // exclusive
+		false,        // no-wait
+		nil,          // arguments
+	)
+	if err != nil {
+		log.Fatalf("could not declare queue: %s", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	body := bodyFrom(os.Args)
+	err = ch.PublishWithContext(ctx,
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			DeliveryMode: amqp.Persistent,
+			ContentType:  "text/plain",
+			Body:         []byte(body),
+		})
+	if err != nil {
+		log.Fatalf("could not publish message: %s", err)
+	}
+
+	log.Printf(" [x] Sent %s\n", body)
+}
+
+func bodyFrom(args []string) string {
+	var s string
+	if (len(args) < 2) || os.Args[1] == "" {
+		s = "hello"
+	} else {
+		s = strings.Join(args[1:], " ")
+	}
+	return s
 }
 
 func seed(database *sql.DB) {
@@ -117,5 +176,28 @@ func addOrder(database *sql.DB, name, email, phone string, courseID int) {
 		log.Println("order inserted successfully")
 	} else {
 		log.Println("order already inserted")
+	}
+}
+
+func connectToRabbitMQ() (*amqp.Connection, error) {
+	count := 0
+
+	for {
+		conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672")
+		if err != nil {
+			fmt.Println("rabbitmq not yet ready...")
+			count++
+		} else {
+			log.Println("connected to rabbitmq successfully")
+			return conn, nil
+		}
+
+		if count > 10 {
+			log.Println(err)
+			return nil, err
+		}
+
+		log.Println("retrying in 5 seconds...")
+		time.Sleep(5 * time.Second)
 	}
 }
