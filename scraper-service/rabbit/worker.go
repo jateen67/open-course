@@ -78,7 +78,7 @@ func Listen(conn *amqp.Connection) error {
 		}
 	}()
 
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	log.Printf(" [*] Waiting for messages")
 	<-forever
 
 	return nil

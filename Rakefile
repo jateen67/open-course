@@ -1,5 +1,6 @@
 ORDER_SERVICE_BINARY = "orderExec"
 SCRAPER_SERVICE_BINARY = "scraperExec"
+MAILER_SERVICE_BINARY = "mailerExec"
 
 namespace :build do
   desc "build order service binary"
@@ -18,6 +19,15 @@ namespace :build do
       sh "env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o #{SCRAPER_SERVICE_BINARY} ./cmd/api"
     end
     puts "scraper service binary built!"
+  end
+
+  desc "build mailer service binary"
+  task :mailer_service do
+    puts "building mailer service binary.."
+    Dir.chdir('mailer-service') do
+      sh "env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o #{SCRAPER_SERVICE_BINARY} ./cmd/api"
+    end
+    puts "mailer service binary built!"
   end
 end
 
@@ -64,17 +74,27 @@ namespace :docker do
     sh "docker-compose start scraper-service"
     puts "scraper-service built and started!"
   end
+
+  desc "build and start only mailer service docker container"
+  task :mailer_service => 'build:mailer_service' do
+    puts "building mailer-service docker image..."
+    sh "docker-compose stop mailer-service || true"
+    sh "docker-compose rm -f mailer-service || true"
+    sh "docker-compose up --build -d mailer-service"
+    sh "docker-compose start mailer-service"
+    puts "mailer-service built and started!"
+  end
 end
 
 desc "clean"
 task :clean do
   puts "cleaning..."
-  Dir.chdir('order-service') do
-    sh "rm -f #{ORDER_SERVICE_BINARY}"
-    sh "go clean"
-    sh "rm -f #{SCRAPER_SERVICE_BINARY}"
-    sh "go clean"
-  end
+  sh "rm -f #{ORDER_SERVICE_BINARY}"
+  sh "go clean"
+  sh "rm -f #{SCRAPER_SERVICE_BINARY}"
+  sh "go clean"
+  sh "rm -f #{MAILER_SERVICE_BINARY}"
+  sh "go clean"
   puts "cleaned!"
 end
 
