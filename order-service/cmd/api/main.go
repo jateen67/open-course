@@ -17,38 +17,6 @@ import (
 const port = "80"
 
 func main() {
-	database, err := db.ConnectToDB()
-	if err != nil {
-		log.Fatalf("could not connect to postgres: %v", err)
-	}
-	defer database.Close()
-
-	log.Println("connected to postgres successfully")
-
-	err = db.CreateTables(database)
-	if err != nil {
-		log.Fatalf("could not create tables: %v", err)
-	}
-
-	log.Println("tables created successfully")
-
-	seed(database)
-
-	courseDB := db.NewCourseDBImpl(database)
-	orderDB := db.NewOrderDBImpl(database)
-	notificationDB := db.NewNotificationDBImpl(database)
-	notificationTypeDB := db.NewNotificationTypeDBImpl(database)
-	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB).Router
-	log.Println("starting order service...")
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
-
-	if errors.Is(err, http.ErrServerClosed) {
-		log.Println("order service closed")
-	} else if err != nil {
-		log.Println("error starting order service: ", err)
-		os.Exit(1)
-	}
-
 	log.Println("starting rabbitmq server...")
 	conn, err := connectToRabbitMQ()
 	if err != nil {
@@ -93,6 +61,38 @@ func main() {
 	}
 
 	log.Printf(" [x] Sent %s\n", body)
+
+	database, err := db.ConnectToDB()
+	if err != nil {
+		log.Fatalf("could not connect to postgres: %v", err)
+	}
+	defer database.Close()
+
+	log.Println("connected to postgres successfully")
+
+	err = db.CreateTables(database)
+	if err != nil {
+		log.Fatalf("could not create tables: %v", err)
+	}
+
+	log.Println("tables created successfully")
+
+	seed(database)
+
+	courseDB := db.NewCourseDBImpl(database)
+	orderDB := db.NewOrderDBImpl(database)
+	notificationDB := db.NewNotificationDBImpl(database)
+	notificationTypeDB := db.NewNotificationTypeDBImpl(database)
+	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB).Router
+	log.Println("starting order service...")
+	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
+
+	if errors.Is(err, http.ErrServerClosed) {
+		log.Println("order service closed")
+	} else if err != nil {
+		log.Println("error starting order service: ", err)
+		os.Exit(1)
+	}
 }
 
 func seed(database *sql.DB) {
