@@ -1,10 +1,8 @@
-# Rakefile
-
 ORDER_SERVICE_BINARY = "orderExec"
 SCRAPER_SERVICE_BINARY = "scraperExec"
 
 namespace :build do
-  desc "Build order service binary"
+  desc "build order service binary"
   task :order_service do
     puts "building order service binary.."
     Dir.chdir('order-service') do
@@ -13,7 +11,7 @@ namespace :build do
     puts "order service binary built!"
   end
 
-  desc "Build scraper service binary"
+  desc "build scraper service binary"
   task :scraper_service do
     puts "building scraper service binary.."
     Dir.chdir('scraper-service') do
@@ -24,21 +22,21 @@ namespace :build do
 end
 
 namespace :docker do
-  desc "Start all Docker containers"
+  desc "start all docker containers"
   task :up do
     puts "starting docker images..."
     sh "docker-compose up -d"
     puts "docker images started!"
   end
 
-  desc "Stop all Docker containers"
+  desc "stop all docker containers"
   task :down do
     puts "stopping docker images..."
     sh "docker-compose down"
     puts "docker images stopped!"
   end
 
-  desc "Build and start all Docker containers"
+  desc "build and start all docker containers"
   task :up_build => ['build:order_service', 'build:scraper_service'] do
     puts "stopping running docker images..."
     sh "docker-compose down"
@@ -47,7 +45,7 @@ namespace :docker do
     puts "docker images built and started!"
   end
 
-  desc "Build and start only order service Docker container"
+  desc "build and start only order service docker container"
   task :order_service => 'build:order_service' do
     puts "building order-service docker image..."
     sh "docker-compose stop order-service || true"
@@ -57,7 +55,7 @@ namespace :docker do
     puts "order-service built and started!"
   end
 
-  desc "Build and start only scraper service Docker container"
+  desc "build and start only scraper service docker container"
   task :scraper_service => 'build:scraper_service' do
     puts "building scraper-service docker image..."
     sh "docker-compose stop scraper-service || true"
@@ -68,17 +66,19 @@ namespace :docker do
   end
 end
 
-desc "Clean"
+desc "clean"
 task :clean do
-  puts "Cleaning..."
+  puts "cleaning..."
   Dir.chdir('order-service') do
     sh "rm -f #{ORDER_SERVICE_BINARY}"
     sh "go clean"
+    sh "rm -f #{SCRAPER_SERVICE_BINARY}"
+    sh "go clean"
   end
-  puts "Cleaned!"
+  puts "cleaned!"
 end
 
-desc "Help"
+desc "help"
 task :help do
   puts "TODO: implement help"
 end

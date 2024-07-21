@@ -57,6 +57,8 @@ clean:
 	@echo "Cleaning..."
 	@cd order-service && rm -f ${ORDER_SERVICE_BINARY}
 	@cd order-service && go clean
+	@cd scraper-service && rm -f ${SCRAPER_SERVICE_BINARY}
+	@cd scraper-service && go clean
 	@echo "Cleaned!"
 
 help: Makefile
