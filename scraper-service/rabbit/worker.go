@@ -67,8 +67,8 @@ func Listen(conn *amqp.Connection) error {
 			mail := MailPayload{
 				From:    "from@example.com",
 				To:      "to@example.com",
-				Subject: "class opened",
-				Message: "class is opened go register for it",
+				Subject: "Class Seat Opened",
+				Message: string(d.Body),
 			}
 			err = sendMail(mail)
 			if err != nil {

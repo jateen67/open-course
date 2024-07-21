@@ -44,7 +44,13 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.pushToQueue()
+	course, err := s.CourseDB.GetCourse(reqPayload.CourseID)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	err = s.pushToQueue(course.CourseCode, course.CourseTitle, course.Semester, course.Section)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -79,7 +85,13 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.pushToQueue()
+	course, err := s.CourseDB.GetCourse(reqPayload.CourseID)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	err = s.pushToQueue(course.CourseCode, course.CourseTitle, course.Semester, course.Section)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -109,13 +121,13 @@ func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(courses)
 }
 
-func (s *server) pushToQueue() error {
+func (s *server) pushToQueue(courseCode, courseTitle, semester, section string) error {
 	emitter, q, err := event.NewEventEmitter(s.Rabbit)
 	if err != nil {
 		return err
 	}
 
-	err = emitter.Push(&q)
+	err = emitter.Push(&q, courseCode, courseTitle, semester, section)
 	if err != nil {
 		return err
 	}
