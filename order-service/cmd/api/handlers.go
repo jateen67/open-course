@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	event "github.com/jateen67/order-service/rabbit"
 )
 
 type orderCreationPayload struct {
@@ -30,6 +32,12 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := s.OrderDB.CreateOrder(reqPayload.Name, reqPayload.Email, reqPayload.Phone, reqPayload.CourseID)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	err = s.pushToQueue()
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -64,6 +72,12 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = s.pushToQueue()
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
 	resPayload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("user %s order for course %d updated successfully", reqPayload.Phone, reqPayload.CourseID),
@@ -86,4 +100,18 @@ func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(courses)
+}
+
+func (s *server) pushToQueue() error {
+	emitter, q, err := event.NewEventEmitter(s.Rabbit)
+	if err != nil {
+		return err
+	}
+
+	err = emitter.Push(q)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

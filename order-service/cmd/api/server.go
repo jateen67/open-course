@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/jateen67/order-service/internal/db"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type server struct {
@@ -12,6 +13,7 @@ type server struct {
 	OrderDB            db.OrderDB
 	NotificationDB     db.NotificationDB
 	NotificationTypeDB db.NotificationTypeDB
+	Rabbit             *amqp.Connection
 }
 
 func newServer(

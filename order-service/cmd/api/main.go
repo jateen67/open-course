@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -23,44 +22,6 @@ func main() {
 		log.Fatalf("could not connect to rabbitmq: %s", err)
 	}
 	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		log.Fatalf("could not open rabbitmq channel: %s", err)
-	}
-	defer ch.Close()
-
-	q, err := ch.QueueDeclare(
-		"db_change_queue", // name
-		true,              // durable
-		false,             // delete when unused
-		false,             // exclusive
-		false,             // no-wait
-		nil,               // arguments
-	)
-	if err != nil {
-		log.Fatalf("could not declare queue: %s", err)
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	body := "fuzzy pickles"
-	err = ch.PublishWithContext(ctx,
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			DeliveryMode: amqp.Persistent,
-			ContentType:  "text/plain",
-			Body:         []byte(body),
-		})
-	if err != nil {
-		log.Fatalf("could not publish message: %s", err)
-	}
-
-	log.Printf(" [x] Sent %s\n", body)
 
 	database, err := db.ConnectToDB()
 	if err != nil {
