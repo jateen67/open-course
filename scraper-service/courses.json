@@ -1,0 +1,22 @@
+[
+	{
+		"CourseCode": "MATH-323",
+		"CourseTitle": "Probability",
+		"Semester": "202409",
+		"Credits": "3.0",
+		"Section": "Lec 001",
+		"OpenSeats": 8,
+		"WaitlistAvailable": 0,
+		"WaitlistCapacity": 0
+	},
+	{
+		"CourseCode": "MATH-323",
+		"CourseTitle": "Probability",
+		"Semester": "202409",
+		"Credits": "3.0",
+		"Section": "Lec 002",
+		"OpenSeats": 34,
+		"WaitlistAvailable": 0,
+		"WaitlistCapacity": 0
+	}
+]

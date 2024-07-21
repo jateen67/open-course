@@ -11,6 +11,13 @@ services:
       - postgres
     environment:
       POSTGRES_CONNECTION_STRING: "host=postgres port=5432 user=postgres password=password dbname=order_db sslmode=disable"
+      RABBITMQ_CONNECTION_STRING: "amqp://guest:guest@rabbitmq:5672"
+  scraper-service:
+    build:
+      context: scraper-service
+      dockerfile: scraper-service.Dockerfile
+    environment:
+      RABBITMQ_CONNECTION_STRING: "amqp://guest:guest@rabbitmq:5672"
   postgres:
     image: postgres
     environment:
@@ -21,5 +28,16 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  rabbitmq:
+    image: 'rabbitmq:3-management-alpine'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 volumes:
   postgres_data:
+  rabbitmq_data:

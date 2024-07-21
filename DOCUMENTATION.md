@@ -32,3 +32,8 @@ enter `rake --tasks` to view the rakefile command equivalents
 
 i use [beekeeper studio](https://www.beekeeperstudio.io/) since its very light weight and gets the job done but its your preference
 connect using the connection string in the docker-compose file once you start the backend containers
+
+## rabbitmq
+
+go to `http://localhost:15672/` and signin using the conn vars in the docker-compose file
+whenever you perform an action (create new order or edit order), a message will be sent from the order-service to a rabbitmq queue which will then be sent to the scraper-service. to check that the message was received successfully, check to see if theres a spike in the graph in the rabbitmq management ui, or go into the logs of the scraper-service docker container to see the success message
