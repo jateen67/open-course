@@ -45,8 +45,8 @@ export default function Test() {
 
   const twilioOrderEnable = async () => {
     const payload = {
-      phone: "",
-      course_id: -1,
+      phone: "4389893868",
+      course_id: 5,
       is_active: true,
     };
 
@@ -55,25 +55,12 @@ export default function Test() {
 
   const twilioOrderDisable = async () => {
     const payload = {
-      phone: "",
-      course_id: -1,
+      phone: "4389893868",
+      course_id: 5,
       is_active: false,
     };
 
     await makeRequest("http://localhost:8081/orders", payload, "PUT");
-  };
-
-  const mailerTest = async () => {
-    const payload = {
-      mail: {
-        from: "me@example.com",
-        to: "you@example.com",
-        subject: "Test Email Subject",
-        message: "Hello, world! This is my email",
-      },
-    };
-
-    await makeRequest("http://localhost:8082/mail", payload, "POST");
   };
 
   return (
@@ -89,8 +76,6 @@ export default function Test() {
           <a onClick={twilioOrderDisable}>test twilio order disable</a>
           <br></br>
           <a onClick={getAllCourses}>test get all courses</a>
-          <br></br>
-          <a onClick={mailerTest}>test mailer</a>
           <br></br>
         </div>
       </div>

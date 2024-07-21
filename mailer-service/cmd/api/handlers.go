@@ -14,7 +14,7 @@ func (s *server) SendMail(w http.ResponseWriter, r *http.Request) {
 
 	err := s.readJSON(w, r, &requestPayload)
 	if err != nil {
-		s.errorJSON(w, err)
+		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -27,7 +27,7 @@ func (s *server) SendMail(w http.ResponseWriter, r *http.Request) {
 
 	err = s.Mailer.SendSMTPMessage(msg)
 	if err != nil {
-		s.errorJSON(w, err)
+		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -36,5 +36,5 @@ func (s *server) SendMail(w http.ResponseWriter, r *http.Request) {
 		Message: "sent to " + requestPayload.To,
 	}
 
-	s.writeJSON(w, http.StatusAccepted, payload)
+	s.writeJSON(w, payload, http.StatusAccepted)
 }
