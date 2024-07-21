@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -87,18 +85,6 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m := MailPayload{
-		From:    "from@gmail.com",
-		To:      "to@gmail.com",
-		Subject: "test subject",
-		Message: "test message",
-	}
-	err = s.sendMail(w, m)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
 	resPayload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("user %s order for course %d updated successfully", reqPayload.Phone, reqPayload.CourseID),
@@ -133,39 +119,6 @@ func (s *server) pushToQueue() error {
 	if err != nil {
 		return err
 	}
-
-	return nil
-}
-
-func (s *server) sendMail(w http.ResponseWriter, msg MailPayload) error {
-	jsonData, _ := json.MarshalIndent(msg, "", "\t")
-
-	request, err := http.NewRequest("POST", "http://mailer-service/mail", bytes.NewBuffer(jsonData))
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return err
-	}
-
-	request.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	res, err := client.Do(request)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusAccepted {
-		s.errorJSON(w, errors.New("error calling mail service"), res.StatusCode)
-		return err
-	}
-
-	// var payload jsonResponse
-	// payload.Error = false
-	// payload.Message = "Message sent to " + msg.To + "!"
-
-	//s.writeJSON(w, payload, http.StatusOK)
 
 	return nil
 }
