@@ -54,12 +54,12 @@ scraper-service: build_scraper_service
 
 # MISC.
 clean:
-	@echo "Cleaning..."
+	@echo "cleaning..."
 	@cd order-service && rm -f ${ORDER_SERVICE_BINARY}
 	@cd order-service && go clean
 	@cd scraper-service && rm -f ${SCRAPER_SERVICE_BINARY}
 	@cd scraper-service && go clean
-	@echo "Cleaned!"
+	@echo "cleaned!"
 
 help: Makefile
 	@echo "TODO: implement help"
