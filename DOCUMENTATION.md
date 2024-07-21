@@ -10,8 +10,9 @@ the order service is the way the user creates an order (adds a new entry in tbl_
 
 ### backend:
 
-note: must install [make](https://www.gnu.org/software/make/) to use the shortcut to start the backend service
-if you dont have make installed just manually type the commands in said makefile
+you must install [make](https://www.gnu.org/software/make/) to use make to start the backend service
+you install [ruby](https://www.ruby-lang.org/en/) and [rubygems](https://rubygems.org/), then run `gem install rake` to use rake
+if you dont have make/rake installed just manually type the commands in said makefile
 the first time you run these make commands it will be slow
 
 most important commands:
@@ -24,6 +25,8 @@ other:
 `make build_order_service` to build the order-service go executable
 `make clean` to clean all backend go executables
 `make help` to get help with commands (TODO)
+
+enter `rake --tasks` to view the rakefile command equivalents
 
 ## checking the database
 
