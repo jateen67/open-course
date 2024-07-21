@@ -45,8 +45,8 @@ export default function Test() {
 
   const twilioOrderEnable = async () => {
     const payload = {
-      phone: "4389893868",
-      course_id: 5,
+      phone: "",
+      course_id: -1,
       is_active: true,
     };
 
@@ -55,8 +55,8 @@ export default function Test() {
 
   const twilioOrderDisable = async () => {
     const payload = {
-      phone: "4389893868",
-      course_id: 5,
+      phone: "",
+      course_id: -1,
       is_active: false,
     };
 
