@@ -3,13 +3,14 @@ package main
 import (
 	"bytes"
 	"log"
+	"os"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(os.Getenv("RABBITMQ_CONNECTION_STRING"))
 	if err != nil {
 		log.Fatalf("could not connect to rabbitmq: %s", err)
 	}
