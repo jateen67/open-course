@@ -11,7 +11,7 @@ the order service is the way the user creates an order (adds a new entry in tbl_
 ### backend:
 
 you must install [make](https://www.gnu.org/software/make/) to use make to start the backend service
-you install [ruby](https://www.ruby-lang.org/en/) and [rubygems](https://rubygems.org/), then run `gem install rake` to use rake
+you must install [ruby](https://www.ruby-lang.org/en/) and [rubygems](https://rubygems.org/), then run `gem install rake` to use rake
 if you dont have make/rake installed just manually type the commands in said makefile
 the first time you run these make commands it will be slow
 
