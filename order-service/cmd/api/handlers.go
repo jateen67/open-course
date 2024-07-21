@@ -165,7 +165,7 @@ func (s *server) sendMail(w http.ResponseWriter, msg MailPayload) error {
 	payload.Error = false
 	payload.Message = "Message sent to " + msg.To + "!"
 
-	s.writeJSON(w, payload, http.StatusAccepted)
+	//s.writeJSON(w, payload, http.StatusOK)
 
 	return nil
 }
