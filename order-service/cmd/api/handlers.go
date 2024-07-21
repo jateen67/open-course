@@ -161,9 +161,9 @@ func (s *server) sendMail(w http.ResponseWriter, msg MailPayload) error {
 		return err
 	}
 
-	var payload jsonResponse
-	payload.Error = false
-	payload.Message = "Message sent to " + msg.To + "!"
+	// var payload jsonResponse
+	// payload.Error = false
+	// payload.Message = "Message sent to " + msg.To + "!"
 
 	//s.writeJSON(w, payload, http.StatusOK)
 
