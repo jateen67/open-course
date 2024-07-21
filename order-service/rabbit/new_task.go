@@ -12,7 +12,7 @@ type emitter struct {
 	connection *amqp.Connection
 }
 
-func (e *emitter) Push(q amqp.Queue) error {
+func (e *emitter) Push(q *amqp.Queue) error {
 	ch, err := e.connection.Channel()
 	if err != nil {
 		return err

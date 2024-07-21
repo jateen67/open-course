@@ -44,7 +44,7 @@ func main() {
 	orderDB := db.NewOrderDBImpl(database)
 	notificationDB := db.NewNotificationDBImpl(database)
 	notificationTypeDB := db.NewNotificationTypeDBImpl(database)
-	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB).Router
+	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB, conn).Router
 	log.Println("starting order service...")
 	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
 

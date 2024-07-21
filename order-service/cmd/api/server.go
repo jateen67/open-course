@@ -20,7 +20,8 @@ func newServer(
 	courseDB db.CourseDB,
 	orderDB db.OrderDB,
 	notificationDB db.NotificationDB,
-	notificationTypeDB db.NotificationTypeDB) *server {
+	notificationTypeDB db.NotificationTypeDB,
+	c *amqp.Connection) *server {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -36,6 +37,7 @@ func newServer(
 		OrderDB:            orderDB,
 		NotificationDB:     notificationDB,
 		NotificationTypeDB: notificationTypeDB,
+		Rabbit:             c,
 	}
 	s.routes()
 

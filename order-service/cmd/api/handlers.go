@@ -108,7 +108,7 @@ func (s *server) pushToQueue() error {
 		return err
 	}
 
-	err = emitter.Push(q)
+	err = emitter.Push(&q)
 	if err != nil {
 		return err
 	}
