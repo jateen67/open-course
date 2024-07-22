@@ -121,6 +121,16 @@ func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(courses)
 }
 
+func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
+	courses, err := s.CourseDB.GetCourses()
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(courses)
+}
+
 func (s *server) pushToQueue(courseCode, courseTitle, semester, section string) error {
 	emitter, q, err := event.NewEventEmitter(s.Rabbit)
 	if err != nil {
