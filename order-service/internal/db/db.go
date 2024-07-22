@@ -46,7 +46,7 @@ func CreateTables(db *sql.DB) error {
             course_title TEXT NOT NULL,
 			semester VARCHAR(10) NOT NULL,
 			section VARCHAR(10) NOT NULL,
-			credits DECIMAL NOT NULL,
+			credits VARCHAR(5) NOT NULL,
 			open_seats INT NOT NULL,
 			waitlist_available INT NOT NULL,
 			waitlist_capacity INT NOT NULL,
