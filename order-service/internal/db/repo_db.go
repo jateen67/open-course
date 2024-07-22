@@ -3,6 +3,7 @@ package db
 type CourseDB interface {
 	GetCourses() ([]Course, error)
 	GetCourse(courseID int) (*Course, error)
+	GetCoursesByMultpleIDs(courseIDs []int) ([]Course, error)
 	GetCourseByCourseCode(courseCode string) (*Course, error)
 	GetCoursesBySemester(semester string) ([]Course, error)
 	GetCoursesBySection(section string) ([]Course, error)

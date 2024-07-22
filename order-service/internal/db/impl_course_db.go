@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type CourseDBImpl struct {
@@ -64,6 +66,34 @@ func (d *CourseDBImpl) GetCourse(courseID int) (*Course, error) {
 	}
 
 	return &course, nil
+}
+
+func (d *CourseDBImpl) GetCoursesByMultpleIDs(courseIDs []int) ([]Course, error) {
+	query := "SELECT * FROM tbl_Courses WHERE id = ANY($1)"
+	rows, err := d.DB.Query(query, pq.Array(courseIDs))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var courses []Course
+
+	for rows.Next() {
+		var course Course
+		if err := rows.Scan(&course.ID, &course.CourseCode, &course.CourseTitle,
+			&course.Semester, &course.Credits, &course.Section, &course.OpenSeats,
+			&course.WaitlistAvailable, &course.WaitlistCapacity, &course.CreatedAt,
+			&course.UpdatedAt); err != nil {
+			return courses, err
+		}
+		courses = append(courses, course)
+	}
+
+	if err = rows.Err(); err != nil {
+		return courses, err
+	}
+
+	return courses, nil
 }
 
 func (d *CourseDBImpl) GetCourseByCourseCode(courseCode string) (*Course, error) {

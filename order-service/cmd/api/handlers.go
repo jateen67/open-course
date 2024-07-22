@@ -122,7 +122,18 @@ func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
-	courses, err := s.CourseDB.GetCourses()
+	orders, err := s.OrderDB.GetActiveOrders()
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	courseIDArray := make([]int, len(orders))
+	for i, order := range orders {
+		courseIDArray[i] = order.CourseID
+	}
+
+	courses, err := s.CourseDB.GetCoursesByMultpleIDs(courseIDArray)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
