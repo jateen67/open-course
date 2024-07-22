@@ -71,6 +71,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
 	var courses []Response
 
 	if err := json.Unmarshal(body, &courses); err != nil {
@@ -96,14 +97,14 @@ func main() {
 		close(ch)
 	}()
 
-	for courseList := range ch {
-		writeToDB(courseList)
-	}
+	// for courseList := range ch {
+	// 	writeToDB(courseList)
+	// }
 }
 
-func writeToDB(courseList []Course) {
-	fmt.Println("course data successfully written to database")
-}
+// func writeToDB(courseList []Course) {
+// 	fmt.Println("course data successfully written to database")
+// }
 
 func scrape(wg *sync.WaitGroup, url string, ch chan<- []Course) {
 	defer wg.Done()
