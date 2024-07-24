@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi"
 	"github.com/jateen67/order-service/internal/db"
 	event "github.com/jateen67/order-service/rabbit"
 )
@@ -17,20 +19,14 @@ type MailPayload struct {
 	Message string `json:"message"`
 }
 
-type OrderGetPayload struct {
-	ID int `json:"Id"`
-}
-
 func (s *server) getOrder(w http.ResponseWriter, r *http.Request) {
-	var reqPayload OrderGetPayload
-
-	err := s.readJSON(w, r, &reqPayload)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
-	order, err := s.OrderDB.GetOrder(reqPayload.ID)
+	order, err := s.OrderDB.GetOrder(id)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return

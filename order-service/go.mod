@@ -8,4 +8,7 @@ require (
 	github.com/lib/pq v1.10.9
 )
 
-require github.com/rabbitmq/amqp091-go v1.10.0
+require (
+	github.com/go-chi/chi v1.5.5
+	github.com/rabbitmq/amqp091-go v1.10.0
+)
