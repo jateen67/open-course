@@ -97,7 +97,7 @@ func (d *CourseDBImpl) GetCoursesByMultpleIDs(courseIDs []int) ([]Course, error)
 }
 
 func (d *CourseDBImpl) GetCourseByCourseCode(courseCode string) (*Course, error) {
-	query := "SELECT * FROM tbl_Courses WHERE course_code = $1"
+	query := "SELECT * FROM tbl_Courses WHERE courseCode = $1"
 	var course Course
 	if err := d.DB.QueryRow(query, courseCode).Scan(&course); err != nil {
 		if err == sql.ErrNoRows {
@@ -166,7 +166,7 @@ func (d *CourseDBImpl) GetCoursesBySection(section string) ([]Course, error) {
 }
 
 func (d *CourseDBImpl) GetOpenCourses() ([]Course, error) {
-	query := "SELECT * FROM tbl_Courses WHERE open_seats > 0"
+	query := "SELECT * FROM tbl_Courses WHERE openSeats > 0"
 	rows, err := d.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -193,21 +193,23 @@ func (d *CourseDBImpl) GetOpenCourses() ([]Course, error) {
 	return courses, nil
 }
 
-func (d *CourseDBImpl) CreateCourse(courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) (int, error) {
+func (d *CourseDBImpl) CreateCourse(course Course) (int, error) {
 	var id int
 	query := `INSERT INTO tbl_Courses (
-		course_code,
-		course_title,
+		courseCode,
+		courseTitle,
 		semester,
 		credits,
 		section,
-		open_seats,
-		waitlist_available,
-		waitlist_capacity,
-		created_at,
-		updated_at
+		openSeats,
+		waitlistAvailable,
+		waitlistCapacity,
+		createdAt,
+		updatedAt
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`
-	err := d.DB.QueryRow(query, courseCode, courseTitle, semester, credits, section, openSeats, wa, wc, time.Now(), time.Now()).Scan(&id)
+	err := d.DB.QueryRow(query, course.CourseCode, course.CourseTitle,
+		course.Semester, course.Credits, course.Section, course.OpenSeats,
+		course.WaitlistAvailable, course.WaitlistCapacity, time.Now(), time.Now()).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -215,19 +217,21 @@ func (d *CourseDBImpl) CreateCourse(courseCode, courseTitle, semester, credits, 
 	return id, nil
 }
 
-func (d *CourseDBImpl) UpdateCourse(id int, courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) error {
+func (d *CourseDBImpl) UpdateCourse(course Course) error {
 	query := `UPDATE tbl_Courses SET 
-		course_code = $2,
-		course_title = $3,
+		courseCode = $2,
+		courseTitle = $3,
 		semester = $4,
 		credits = $5,
 		section = $6,
-		open_seats = $7,
-		waitlist_available = $8,
-		waitlist_capacity = $9,
-		updated_at = $10
+		openSeats = $7,
+		waitlistAvailable = $8,
+		waitlistCapacity = $9,
+		updatedAt = $10
 		WHERE id = $1`
-	_, err := d.DB.Exec(query, id, courseCode, courseTitle, semester, credits, section, openSeats, wa, wc, time.Now())
+	_, err := d.DB.Exec(query, course.ID, course.CourseCode, course.CourseTitle,
+		course.Semester, course.Credits, course.Section, course.OpenSeats,
+		course.WaitlistAvailable, course.WaitlistCapacity, time.Now())
 	if err != nil {
 		return err
 	}

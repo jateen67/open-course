@@ -37,12 +37,12 @@ func (d *NotificationTypeDBImpl) GetNotificationTypes() ([]NotificationType, err
 	return notificationTypes, nil
 }
 
-func (d *NotificationTypeDBImpl) CreateNotificationType(t string) (int, error) {
+func (d *NotificationTypeDBImpl) CreateNotificationType(notificationType NotificationType) (int, error) {
 	var id int
 	query := `INSERT INTO tbl_Notification_Types (
 		type
 		) VALUES ($1) RETURNING id`
-	err := d.DB.QueryRow(query, t).Scan(&id)
+	err := d.DB.QueryRow(query, notificationType.Type).Scan(&id)
 	if err != nil {
 		return 0, err
 	}

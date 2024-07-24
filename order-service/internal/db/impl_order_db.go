@@ -135,7 +135,7 @@ func (d *OrderDBImpl) GetOrdersByUserPhone(phone string) ([]Order, error) {
 }
 
 func (d *OrderDBImpl) GetActiveOrders() ([]Order, error) {
-	query := "SELECT * FROM tbl_Orders WHERE is_active = 1"
+	query := "SELECT * FROM tbl_Orders WHERE isActive = 1"
 	rows, err := d.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (d *OrderDBImpl) GetActiveOrders() ([]Order, error) {
 }
 
 func (d *OrderDBImpl) GetOrdersByCourseID(courseID int) ([]Order, error) {
-	query := "SELECT * FROM tbl_Orders WHERE course_id = $1"
+	query := "SELECT * FROM tbl_Orders WHERE courseId = $1"
 	rows, err := d.DB.Query(query, courseID)
 	if err != nil {
 		return nil, err
@@ -188,18 +188,18 @@ func (d *OrderDBImpl) GetOrdersByCourseID(courseID int) ([]Order, error) {
 	return orders, nil
 }
 
-func (d *OrderDBImpl) CreateOrder(name, email, phone string, courseID int) (int, error) {
+func (d *OrderDBImpl) CreateOrder(order Order) (int, error) {
 	var id int
 	query := `INSERT INTO tbl_Orders (
 		name,
 		email,
 		phone,
-		course_id,
-		is_active,
-		created_at,
-		updated_at
+		courseId,
+		isActive,
+		createdAt,
+		updatedAt
 		) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
-	err := d.DB.QueryRow(query, name, email, phone, courseID, 1, time.Now(), time.Now()).Scan(&id)
+	err := d.DB.QueryRow(query, order.Name, order.Email, order.Phone, order.CourseID, 1, time.Now(), time.Now()).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -207,14 +207,14 @@ func (d *OrderDBImpl) CreateOrder(name, email, phone string, courseID int) (int,
 	return id, nil
 }
 
-func (d *OrderDBImpl) UpdateOrder(phone string, courseID int, isActive bool) error {
+func (d *OrderDBImpl) UpdateOrder(order Order) error {
 	query := `UPDATE tbl_Orders SET 
 		phone = $1,
-		course_id = $2,
-		is_active = $3,
-		updated_at = $4
-		WHERE phone = $1 AND course_id = $2`
-	_, err := d.DB.Exec(query, phone, courseID, isActive, time.Now())
+		courseId = $2,
+		isActive = $3,
+		updatedAt = $4
+		WHERE phone = $1 AND courseId = $2`
+	_, err := d.DB.Exec(query, order.Phone, order.CourseID, order.IsActive, time.Now())
 	if err != nil {
 		return err
 	}

@@ -2,25 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi"
+	"github.com/jateen67/order-service/internal/db"
 	event "github.com/jateen67/order-service/rabbit"
 )
-
-type orderCreationPayload struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	CourseID int    `json:"course_id"`
-}
-
-type orderEditPayload struct {
-	Phone    string `json:"phone"`
-	CourseID int    `json:"course_id"`
-	IsActive bool   `json:"is_active"`
-}
 
 type MailPayload struct {
 	From    string `json:"from"`
@@ -29,8 +20,66 @@ type MailPayload struct {
 	Message string `json:"message"`
 }
 
+func (s *server) getOrderByID(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	order, err := s.OrderDB.GetOrder(id)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(order)
+}
+
+func (s *server) getOrdersByEmail(w http.ResponseWriter, r *http.Request) {
+	email := chi.URLParam(r, "email")
+	if email == "" {
+		s.errorJSON(w, errors.New("no email passed in url"), http.StatusBadRequest)
+		return
+	}
+
+	order, err := s.OrderDB.GetOrdersByUserEmail(email)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(order)
+}
+
+func (s *server) getOrdersByCourseID(w http.ResponseWriter, r *http.Request) {
+	courseID, err := strconv.Atoi(chi.URLParam(r, "courseId"))
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	order, err := s.OrderDB.GetOrdersByCourseID(courseID)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(order)
+}
+
+func (s *server) getOrders(w http.ResponseWriter, r *http.Request) {
+	orders, err := s.OrderDB.GetOrders()
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(orders)
+}
+
 func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
-	var reqPayload orderCreationPayload
+	var reqPayload db.Order
 
 	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {
@@ -38,7 +87,7 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := s.OrderDB.CreateOrder(reqPayload.Name, reqPayload.Email, reqPayload.Phone, reqPayload.CourseID)
+	id, err := s.OrderDB.CreateOrder(reqPayload)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -71,7 +120,7 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
-	var reqPayload orderEditPayload
+	var reqPayload db.Order
 
 	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {
@@ -79,7 +128,7 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.OrderDB.UpdateOrder(reqPayload.Phone, reqPayload.CourseID, reqPayload.IsActive)
+	err = s.OrderDB.UpdateOrder(reqPayload)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return

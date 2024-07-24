@@ -53,7 +53,7 @@ func (d *NotificationDBImpl) GetNotification(notificationID int) (*Notification,
 }
 
 func (d *NotificationDBImpl) GetNotificationsByNotificationTypeID(notificationTypeID int) ([]Notification, error) {
-	query := "SELECT * FROM tbl_Notifications WHERE notification_type_id = $1"
+	query := "SELECT * FROM tbl_Notifications WHERE notificationTypeId = $1"
 	rows, err := d.DB.Query(query, notificationTypeID)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (d *NotificationDBImpl) GetNotificationsByNotificationTypeID(notificationTy
 }
 
 func (d *NotificationDBImpl) GetNotificationsByOrderID(orderID int) ([]Notification, error) {
-	query := "SELECT * FROM tbl_Notifications WHERE order_id = $1"
+	query := "SELECT * FROM tbl_Notifications WHERE orderId = $1"
 	rows, err := d.DB.Query(query, orderID)
 	if err != nil {
 		return nil, err
@@ -104,14 +104,14 @@ func (d *NotificationDBImpl) GetNotificationsByOrderID(orderID int) ([]Notificat
 	return notifications, nil
 }
 
-func (d *NotificationDBImpl) CreateNotification(orderID int, notificationTypeID int) (int, error) {
+func (d *NotificationDBImpl) CreateNotification(notification Notification) (int, error) {
 	var id int
 	query := `INSERT INTO tbl_Notifications (
-		order_id,
-		notification_type_id,
-		time_sent
+		orderId,
+		notificationTypeId,
+		timeSent
 		) VALUES ($1, $2, $3) RETURNING id`
-	err := d.DB.QueryRow(query, orderID, notificationTypeID, time.Now()).Scan(&id)
+	err := d.DB.QueryRow(query, notification.OrderID, notification.NotificationTypeID, time.Now()).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
