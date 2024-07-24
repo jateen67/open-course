@@ -17,6 +17,28 @@ type MailPayload struct {
 	Message string `json:"message"`
 }
 
+type OrderGetPayload struct {
+	ID int `json:"Id"`
+}
+
+func (s *server) getOrder(w http.ResponseWriter, r *http.Request) {
+	var reqPayload OrderGetPayload
+
+	err := s.readJSON(w, r, &reqPayload)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	order, err := s.OrderDB.GetOrder(reqPayload.ID)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(order)
+}
+
 func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 	var reqPayload db.Order
 
