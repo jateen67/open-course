@@ -6,21 +6,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/jateen67/order-service/internal/db"
 	event "github.com/jateen67/order-service/rabbit"
 )
-
-type orderCreationPayload struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	CourseID int    `json:"course_id"`
-}
-
-type orderEditPayload struct {
-	Phone    string `json:"phone"`
-	CourseID int    `json:"course_id"`
-	IsActive bool   `json:"is_active"`
-}
 
 type MailPayload struct {
 	From    string `json:"from"`
@@ -30,7 +18,7 @@ type MailPayload struct {
 }
 
 func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
-	var reqPayload orderCreationPayload
+	var reqPayload db.Order
 
 	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {
@@ -38,7 +26,7 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := s.OrderDB.CreateOrder(reqPayload.Name, reqPayload.Email, reqPayload.Phone, reqPayload.CourseID)
+	id, err := s.OrderDB.CreateOrder(reqPayload)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -71,7 +59,7 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
-	var reqPayload orderEditPayload
+	var reqPayload db.Order
 
 	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {
@@ -79,7 +67,7 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.OrderDB.UpdateOrder(reqPayload.Phone, reqPayload.CourseID, reqPayload.IsActive)
+	err = s.OrderDB.UpdateOrder(reqPayload)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return

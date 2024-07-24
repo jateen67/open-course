@@ -7,8 +7,8 @@ type CourseDB interface {
 	GetCoursesBySemester(semester string) ([]Course, error)
 	GetCoursesBySection(section string) ([]Course, error)
 	GetOpenCourses() ([]Course, error)
-	CreateCourse(courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) (int, error)
-	UpdateCourse(id int, courseCode, courseTitle, semester, credits, section string, openSeats, wa, wc int) error
+	CreateCourse(Course) (int, error)
+	UpdateCourse(Course) error
 }
 
 type OrderDB interface {
@@ -19,8 +19,8 @@ type OrderDB interface {
 	GetOrdersByUserPhone(phone string) ([]Order, error)
 	GetOrdersByCourseID(courseID int) ([]Order, error)
 	GetActiveOrders() ([]Order, error)
-	CreateOrder(name, email, phone string, courseID int) (int, error)
-	UpdateOrder(phone string, courseID int, isActive bool) error
+	CreateOrder(Order) (int, error)
+	UpdateOrder(Order) error
 }
 
 type NotificationDB interface {
@@ -28,10 +28,10 @@ type NotificationDB interface {
 	GetNotification(notificationID int) (*Notification, error)
 	GetNotificationsByOrderID(orderID int) ([]Notification, error)
 	GetNotificationsByNotificationTypeID(notificationTypeID int) ([]Notification, error)
-	CreateNotification(orderID, notificationTypeID int) (int, error)
+	CreateNotification(Notification) (int, error)
 }
 
 type NotificationTypeDB interface {
 	GetNotificationTypes() ([]NotificationType, error)
-	CreateNotificationType(t string) (int, error)
+	CreateNotificationType(NotificationType) (int, error)
 }
