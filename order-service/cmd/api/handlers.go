@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,7 +20,7 @@ type MailPayload struct {
 	Message string `json:"message"`
 }
 
-func (s *server) getOrder(w http.ResponseWriter, r *http.Request) {
+func (s *server) getOrderByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
@@ -33,6 +34,48 @@ func (s *server) getOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(order)
+}
+
+func (s *server) getOrdersByEmail(w http.ResponseWriter, r *http.Request) {
+	email := chi.URLParam(r, "email")
+	if email == "" {
+		s.errorJSON(w, errors.New("no email passed in url"), http.StatusBadRequest)
+		return
+	}
+
+	order, err := s.OrderDB.GetOrdersByUserEmail(email)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(order)
+}
+
+func (s *server) getOrdersByCourseID(w http.ResponseWriter, r *http.Request) {
+	courseID, err := strconv.Atoi(chi.URLParam(r, "courseId"))
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	order, err := s.OrderDB.GetOrdersByCourseID(courseID)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(order)
+}
+
+func (s *server) getOrders(w http.ResponseWriter, r *http.Request) {
+	orders, err := s.OrderDB.GetOrders()
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(orders)
 }
 
 func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
