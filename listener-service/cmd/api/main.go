@@ -1,13 +1,12 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
+	event "github.com/jateen67/listener-service/rabbit"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -21,15 +20,9 @@ func main() {
 	}
 	defer conn.Close()
 
-	srv := newServer(conn).Router
-	log.Println("starting scraper service...")
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
-
-	if errors.Is(err, http.ErrServerClosed) {
-		log.Println("order service closed")
-	} else if err != nil {
-		log.Println("error starting order service: ", err)
-		os.Exit(1)
+	err = event.Listen(conn)
+	if err != nil {
+		log.Fatalf("could not listen to queue: %s", err)
 	}
 }
 

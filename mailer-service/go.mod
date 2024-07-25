@@ -17,6 +17,7 @@ require (
 )
 
 require (
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/toorop/go-dkim v0.0.0-20201103131630-e1cd1a0a5208 // indirect
 	github.com/vanng822/go-premailer v1.21.0
 )

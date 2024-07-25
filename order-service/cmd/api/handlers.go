@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/jateen67/order-service/internal/db"
-	event "github.com/jateen67/order-service/rabbit"
 )
 
 type MailPayload struct {
@@ -93,18 +92,6 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	course, err := s.CourseDB.GetCourse(reqPayload.CourseID)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	err = s.pushToQueue(course.CourseCode, course.CourseTitle, course.Semester, course.Section)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
 	resPayload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("user order %d created successfully", id),
@@ -129,18 +116,6 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = s.OrderDB.UpdateOrder(reqPayload)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	course, err := s.CourseDB.GetCourse(reqPayload.CourseID)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	err = s.pushToQueue(course.CourseCode, course.CourseTitle, course.Semester, course.Section)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -189,18 +164,4 @@ func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(courses)
-}
-
-func (s *server) pushToQueue(courseCode, courseTitle, semester, section string) error {
-	emitter, q, err := event.NewEventEmitter(s.Rabbit)
-	if err != nil {
-		return err
-	}
-
-	err = emitter.Push(&q, courseCode, courseTitle, semester, section)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
