@@ -43,7 +43,9 @@ func (d *OrderDBImpl) GetOrders() ([]Order, error) {
 func (d *OrderDBImpl) GetOrder(orderID int) (*Order, error) {
 	query := "SELECT * FROM tbl_Orders where id = $1"
 	var order Order
-	if err := d.DB.QueryRow(query, orderID).Scan(&order); err != nil {
+	if err := d.DB.QueryRow(query, orderID).Scan(&order.ID,
+		&order.Name, &order.Email, &order.Phone, &order.CourseID,
+		&order.IsActive, &order.CreatedAt, &order.UpdatedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
 		}
