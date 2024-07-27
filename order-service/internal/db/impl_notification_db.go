@@ -42,8 +42,7 @@ func (d *NotificationDBImpl) GetNotifications() ([]Notification, error) {
 func (d *NotificationDBImpl) GetNotification(notificationID int) (*Notification, error) {
 	query := "SELECT * FROM tbl_Notifications WHERE id = $1"
 	var notification Notification
-	if err := d.DB.QueryRow(query, notificationID).Scan(&notification.ID, &notification.OrderID, &notification.NotificationTypeID,
-		&notification.TimeSent); err != nil {
+	if err := d.DB.QueryRow(query, notificationID).Scan(&notification); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
 		}
