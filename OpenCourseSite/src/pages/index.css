@@ -2,6 +2,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  width: 100vw;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -25,9 +26,10 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  flex-direction: column;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #18181B
 }
 
 h1 {
@@ -65,4 +67,22 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.nav {
+  padding-left: 200px;
+  padding-right: 200px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 44px;
 }

@@ -1,0 +1,82 @@
+button {
+  all: unset;
+}
+
+.Trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  padding: 0 16px;
+  font-size: 16px;
+  line-height: 1;
+  height: 36px;
+  gap: 5px;
+  background-color: var(--primary500);
+  color: var(--secondary100);
+  box-shadow: 0 2px 10px black;
+}
+.Trigger:hover {
+  background-color: mauve;
+}
+.Trigger:focus {
+  box-shadow: 0 0 0 2px black;
+}
+.Trigger[data-placeholder] {
+  color: violet;
+}
+
+.Icon {
+  color: violet;
+}
+
+.Content {
+  overflow: hidden;
+  background-color: var(--tertiary);
+  border-radius: 8px;
+  box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+}
+
+.Viewport {
+  padding: 4px;
+}
+
+.Item {
+  font-size: 13px;
+  line-height: 1;
+  color: var(--secondary100);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  height: 25px;
+  padding: 4px 12px 4px 12px;
+  position: relative;
+  user-: none;
+}
+.Item[data-disabled] {
+  color: white;
+  pointer-events: none;
+}
+.Item[data-highlighted] {
+  outline: none;
+  background-color: var(--primary600);
+}
+
+.ItemIndicator {
+  position: absolute;
+  left: 0;
+  width: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ScrollButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 25px;
+  background-color: white;
+  color: violet;
+  cursor: default;
+}
