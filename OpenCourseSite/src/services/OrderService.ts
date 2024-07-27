@@ -34,7 +34,7 @@ export class OrderService {
     );
   }
 
-  static UpodateOrder(order: Order): Observable<Order> {
+  static UpdateOrder(order: Order): Observable<Order> {
     return Fetch<Order>(
       `${GlobalEnvironment.GetUrlApi()}/orders`,
       putParams(JSON.stringify(order))

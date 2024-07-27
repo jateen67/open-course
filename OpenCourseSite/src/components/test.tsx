@@ -48,7 +48,7 @@ export default function Test() {
       courseId: Math.floor(Math.random() * numCourses) + 1,
     });
 
-    OrderService.UpodateOrder(payload).subscribe({
+    OrderService.UpdateOrder(payload).subscribe({
       next: (updatedOrder) => {
         console.log(updatedOrder);
         setSent(JSON.stringify(payload, undefined, 4));
