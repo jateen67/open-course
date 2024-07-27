@@ -4,7 +4,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/jateen67/order-service/internal/db"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type server struct {
@@ -13,15 +12,13 @@ type server struct {
 	OrderDB            db.OrderDB
 	NotificationDB     db.NotificationDB
 	NotificationTypeDB db.NotificationTypeDB
-	Rabbit             *amqp.Connection
 }
 
 func newServer(
 	courseDB db.CourseDB,
 	orderDB db.OrderDB,
 	notificationDB db.NotificationDB,
-	notificationTypeDB db.NotificationTypeDB,
-	c *amqp.Connection) *server {
+	notificationTypeDB db.NotificationTypeDB) *server {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -37,7 +34,6 @@ func newServer(
 		OrderDB:            orderDB,
 		NotificationDB:     notificationDB,
 		NotificationTypeDB: notificationTypeDB,
-		Rabbit:             c,
 	}
 	s.routes()
 

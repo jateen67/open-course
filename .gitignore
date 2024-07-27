@@ -4,6 +4,7 @@
 order-service/orderExec
 scraper-service/scraperExec
 mailer-service/mailerExec
+listener-service/listenerExec
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

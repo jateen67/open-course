@@ -7,22 +7,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/jateen67/order-service/internal/db"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const port = "80"
 
 func main() {
-	log.Println("starting rabbitmq server...")
-	conn, err := connectToRabbitMQ()
-	if err != nil {
-		log.Fatalf("could not connect to rabbitmq: %s", err)
-	}
-	defer conn.Close()
-
 	database, err := db.ConnectToDB()
 	if err != nil {
 		log.Fatalf("could not connect to postgres: %v", err)
@@ -44,7 +35,7 @@ func main() {
 	orderDB := db.NewOrderDBImpl(database)
 	notificationDB := db.NewNotificationDBImpl(database)
 	notificationTypeDB := db.NewNotificationTypeDBImpl(database)
-	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB, conn).Router
+	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB).Router
 	log.Println("starting order service...")
 	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
 
@@ -126,28 +117,5 @@ func addOrder(database *sql.DB, name, email, phone string, courseID int) {
 		log.Println("order inserted successfully")
 	} else {
 		log.Println("order already inserted")
-	}
-}
-
-func connectToRabbitMQ() (*amqp.Connection, error) {
-	count := 0
-
-	for {
-		conn, err := amqp.Dial(os.Getenv("RABBITMQ_CONNECTION_STRING"))
-		if err != nil {
-			fmt.Println("rabbitmq not yet ready...")
-			count++
-		} else {
-			log.Println("connected to rabbitmq successfully")
-			return conn, nil
-		}
-
-		if count > 10 {
-			log.Println(err)
-			return nil, err
-		}
-
-		log.Println("retrying in 5 seconds...")
-		time.Sleep(5 * time.Second)
 	}
 }

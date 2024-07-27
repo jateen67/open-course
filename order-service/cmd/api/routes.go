@@ -2,6 +2,7 @@ package main
 
 func (s *server) routes() {
 	s.Router.Get("/courses", s.getAllCourses)
+	s.Router.Get("/scrapercourses", s.getAllScraperCourses)
 	s.Router.Get("/orders", s.getOrders)
 	s.Router.Get("/orders/{id}", s.getOrderByID)
 	s.Router.Get("/orders/{email}", s.getOrdersByEmail)

@@ -1,6 +1,7 @@
 ORDER_SERVICE_BINARY=orderExec
 SCRAPER_SERVICE_BINARY=scraperExec
 MAILER_SERVICE_BINARY=mailerExec
+LISTENER_SERVICE_BINARY=listenerExec
 
 
 # BUILD ORDER SERVICE
@@ -21,6 +22,12 @@ build_mailer_service:
 	cd mailer-service && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${MAILER_SERVICE_BINARY} ./cmd/api
 	@echo "mailer service binary built!"
 
+# BUILD LISTENER SERVICE
+build_listener_service:
+	@echo "building listener service binary.."
+	cd listener-service && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${LISTENER_SERVICE_BINARY} ./cmd/api
+	@echo "listener service binary built!"
+
 # START ALL DOCKER CONTAINERS
 up:
 	@echo "starting docker images..."
@@ -34,7 +41,7 @@ down:
 	@echo "docker images stopped!"
 
 # BUILD AND START ALL DOCKER CONTAINERS
-up_build: build_order_service build_scraper_service build_mailer_service
+up_build: build_order_service build_scraper_service build_mailer_service build_listener_service
 	@echo "stopping running docker images..."
 	docker-compose down
 	@echo "building and starting docker images..."
@@ -67,6 +74,15 @@ mailer-service: build_mailer_service
 	docker-compose up --build -d mailer-service
 	docker-compose start mailer-service
 	@echo "mailer-service built and started!"
+	
+# BUILD AND START ONLY LISTENER SERVICE DOCKER CONTAINER
+listener-service: build_listener_service
+	@echo "building listener-service docker image..."
+	- docker-compose stop listener-service
+	- docker-compose rm -f listener-service
+	docker-compose up --build -d listener-service
+	docker-compose start listener-service
+	@echo "listener-service built and started!"
 
 # MISC.
 clean:
@@ -77,6 +93,8 @@ clean:
 	@cd scraper-service && go clean
 	@cd mailer-service && rm -f ${MAILER_SERVICE_BINARY}
 	@cd mailer-service && go clean
+	@cd listener-service && rm -f ${LISTENER_SERVICE_BINARY}
+	@cd listener-service && go clean
 	@echo "cleaned!"
 
 help: Makefile

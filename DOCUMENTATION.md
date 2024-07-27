@@ -33,10 +33,10 @@ connect using the connection string in the docker-compose file once you start th
 
 the order service is the way the user creates an order (adds a new entry in tbl_Orders for an existing course in tbl_Courses -- in my mind tbl_Courses is filled with every single course offered by a university)
 
-## rabbitmq
+## listener-service
 
 go to `http://localhost:15672/` and signin using the conn vars in the docker-compose file <br />
-whenever you perform an action (create new order or edit order), a message will be sent from the order-service to a rabbitmq queue which will then be sent to the scraper-service. to check that the message was received successfully, check to see if theres a spike in the graph in the rabbitmq management ui, or go into the logs of the scraper-service docker container to see the success message
+a message will be sent from the scraper-service to a rabbitmq queue which will then be sent to the mailer-service to send a notification. to check that the message was received successfully, check to see if theres a spike in the graph in the rabbitmq management ui at the time the message was sent then check the mailer to see that the email notification was sent
 
 ## mailer
 

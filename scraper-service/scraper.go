@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
-	"os"
+	"net/http"
 	"strconv"
 	"sync"
 
@@ -33,14 +35,54 @@ type Course struct {
 	WaitlistCapacity  int    `xml:"wc,attr"`
 }
 
-func main() {
-	file, err := os.Create("courses.json")
-	if err != nil {
-		fmt.Println("Error while creating file: ", err)
-	}
-	defer file.Close()
+type Response struct {
+	CourseCode        string `json:"course_code"`
+	CourseTitle       string `json:"course_title"`
+	Semester          string `json:"semester"`
+	Credits           string `json:"credits"`
+	Section           string `json:"section"`
+	OpenSeats         int    `json:"open_seats"`
+	WaitlistAvailable int    `json:"waitlist_available"`
+	WaitlistCapacity  int    `json:"waitlist_capacity"`
+}
 
-	urls := []string{"https://vsb.mcgill.ca/vsb/getclassdata.jsp?term=202409&course_0_0=MATH-323&rq_0_0=null&t=218&e=19&nouser=1&_=1720573081517"}
+func main() {
+	jsonData, _ := json.MarshalIndent("", "", "\t")
+
+	request, err := http.NewRequest("GET", "http://localhost:8081/scrapercourses", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatalf("could not make new http request: %s", err)
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(request)
+	if err != nil {
+		log.Fatalf("could not do http request: %s", err)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		log.Fatalf("error code: %v", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var courses []Response
+
+	if err := json.Unmarshal(body, &courses); err != nil {
+		log.Fatalln(err)
+	}
+
+	var urls []string
+
+	for _, c := range courses {
+		urls = append(urls, fmt.Sprintf("https://vsb.mcgill.ca/vsb/getclassdata.jsp?term=%s&course_0_0=%s&rq_0_0=null&t=218&e=19&nouser=1&_=1720573081517", c.Semester, c.CourseCode))
+	}
 
 	var wg sync.WaitGroup
 	ch := make(chan []Course, len(urls))
@@ -55,33 +97,14 @@ func main() {
 		close(ch)
 	}()
 
-	for courseList := range ch {
-		writeToJSON(courseList)
-	}
+	// for courseList := range ch {
+	// 	writeToDB(courseList)
+	// }
 }
 
-func writeToJSON(courseList []Course) {
-	jsonData, err := json.MarshalIndent(courseList, "", "\t")
-	if err != nil {
-		fmt.Println("Error marshalling to JSON: ", err)
-		return
-	}
-
-	file, err := os.Create("courses.json")
-	if err != nil {
-		fmt.Println("Error creating file: ", err)
-		return
-	}
-	defer file.Close()
-
-	_, err = file.Write(jsonData)
-	if err != nil {
-		fmt.Println("Error writing to file:", err)
-		return
-	}
-
-	fmt.Println("JSON data successfully written to courses.json")
-}
+// func writeToDB(courseList []Course) {
+// 	fmt.Println("course data successfully written to database")
+// }
 
 func scrape(wg *sync.WaitGroup, url string, ch chan<- []Course) {
 	defer wg.Done()
