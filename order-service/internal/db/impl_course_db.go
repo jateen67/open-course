@@ -99,7 +99,10 @@ func (d *CourseDBImpl) GetCoursesByMultpleIDs(courseIDs []int) ([]Course, error)
 func (d *CourseDBImpl) GetCourseByCourseCode(courseCode string) (*Course, error) {
 	query := "SELECT * FROM tbl_Courses WHERE courseCode = $1"
 	var course Course
-	if err := d.DB.QueryRow(query, courseCode).Scan(&course); err != nil {
+	if err := d.DB.QueryRow(query, courseCode).Scan(&course.ID, &course.CourseCode, &course.CourseTitle,
+		&course.Semester, &course.Credits, &course.Section, &course.OpenSeats,
+		&course.WaitlistAvailable, &course.WaitlistCapacity, &course.CreatedAt,
+		&course.UpdatedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
 		}
