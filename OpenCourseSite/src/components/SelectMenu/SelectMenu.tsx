@@ -8,23 +8,23 @@ interface SelectMenuProps {
   setCurrentTheme: (theme: keyof typeof Colors) => void;
 }
 
-export const SelectMenu = (props: SelectMenuProps) => {
+export const SelectMenu: React.FC<SelectMenuProps> = ({ setCurrentTheme }) => {
   const handleSelect = (value: string) => {
     if (Object.keys(Colors).includes(value)) {
-      props.setCurrentTheme(value as keyof typeof Colors);
+      setCurrentTheme(value as keyof typeof Colors);
     }
-  }
+  };
 
   interface SelectItemProps extends React.ComponentPropsWithoutRef<'div'> {
     className?: string;
     value: string;
     children: React.ReactNode;
-  }
+  };
   
   const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(({ children, className, ...props }, forwardedRef) => {
     return (
-      <Select.Item {...props} ref={forwardedRef}>
-        <Select.ItemText className={className}>{children}</Select.ItemText>
+      <Select.Item className={`${SelectStyles.Item} ${className}`} {...props} ref={forwardedRef}>
+        <Select.ItemText>{children}</Select.ItemText>
       </Select.Item>
     );
   });
@@ -32,7 +32,7 @@ export const SelectMenu = (props: SelectMenuProps) => {
   return (
     <Select.Root onValueChange={handleSelect}>
         <Select.Trigger className={SelectStyles.Trigger} aria-label="University Menu">
-        <Select.Value placeholder="University" />
+        <Select.Value placeholder="Select a University" />
         <Select.Icon className={SelectStyles.Icon}>
             <ChevronDownIcon />
         </Select.Icon>
