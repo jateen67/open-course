@@ -67,8 +67,6 @@ export default function Test() {
     <div>
       <div>
         <div>
-          <h1>open course</h1>
-          <hr></hr>
           <a onClick={OrderCreation}>test order creation</a>
           <br></br>
           <a onClick={twilioOrderEnable}>test twilio order enable</a>
