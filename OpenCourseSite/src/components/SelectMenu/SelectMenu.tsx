@@ -9,8 +9,28 @@ interface SelectMenuProps {
 }
 
 export const SelectMenu = (props: SelectMenuProps) => {
+  const handleSelect = (value: string) => {
+    if (Object.keys(Colors).includes(value)) {
+      props.setCurrentTheme(value as keyof typeof Colors);
+    }
+  }
+
+  interface SelectItemProps extends React.ComponentPropsWithoutRef<'div'> {
+    className?: string;
+    value: string;
+    children: React.ReactNode;
+  }
+  
+  const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(({ children, className, ...props }, forwardedRef) => {
+    return (
+      <Select.Item {...props} ref={forwardedRef}>
+        <Select.ItemText className={className}>{children}</Select.ItemText>
+      </Select.Item>
+    );
+  });
+
   return (
-    <Select.Root>
+    <Select.Root onValueChange={handleSelect}>
         <Select.Trigger className={SelectStyles.Trigger} aria-label="University Menu">
         <Select.Value placeholder="University" />
         <Select.Icon className={SelectStyles.Icon}>
@@ -24,12 +44,9 @@ export const SelectMenu = (props: SelectMenuProps) => {
               </Select.ScrollUpButton>
               <Select.Viewport className={SelectStyles.Viewport}>
                 <Select.Group>
-                  <SelectItem value="mcgill-university" onClick={() => props.setCurrentTheme("blue")}>McGill University</SelectItem>
-                  <SelectItem value="concordia-university" onClick={() => {
-                    console.log('Concordia clicked');
-                    props.setCurrentTheme('burgundy');
-                  }}>Concordia University</SelectItem>
-                  <SelectItem value="unt" onClick={() => props.setCurrentTheme("green")}>University of Northern Texas</SelectItem>
+                  <SelectItem value="blue">McGill University</SelectItem>
+                  <SelectItem value="burgundy">Concordia University</SelectItem>
+                  <SelectItem value="green">University of Northern Texas</SelectItem>
                 </Select.Group>
               </Select.Viewport>
               <Select.ScrollDownButton className={SelectStyles.ScrollButton}>
@@ -40,32 +57,3 @@ export const SelectMenu = (props: SelectMenuProps) => {
     </Select.Root>
   );
 };
-
-export interface SelectItemProps {
-  value: string;
-  children: ReactNode;
-  className: string;
-  asChild?: boolean;
-  onClick?: () => void;
-};
-
-const SelectItemText = forwardRef<HTMLDivElement, SelectItemProps>(({ children, className, onClick, ...props }, forwardedRef) => {
-  return (
-    <div className={`${SelectStyles.Item} ${className}`} {...props} ref={forwardedRef} onClick={() => {
-      console.log('CustomSelectItem clicked');
-      if (onClick) onClick();
-    }}>
-      <Select.ItemText>{children}</Select.ItemText>
-    </div>
-  );
-});
-
-const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(({ children, className, onClick, value, ...props }, forwardedRef) => {
-  return (
-    <Select.Item asChild {...props} value={value} ref={forwardedRef}>
-      <SelectItemText className={className} onClick={onClick}>
-        {children}
-      </SelectItemText>
-    </Select.Item>
-  );
-});
