@@ -6,7 +6,7 @@ interface NavProps {
     setCurrentTheme: (theme: keyof typeof Colors) => void;
 }
 
-export default function Nav(props: NavProps) {
+export const Nav = (props: NavProps) => {
     return (
         <div className={NavStyles.Content}>
             <div className={NavStyles.ContentLeft}>

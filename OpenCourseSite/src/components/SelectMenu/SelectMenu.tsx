@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef } from "react"
+import { forwardRef } from "react"
 import * as Select from "@radix-ui/react-select";
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import Colors from "../../styles/ColorSystem"
@@ -8,26 +8,25 @@ interface SelectMenuProps {
   setCurrentTheme: (theme: keyof typeof Colors) => void;
 }
 
+interface SelectItemProps extends React.ComponentPropsWithoutRef<'div'> {
+  value: string;
+  children: React.ReactNode;
+};
+
+const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(({ children, ...props }, forwardedRef) => {
+  return (
+    <Select.Item className={SelectStyles.Item} {...props} ref={forwardedRef}>
+      <Select.ItemText>{children}</Select.ItemText>
+    </Select.Item>
+  );
+});
+
 export const SelectMenu: React.FC<SelectMenuProps> = ({ setCurrentTheme }) => {
   const handleSelect = (value: string) => {
     if (Object.keys(Colors).includes(value)) {
       setCurrentTheme(value as keyof typeof Colors);
     }
   };
-
-  interface SelectItemProps extends React.ComponentPropsWithoutRef<'div'> {
-    className?: string;
-    value: string;
-    children: React.ReactNode;
-  };
-  
-  const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(({ children, className, ...props }, forwardedRef) => {
-    return (
-      <Select.Item className={`${SelectStyles.Item} ${className}`} {...props} ref={forwardedRef}>
-        <Select.ItemText>{children}</Select.ItemText>
-      </Select.Item>
-    );
-  });
 
   return (
     <Select.Root onValueChange={handleSelect}>
