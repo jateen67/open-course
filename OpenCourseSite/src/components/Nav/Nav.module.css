@@ -1,0 +1,21 @@
+.Text {
+    color: var(--secondary100);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.Content {
+    padding: 4px 200px 4px 200px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+.ContentLeft {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 44px;
+}
