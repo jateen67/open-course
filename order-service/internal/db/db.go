@@ -72,18 +72,6 @@ func CreateTables(db *sql.DB) error {
 			createdAt TIMESTAMPTZ DEFAULT NOW(),
 			updatedAt TIMESTAMPTZ DEFAULT NOW()
         );
-
-		CREATE TABLE IF NOT EXISTS tbl_Notification_Types (
-			id SERIAL PRIMARY KEY,
-			type VARCHAR(10) NOT NULL
-		);
-
-		CREATE TABLE IF NOT EXISTS tbl_Notifications (
-            id SERIAL PRIMARY KEY,
-            orderId INT REFERENCES tbl_Orders (id),
-            notificationTypeId INT REFERENCES tbl_Notification_Types (id),
-			timeSent TIMESTAMPTZ DEFAULT NOW()
-        );
     `
 	_, err := db.Exec(query)
 	return err
@@ -120,21 +108,5 @@ func OrderExists(db *sql.DB, name, email, phone string, courseID int) (bool, err
 func CreateDefaultOrder(db *sql.DB, name, email, phone string, courseID int) error {
 	query := "INSERT INTO tbl_Orders (name, email, phone, courseId, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 	_, err := db.Exec(query, name, email, phone, courseID, 1, time.Now(), time.Now())
-	return err
-}
-
-func NotificationTypeExists(db *sql.DB, t string) (bool, error) {
-	query := "SELECT COUNT(*) FROM tbl_Notification_Types WHERE type = $1"
-	var count int
-	err := db.QueryRow(query, t).Scan(&count)
-	if err != nil {
-		return false, err
-	}
-	return count > 0, nil
-}
-
-func CreateDefaultNotificationType(db *sql.DB, t string) error {
-	query := "INSERT INTO tbl_Notification_Types (type) VALUES ($1)"
-	_, err := db.Exec(query, t)
 	return err
 }

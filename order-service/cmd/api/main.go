@@ -33,9 +33,7 @@ func main() {
 
 	courseDB := db.NewCourseDBImpl(database)
 	orderDB := db.NewOrderDBImpl(database)
-	notificationDB := db.NewNotificationDBImpl(database)
-	notificationTypeDB := db.NewNotificationTypeDBImpl(database)
-	srv := newServer(courseDB, orderDB, notificationDB, notificationTypeDB).Router
+	srv := newServer(courseDB, orderDB).Router
 	log.Println("starting order service...")
 	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
 
@@ -69,21 +67,6 @@ func seed(database *sql.DB) {
 	addOrder(database, "jateen", "kalsijatin67@icloud.com", "4389893868", 2)
 	addOrder(database, "jateen", "kalsijatin67@icloud.com", "4389893868", 6)
 	addOrder(database, "jateen", "kalsijatin67@icloud.com", "4389893868", 4)
-
-	nTypeExists, err := db.NotificationTypeExists(database, "Open Seat")
-	if err != nil {
-		log.Fatalf("error checking if notification type exists: %v", err)
-	}
-
-	if !nTypeExists {
-		err = db.CreateDefaultNotificationType(database, "Open Seat")
-		if err != nil {
-			log.Fatalf("error inserting notification type: %v", err)
-		}
-		log.Println("notification type inserted successfully")
-	} else {
-		log.Println("notification type already inserted")
-	}
 }
 
 func addCourse(database *sql.DB, courseCode, courseTitle, semester, section, credits string, openSeats, wa, wc int) {
