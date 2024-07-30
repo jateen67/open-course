@@ -10,10 +10,12 @@ import (
 )
 
 type MailPayload struct {
-	From    string `json:"from"`
-	To      string `json:"to"`
-	Subject string `json:"subject"`
-	Message string `json:"message"`
+	From               string `json:"from"`
+	To                 string `json:"to"`
+	Subject            string `json:"subject"`
+	Message            string `json:"message"`
+	OrderID            int    `json:"orderId"`
+	NotificationTypeID string `json:"notificationTypeId"`
 }
 
 func Listen(conn *amqp.Connection) error {
@@ -65,10 +67,12 @@ func Listen(conn *amqp.Connection) error {
 		for d := range msgs {
 			log.Printf("Received a message: %s", d.Body)
 			mail := MailPayload{
-				From:    "from@example.com",
-				To:      "to@example.com",
-				Subject: "Class Seat Opened",
-				Message: string(d.Body),
+				From:               "from@example.com",
+				To:                 "to@example.com",
+				Subject:            "Class Seat Opened",
+				Message:            string(d.Body),
+				OrderID:            1,
+				NotificationTypeID: "66a862e4b2fddb9ea6768279",
 			}
 			err = sendMail(mail)
 			if err != nil {

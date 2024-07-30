@@ -48,6 +48,16 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  mongo:
+    image: 'mongo:4.2.17-bionic'
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: notificationsdb
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo_data:/data/db
   rabbitmq:
     image: 'rabbitmq:3-management-alpine'
     ports:
@@ -66,3 +76,4 @@ services:
 volumes:
   postgres_data:
   rabbitmq_data:
+  mongo_data:

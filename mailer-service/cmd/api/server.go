@@ -6,14 +6,17 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/jateen67/mailer-service/internal/data"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type server struct {
 	Router chi.Router
 	Mailer Mail
+	Models data.Models
 }
 
-func newServer() *server {
+func newServer(client *mongo.Client) *server {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -38,6 +41,7 @@ func newServer() *server {
 	s := &server{
 		Router: r,
 		Mailer: m,
+		Models: data.New(client),
 	}
 	s.routes()
 
