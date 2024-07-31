@@ -23,16 +23,3 @@ type OrderDB interface {
 	CreateOrder(Order) (int, error)
 	UpdateOrder(Order) error
 }
-
-type NotificationDB interface {
-	GetNotifications() ([]Notification, error)
-	GetNotification(notificationID int) (*Notification, error)
-	GetNotificationsByOrderID(orderID int) ([]Notification, error)
-	GetNotificationsByNotificationTypeID(notificationTypeID int) ([]Notification, error)
-	CreateNotification(Notification) (int, error)
-}
-
-type NotificationTypeDB interface {
-	GetNotificationTypes() ([]NotificationType, error)
-	CreateNotificationType(NotificationType) (int, error)
-}

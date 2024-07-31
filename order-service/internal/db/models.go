@@ -26,15 +26,3 @@ type Order struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
-
-type Notification struct {
-	ID                 int       `json:"id"`
-	OrderID            int       `json:"orderId"`
-	NotificationTypeID int       `json:"notificationTypeId"`
-	TimeSent           time.Time `json:"timeSent"`
-}
-
-type NotificationType struct {
-	ID   int    `json:"id"`
-	Type string `json:"type"`
-}

@@ -7,18 +7,14 @@ import (
 )
 
 type server struct {
-	Router             chi.Router
-	CourseDB           db.CourseDB
-	OrderDB            db.OrderDB
-	NotificationDB     db.NotificationDB
-	NotificationTypeDB db.NotificationTypeDB
+	Router   chi.Router
+	CourseDB db.CourseDB
+	OrderDB  db.OrderDB
 }
 
 func newServer(
 	courseDB db.CourseDB,
-	orderDB db.OrderDB,
-	notificationDB db.NotificationDB,
-	notificationTypeDB db.NotificationTypeDB) *server {
+	orderDB db.OrderDB) *server {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -30,11 +26,9 @@ func newServer(
 	}))
 
 	s := &server{
-		Router:             r,
-		CourseDB:           courseDB,
-		OrderDB:            orderDB,
-		NotificationDB:     notificationDB,
-		NotificationTypeDB: notificationTypeDB,
+		Router:   r,
+		CourseDB: courseDB,
+		OrderDB:  orderDB,
 	}
 	s.routes()
 

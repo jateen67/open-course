@@ -40,6 +40,6 @@ a message will be sent from the scraper-service to a rabbitmq queue which will t
 
 ## mailer
 
-the email service allows the user to send an email out with [mailhog](https://github.com/mailhog/MailHog). it works by taking in a json payload from the client, converting it into a formatted email, then sending it via smtp.
+the email service allows the user to send an email out with [mailhog](https://github.com/mailhog/MailHog). it works by taking in a json payload from the client, converting it into a formatted email, then sending it via smtp. a new notification entry also gets logged in the notification collection in mongodb, which can be accessed with [mongodb compass](https://www.mongodb.com/products/tools/compass) using the connection string `mongodb://admin:password@localhost:27017/?ssl=false`
 
 sent emails can be viewed by accessing the mailhog management ui at `http://localhost:8025/`
