@@ -1,3 +1,20 @@
+.Content {
+    padding: 12px 200px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--primary800);
+    box-shadow: 0 -20px 30px black;
+  }
+  
+.ContentLeft {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 22px;
+}
+
 .Text {
     color: var(--secondary100);
     font-size: 18px;
@@ -5,17 +22,13 @@
     letter-spacing: -0.5px;
 }
 
-.Content {
-    padding: 4px 200px 4px 200px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-.ContentLeft {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 44px;
+@media only screen and (max-width: 1020px) {
+    .Content {
+        padding: 12px 100px;
+    }
+}
+@media only screen and (max-width: 600px) {
+    .Content {
+        padding: 12px 20px;
+    }
 }

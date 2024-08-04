@@ -1,4 +1,4 @@
-import { Form } from "../Form/Form";
+import Form from "../Form/Form";
 import Header from "../Header/Header";
 import MainContentStyles from "./MainContent.module.css"
 

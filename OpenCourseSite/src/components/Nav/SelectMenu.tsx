@@ -29,9 +29,9 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({ setCurrentTheme }) => {
   };
 
   return (
-    <Select.Root onValueChange={handleSelect}>
+    <Select.Root defaultValue="blue" onValueChange={handleSelect}>
         <Select.Trigger className={SelectStyles.Trigger} aria-label="University Menu">
-        <Select.Value placeholder="Select a University" />
+        <Select.Value />
         <Select.Icon className={SelectStyles.Icon}>
             <ChevronDownIcon />
         </Select.Icon>

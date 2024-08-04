@@ -1,4 +1,4 @@
-import { SelectMenu } from "../SelectMenu/SelectMenu"
+import { SelectMenu } from "./SelectMenu"
 import NavStyles from "./Nav.module.css"
 import Colors from "../../styles/ColorSystem"
 

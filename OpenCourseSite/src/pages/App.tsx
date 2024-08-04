@@ -1,21 +1,16 @@
-import { useEffect, useState } from "react";
-import Test from "../components/test";
-import { Nav } from "../components/Nav/Nav"
-import Colors, { applyTheme } from '../styles/ColorSystem';
-import { MainContent } from "../components/MainContent/MainContent";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { LandingPage } from "./LandingPage";
+import { AboutPage } from "./AboutPage";
 
 export default function App() {
-  const [currentTheme, setCurrentTheme] = useState<keyof typeof Colors>("blue");
-
-  useEffect(() => {
-    applyTheme(Colors[currentTheme]);
-  }, [currentTheme]);
-
   return (
     <>
-      <Nav setCurrentTheme={setCurrentTheme} />
-      <MainContent />
-      <Test />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
