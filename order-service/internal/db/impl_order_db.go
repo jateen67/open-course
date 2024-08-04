@@ -137,7 +137,7 @@ func (d *OrderDBImpl) GetOrdersByUserPhone(phone string) ([]Order, error) {
 }
 
 func (d *OrderDBImpl) GetActiveOrders() ([]Order, error) {
-	query := "SELECT * FROM tbl_Orders WHERE isActive = 1"
+	query := "SELECT * FROM tbl_Orders WHERE isActive = TRUE"
 	rows, err := d.DB.Query(query)
 	if err != nil {
 		return nil, err

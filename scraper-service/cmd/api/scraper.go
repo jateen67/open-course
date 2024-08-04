@@ -7,10 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 	"sync"
-
-	"github.com/gocolly/colly/v2"
 )
 
 type XMLCourse struct {
@@ -46,10 +43,10 @@ type Response struct {
 	WaitlistCapacity  int    `json:"waitlist_capacity"`
 }
 
-func main() {
+func scraperMain() {
 	jsonData, _ := json.MarshalIndent("", "", "\t")
 
-	request, err := http.NewRequest("GET", "http://localhost:8081/scrapercourses", bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("GET", "http://order-service/scrapercourses", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Fatalf("could not make new http request: %s", err)
 	}
@@ -97,9 +94,14 @@ func main() {
 		close(ch)
 	}()
 
+	// == MAYBE NOT NEEDED ==
 	// for courseList := range ch {
 	// 	writeToDB(courseList)
 	// }
+
+	for courseList := range ch {
+		log.Println(courseList)
+	}
 }
 
 // func writeToDB(courseList []Course) {
@@ -109,48 +111,61 @@ func main() {
 func scrape(wg *sync.WaitGroup, url string, ch chan<- []Course) {
 	defer wg.Done()
 
-	c := colly.NewCollector()
-	var _course XMLCourse
+	//c := colly.NewCollector()
+	//var _course XMLCourse
 	courseList := []Course{}
 
-	c.OnXML("//errors", func(e *colly.XMLElement) {
-		err := e.ChildText("error")
-		if err != "" {
-			log.Fatal("Error: " + err)
-		}
-	})
-
-	c.OnXML("//classdata/course", func(e *colly.XMLElement) {
-		_course.CourseCode = e.Attr("key")
-		_course.CourseTitle = e.Attr("title")
-		_course.Semester = e.ChildAttr("uselection/selection", "ssid")
-		_course.Credits = e.ChildAttr("uselection/selection", "credits")
-		_course.Section = e.ChildAttrs("uselection/selection/block", "disp")
-		_course.OpenSeats = e.ChildAttrs("uselection/selection/block", "os")
-		_course.WaitlistAvailable = e.ChildAttrs("uselection/selection/block", "ws")
-		_course.WaitlistCapacity = e.ChildAttrs("uselection/selection/block", "wc")
-		for i := range _course.Section {
-			var newCourse Course
-			newCourse.CourseCode = _course.CourseCode
-			newCourse.CourseTitle = _course.CourseTitle
-			newCourse.Semester = _course.Semester
-			newCourse.Credits = _course.Credits
-			newCourse.Section = _course.Section[i]
-			newCourse.OpenSeats, _ = strconv.Atoi(_course.OpenSeats[i])
-			newCourse.WaitlistAvailable, _ = strconv.Atoi(_course.WaitlistAvailable[i])
-			newCourse.WaitlistCapacity, _ = strconv.Atoi(_course.WaitlistCapacity[i])
-			courseList = append(courseList, newCourse)
-		}
-	})
-
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting: ", r.URL)
-	})
-
-	err := c.Visit(url)
-	if err != nil {
-		log.Fatal(err)
+	for i := 0; i <= 9; i++ {
+		var newCourse Course
+		newCourse.CourseCode = fmt.Sprintf("COMP-25%v", i)
+		newCourse.CourseTitle = fmt.Sprintf("title%v", i)
+		newCourse.Semester = "202409"
+		newCourse.Credits = "3.0"
+		newCourse.Section = "Lec 001"
+		newCourse.OpenSeats = i
+		newCourse.WaitlistAvailable = 5 + i
+		newCourse.WaitlistCapacity = 20 + i
+		courseList = append(courseList, newCourse)
 	}
+
+	// c.OnXML("//errors", func(e *colly.XMLElement) {
+	// 	err := e.ChildText("error")
+	// 	if err != "" {
+	// 		log.Fatal("Error: " + err)
+	// 	}
+	// })
+
+	// c.OnXML("//classdata/course", func(e *colly.XMLElement) {
+	// 	_course.CourseCode = e.Attr("key")
+	// 	_course.CourseTitle = e.Attr("title")
+	// 	_course.Semester = e.ChildAttr("uselection/selection", "ssid")
+	// 	_course.Credits = e.ChildAttr("uselection/selection", "credits")
+	// 	_course.Section = e.ChildAttrs("uselection/selection/block", "disp")
+	// 	_course.OpenSeats = e.ChildAttrs("uselection/selection/block", "os")
+	// 	_course.WaitlistAvailable = e.ChildAttrs("uselection/selection/block", "ws")
+	// 	_course.WaitlistCapacity = e.ChildAttrs("uselection/selection/block", "wc")
+	// 	for i := range _course.Section {
+	// 		var newCourse Course
+	// 		newCourse.CourseCode = _course.CourseCode
+	// 		newCourse.CourseTitle = _course.CourseTitle
+	// 		newCourse.Semester = _course.Semester
+	// 		newCourse.Credits = _course.Credits
+	// 		newCourse.Section = _course.Section[i]
+	// 		newCourse.OpenSeats, _ = strconv.Atoi(_course.OpenSeats[i])
+	// 		newCourse.WaitlistAvailable, _ = strconv.Atoi(_course.WaitlistAvailable[i])
+	// 		newCourse.WaitlistCapacity, _ = strconv.Atoi(_course.WaitlistCapacity[i])
+	// 		courseList = append(courseList, newCourse)
+	// 	}
+	// })
+
+	// c.OnRequest(func(r *colly.Request) {
+	// 	fmt.Println("Visiting: ", r.URL)
+	// })
+
+	// err := c.Visit(url)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	ch <- courseList
 }

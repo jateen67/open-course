@@ -21,6 +21,14 @@ func main() {
 	}
 	defer conn.Close()
 
+	// scraper start
+	go func() {
+		for {
+			time.Sleep(3 * time.Second)
+			scraperMain()
+		}
+	}()
+
 	srv := newServer(conn).Router
 	log.Println("starting scraper service...")
 	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
@@ -31,6 +39,7 @@ func main() {
 		log.Println("error starting order service: ", err)
 		os.Exit(1)
 	}
+
 }
 
 func connectToRabbitMQ() (*amqp.Connection, error) {
