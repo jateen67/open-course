@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -140,7 +139,7 @@ func scrape(wg *sync.WaitGroup, rabbit RabbitPayload, ch chan<- []RabbitPayload)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("visiting: ", r.URL)
+		log.Println("visiting: ", r.URL)
 	})
 
 	err := c.Visit(url)

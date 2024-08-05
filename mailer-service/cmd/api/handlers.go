@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type JSONPayload struct {
+type RabbitPayload struct {
 	CourseID          int    `json:"courseId"`
 	CourseCode        string `json:"courseCode"`
 	CourseTitle       string `json:"courseTitle"`
@@ -38,7 +38,7 @@ func (s *server) logNotification(orderId int, notificationTypeId primitive.Objec
 }
 
 func (s *server) SendMail(w http.ResponseWriter, r *http.Request) {
-	var reqPayload JSONPayload
+	var reqPayload RabbitPayload
 
 	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {

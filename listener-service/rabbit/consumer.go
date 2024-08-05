@@ -11,7 +11,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type MailPayload struct {
+type RabbitPayload struct {
 	CourseID          int    `json:"courseId"`
 	CourseCode        string `json:"courseCode"`
 	CourseTitle       string `json:"courseTitle"`
@@ -97,7 +97,7 @@ func Listen(conn *amqp.Connection) error {
 				log.Fatalf("invalid data: %s", err)
 			}
 
-			mail := MailPayload{
+			mail := RabbitPayload{
 				CourseID:          courseID,
 				CourseCode:        split[1],
 				CourseTitle:       split[2],
@@ -125,7 +125,7 @@ func Listen(conn *amqp.Connection) error {
 	return nil
 }
 
-func sendMail(msg MailPayload) error {
+func sendMail(msg RabbitPayload) error {
 	jsonData, _ := json.MarshalIndent(msg, "", "\t")
 
 	request, err := http.NewRequest("POST", "http://mailer-service/mail", bytes.NewBuffer(jsonData))
