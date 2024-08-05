@@ -5,17 +5,25 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type MailPayload struct {
-	From               string `json:"from"`
-	To                 string `json:"to"`
-	Subject            string `json:"subject"`
-	Message            string `json:"message"`
-	OrderID            int    `json:"orderId"`
-	NotificationTypeID string `json:"notificationTypeId"`
+	CourseID          int    `json:"courseId"`
+	CourseCode        string `json:"courseCode"`
+	CourseTitle       string `json:"courseTitle"`
+	Semester          string `json:"semester"`
+	Section           string `json:"section"`
+	OpenSeats         int    `json:"openSeats"`
+	WaitlistAvailable int    `json:"waitlistAvailable"`
+	WaitlistCapacity  int    `json:"waitlistCapacity"`
+	OrderID           int    `json:"orderId"`
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	Phone             string `json:"phone"`
 }
 
 func Listen(conn *amqp.Connection) error {
@@ -66,13 +74,42 @@ func Listen(conn *amqp.Connection) error {
 	go func() {
 		for d := range msgs {
 			log.Printf("Received a message: %s", d.Body)
+			split := strings.Split(string(d.Body), ";")
+			//courseID, courseCode, courseTitle, semester, section, openSeats, wa, wc, orderID, name, email, phone
+			courseID, err := strconv.Atoi(split[0])
+			if err != nil {
+				log.Fatalf("invalid data: %s", err)
+			}
+			openSeats, err := strconv.Atoi(split[5])
+			if err != nil {
+				log.Fatalf("invalid data: %s", err)
+			}
+			wa, err := strconv.Atoi(split[6])
+			if err != nil {
+				log.Fatalf("invalid data: %s", err)
+			}
+			wc, err := strconv.Atoi(split[7])
+			if err != nil {
+				log.Fatalf("invalid data: %s", err)
+			}
+			orderID, err := strconv.Atoi(split[8])
+			if err != nil {
+				log.Fatalf("invalid data: %s", err)
+			}
+
 			mail := MailPayload{
-				From:               "from@example.com",
-				To:                 "to@example.com",
-				Subject:            "Class Seat Opened",
-				Message:            string(d.Body),
-				OrderID:            1,
-				NotificationTypeID: "66a862e4b2fddb9ea6768279",
+				CourseID:          courseID,
+				CourseCode:        split[1],
+				CourseTitle:       split[2],
+				Semester:          split[3],
+				Section:           split[4],
+				OpenSeats:         openSeats,
+				WaitlistAvailable: wa,
+				WaitlistCapacity:  wc,
+				OrderID:           orderID,
+				Name:              split[9],
+				Email:             split[10],
+				Phone:             split[11],
 			}
 			err = sendMail(mail)
 			if err != nil {

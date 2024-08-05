@@ -12,11 +12,19 @@ import (
 	"github.com/jateen67/order-service/internal/db"
 )
 
-type MailPayload struct {
-	From    string `json:"from"`
-	To      string `json:"to"`
-	Subject string `json:"subject"`
-	Message string `json:"message"`
+type RabbitPayload struct {
+	CourseID          int    `json:"courseId"`
+	CourseCode        string `json:"courseCode"`
+	CourseTitle       string `json:"courseTitle"`
+	Semester          string `json:"semester"`
+	Section           string `json:"section"`
+	OpenSeats         int    `json:"openSeats"`
+	WaitlistAvailable int    `json:"waitlistAvailable"`
+	WaitlistCapacity  int    `json:"waitlistCapacity"`
+	OrderID           int    `json:"orderId"`
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	Phone             string `json:"phone"`
 }
 
 func (s *server) getOrderByID(w http.ResponseWriter, r *http.Request) {
@@ -153,6 +161,7 @@ func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 	}
 
 	courseIDArray := make([]int, len(orders))
+
 	for i, order := range orders {
 		courseIDArray[i] = order.CourseID
 	}
@@ -163,5 +172,34 @@ func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(courses)
+	orderMap := make(map[db.Order]int)
+	for _, order := range orders {
+		orderMap[order] = order.CourseID
+	}
+
+	courseMap := make(map[int]db.Course)
+	for _, course := range courses {
+		courseMap[course.ID] = course
+	}
+
+	var rabbits []RabbitPayload
+
+	for _, order := range orders {
+		var payload RabbitPayload
+		payload.CourseID = order.CourseID
+		payload.CourseCode = courseMap[order.CourseID].CourseCode
+		payload.CourseTitle = courseMap[order.CourseID].CourseTitle
+		payload.Semester = courseMap[order.CourseID].Semester
+		payload.Section = courseMap[order.CourseID].Section
+		payload.OpenSeats = courseMap[order.CourseID].OpenSeats
+		payload.WaitlistAvailable = courseMap[order.CourseID].WaitlistAvailable
+		payload.WaitlistCapacity = courseMap[order.CourseID].WaitlistCapacity
+		payload.OrderID = order.ID
+		payload.Name = order.Name
+		payload.Email = order.Email
+		payload.Phone = order.Phone
+		rabbits = append(rabbits, payload)
+	}
+
+	json.NewEncoder(w).Encode(rabbits)
 }

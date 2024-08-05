@@ -7,7 +7,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
+
+	"github.com/gocolly/colly/v2"
+	event "github.com/jateen67/scraper-service/rabbit"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type XMLCourse struct {
@@ -21,29 +26,22 @@ type XMLCourse struct {
 	WaitlistCapacity  []string `xml:"wc,attr"`
 }
 
-type Course struct {
-	CourseCode        string `xml:"key,attr"`
-	CourseTitle       string `xml:"title,attr"`
-	Semester          string `xml:"ssid,attr"`
-	Credits           string `xml:"credits,attr"`
-	Section           string `xml:"disp,attr"`
-	OpenSeats         int    `xml:"os,attr"`
-	WaitlistAvailable int    `xml:"ws,attr"`
-	WaitlistCapacity  int    `xml:"wc,attr"`
-}
-
-type Response struct {
-	CourseCode        string `json:"course_code"`
-	CourseTitle       string `json:"course_title"`
+type RabbitPayload struct {
+	CourseID          int    `json:"courseId"`
+	CourseCode        string `json:"courseCode"`
+	CourseTitle       string `json:"courseTitle"`
 	Semester          string `json:"semester"`
-	Credits           string `json:"credits"`
 	Section           string `json:"section"`
-	OpenSeats         int    `json:"open_seats"`
-	WaitlistAvailable int    `json:"waitlist_available"`
-	WaitlistCapacity  int    `json:"waitlist_capacity"`
+	OpenSeats         int    `json:"openSeats"`
+	WaitlistAvailable int    `json:"waitlistAvailable"`
+	WaitlistCapacity  int    `json:"waitlistCapacity"`
+	OrderID           int    `json:"orderId"`
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	Phone             string `json:"phone"`
 }
 
-func scraperMain() {
+func scraperMain(conn *amqp.Connection) {
 	jsonData, _ := json.MarshalIndent("", "", "\t")
 
 	request, err := http.NewRequest("GET", "http://order-service/scrapercourses", bytes.NewBuffer(jsonData))
@@ -69,24 +67,18 @@ func scraperMain() {
 		log.Fatalln(err)
 	}
 
-	var courses []Response
+	var rabbits []RabbitPayload
 
-	if err := json.Unmarshal(body, &courses); err != nil {
+	if err := json.Unmarshal(body, &rabbits); err != nil {
 		log.Fatalln(err)
 	}
 
-	var urls []string
-
-	for _, c := range courses {
-		urls = append(urls, fmt.Sprintf("https://vsb.mcgill.ca/vsb/getclassdata.jsp?term=%s&course_0_0=%s&rq_0_0=null&t=218&e=19&nouser=1&_=1720573081517", c.Semester, c.CourseCode))
-	}
-
 	var wg sync.WaitGroup
-	ch := make(chan []Course, len(urls))
+	ch := make(chan []RabbitPayload, len(rabbits))
 
-	for _, url := range urls {
+	for _, rabbit := range rabbits {
 		wg.Add(1)
-		go scrape(&wg, url, ch)
+		go scrape(&wg, rabbit, ch)
 	}
 
 	go func() {
@@ -94,78 +86,83 @@ func scraperMain() {
 		close(ch)
 	}()
 
-	// == MAYBE NOT NEEDED ==
-	// for courseList := range ch {
-	// 	writeToDB(courseList)
-	// }
-
-	for courseList := range ch {
-		log.Println(courseList)
+	for rabbitList := range ch {
+		sendToMailer(conn, rabbitList)
 	}
 }
 
-// func writeToDB(courseList []Course) {
-// 	fmt.Println("course data successfully written to database")
-// }
+func sendToMailer(conn *amqp.Connection, rabbitList []RabbitPayload) {
+	for _, rabbit := range rabbitList {
+		if rabbit.OpenSeats > 0 || rabbit.WaitlistAvailable > 0 {
+			pushToQueue(conn, rabbit)
+		}
+	}
+}
 
-func scrape(wg *sync.WaitGroup, url string, ch chan<- []Course) {
+func scrape(wg *sync.WaitGroup, rabbit RabbitPayload, ch chan<- []RabbitPayload) {
 	defer wg.Done()
 
-	//c := colly.NewCollector()
-	//var _course XMLCourse
-	courseList := []Course{}
+	url := ""
+	c := colly.NewCollector()
+	var _course XMLCourse
+	rabbitList := []RabbitPayload{}
 
-	for i := 0; i <= 9; i++ {
-		var newCourse Course
-		newCourse.CourseCode = fmt.Sprintf("COMP-25%v", i)
-		newCourse.CourseTitle = fmt.Sprintf("title%v", i)
-		newCourse.Semester = "202409"
-		newCourse.Credits = "3.0"
-		newCourse.Section = "Lec 001"
-		newCourse.OpenSeats = i
-		newCourse.WaitlistAvailable = 5 + i
-		newCourse.WaitlistCapacity = 20 + i
-		courseList = append(courseList, newCourse)
+	c.OnXML("//errors", func(e *colly.XMLElement) {
+		err := e.ChildText("error")
+		if err != "" {
+			log.Fatal("error: " + err)
+		}
+	})
+
+	c.OnXML("//classdata/course", func(e *colly.XMLElement) {
+		_course.Section = e.ChildAttrs("uselection/selection/block", "disp")
+		_course.OpenSeats = e.ChildAttrs("uselection/selection/block", "os")
+		_course.WaitlistAvailable = e.ChildAttrs("uselection/selection/block", "ws")
+		_course.WaitlistCapacity = e.ChildAttrs("uselection/selection/block", "wc")
+		for i := range _course.Section {
+			if _course.Section[i] == rabbit.Section {
+				var newRabbit RabbitPayload
+				newRabbit.CourseID = rabbit.CourseID
+				newRabbit.CourseCode = rabbit.CourseCode
+				newRabbit.CourseTitle = rabbit.CourseTitle
+				newRabbit.Semester = rabbit.Semester
+				newRabbit.Section = _course.Section[i]
+				newRabbit.OpenSeats, _ = strconv.Atoi(_course.OpenSeats[i])
+				newRabbit.WaitlistAvailable, _ = strconv.Atoi(_course.WaitlistAvailable[i])
+				newRabbit.WaitlistCapacity, _ = strconv.Atoi(_course.WaitlistCapacity[i])
+				newRabbit.OrderID = rabbit.OrderID
+				newRabbit.Name = rabbit.Name
+				newRabbit.Email = rabbit.Email
+				newRabbit.Phone = rabbit.Phone
+				rabbitList = append(rabbitList, newRabbit)
+			}
+		}
+	})
+
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println("visiting: ", r.URL)
+	})
+
+	err := c.Visit(url)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	// c.OnXML("//errors", func(e *colly.XMLElement) {
-	// 	err := e.ChildText("error")
-	// 	if err != "" {
-	// 		log.Fatal("Error: " + err)
-	// 	}
-	// })
+	ch <- rabbitList
+}
 
-	// c.OnXML("//classdata/course", func(e *colly.XMLElement) {
-	// 	_course.CourseCode = e.Attr("key")
-	// 	_course.CourseTitle = e.Attr("title")
-	// 	_course.Semester = e.ChildAttr("uselection/selection", "ssid")
-	// 	_course.Credits = e.ChildAttr("uselection/selection", "credits")
-	// 	_course.Section = e.ChildAttrs("uselection/selection/block", "disp")
-	// 	_course.OpenSeats = e.ChildAttrs("uselection/selection/block", "os")
-	// 	_course.WaitlistAvailable = e.ChildAttrs("uselection/selection/block", "ws")
-	// 	_course.WaitlistCapacity = e.ChildAttrs("uselection/selection/block", "wc")
-	// 	for i := range _course.Section {
-	// 		var newCourse Course
-	// 		newCourse.CourseCode = _course.CourseCode
-	// 		newCourse.CourseTitle = _course.CourseTitle
-	// 		newCourse.Semester = _course.Semester
-	// 		newCourse.Credits = _course.Credits
-	// 		newCourse.Section = _course.Section[i]
-	// 		newCourse.OpenSeats, _ = strconv.Atoi(_course.OpenSeats[i])
-	// 		newCourse.WaitlistAvailable, _ = strconv.Atoi(_course.WaitlistAvailable[i])
-	// 		newCourse.WaitlistCapacity, _ = strconv.Atoi(_course.WaitlistCapacity[i])
-	// 		courseList = append(courseList, newCourse)
-	// 	}
-	// })
+func pushToQueue(conn *amqp.Connection, rabbit RabbitPayload) error {
+	emitter, q, err := event.NewEventEmitter(conn)
+	if err != nil {
+		return err
+	}
 
-	// c.OnRequest(func(r *colly.Request) {
-	// 	fmt.Println("Visiting: ", r.URL)
-	// })
+	err = emitter.Push(&q, rabbit.CourseID, rabbit.CourseCode, rabbit.CourseTitle, rabbit.Semester,
+		rabbit.Section, rabbit.OpenSeats, rabbit.WaitlistAvailable, rabbit.WaitlistCapacity, rabbit.OrderID,
+		rabbit.Name, rabbit.Email, rabbit.Phone)
+	if err != nil {
+		return err
+	}
 
-	// err := c.Visit(url)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	ch <- courseList
+	return nil
 }

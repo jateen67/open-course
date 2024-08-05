@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/jateen67/mailer-service/internal/data"
@@ -8,12 +9,18 @@ import (
 )
 
 type JSONPayload struct {
-	From               string `json:"from"`
-	To                 string `json:"to"`
-	Subject            string `json:"subject"`
-	Message            string `json:"message"`
-	OrderID            int    `json:"orderId"`
-	NotificationTypeID string `json:"notificationTypeId"`
+	CourseID          int    `json:"courseId"`
+	CourseCode        string `json:"courseCode"`
+	CourseTitle       string `json:"courseTitle"`
+	Semester          string `json:"semester"`
+	Section           string `json:"section"`
+	OpenSeats         int    `json:"openSeats"`
+	WaitlistAvailable int    `json:"waitlistAvailable"`
+	WaitlistCapacity  int    `json:"waitlistCapacity"`
+	OrderID           int    `json:"orderId"`
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	Phone             string `json:"phone"`
 }
 
 func (s *server) logNotification(orderId int, notificationTypeId primitive.ObjectID) error {
@@ -31,19 +38,20 @@ func (s *server) logNotification(orderId int, notificationTypeId primitive.Objec
 }
 
 func (s *server) SendMail(w http.ResponseWriter, r *http.Request) {
-	var requestPayload JSONPayload
+	var reqPayload JSONPayload
 
-	err := s.readJSON(w, r, &requestPayload)
+	err := s.readJSON(w, r, &reqPayload)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
 	msg := Message{
-		From:    requestPayload.From,
-		To:      requestPayload.To,
-		Subject: requestPayload.Subject,
-		Data:    requestPayload.Message,
+		From:    "opencourse@gmail.com",
+		To:      reqPayload.Email,
+		Subject: fmt.Sprintf("%s Seat Opened!", reqPayload.CourseCode),
+		Data: fmt.Sprintf("Hi %s,\nA seat in %s - %s (%s) has opened up for the %s semester. Sign up quickly!",
+			reqPayload.Name, reqPayload.CourseCode, reqPayload.CourseTitle, reqPayload.Section, reqPayload.Semester),
 	}
 
 	objectId, err := primitive.ObjectIDFromHex("66a862e4b2fddb9ea6768279")
@@ -52,7 +60,7 @@ func (s *server) SendMail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.logNotification(requestPayload.OrderID, objectId)
+	err = s.logNotification(reqPayload.OrderID, objectId)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -66,7 +74,7 @@ func (s *server) SendMail(w http.ResponseWriter, r *http.Request) {
 
 	payload := jsonResponse{
 		Error:   false,
-		Message: "db entry + email notification sent to " + requestPayload.To,
+		Message: "db entry + email notification sent to " + reqPayload.Email,
 	}
 
 	s.writeJSON(w, payload, http.StatusAccepted)
