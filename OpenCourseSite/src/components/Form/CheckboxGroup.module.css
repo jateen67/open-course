@@ -20,17 +20,32 @@ p {
     padding: 0 0;
 }
 
-.Row {
+.Row, .HeaderRow {
     display: flex;
     flex-direction: row;
     width: 100%;
     gap: 12px;
     padding: 10px 12px;
 }
+.Row:hover, .Row:checked {
+    background-color: var(--primary650);
+    cursor: pointer;
+}
+.Row.Checked {
+    background-color: var(--primary600);
+}
 
 .BoxContainer {
     width: 1rem;
     height: 1rem;
+}
+
+.LabelRow {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 12px;
+    cursor: pointer;
 }
 
 .SectionContainer, .CRNContainer, .DayContainer {

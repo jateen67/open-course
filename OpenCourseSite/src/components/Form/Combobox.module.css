@@ -21,7 +21,7 @@
     padding: 6px 10px;
     font-size: 0.875rem;
     line-height: 1.5rem;
-    color: var(--primary400);
+    color: var(--primary300);
 }
 .Input:focus {
     outline: none;
@@ -85,6 +85,7 @@
 .Option[data-selected="true"] {
     visibility: visible;
     background-color: var(--primary600);
+    color: var(--primary300);
 }
 
 .Text {

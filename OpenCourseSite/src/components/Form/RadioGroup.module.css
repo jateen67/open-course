@@ -22,6 +22,7 @@
 }
   
 .Item {
+    display: flex;
     background-color: var(--primary650);
     outline: var(--primary600);
     width: 25px;

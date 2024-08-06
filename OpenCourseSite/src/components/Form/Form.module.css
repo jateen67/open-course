@@ -55,7 +55,7 @@ h3 {
     font-size: 14px;
     line-height: 1;
     background-color: var(--primary700);
-    color: var(--primary400);
+    color: var(--primary300);
     box-shadow: 0 0 0 1px var(--primary600);
     height: 35px;
 }

@@ -1,6 +1,7 @@
 import { SelectMenu } from "./SelectMenu"
 import NavStyles from "./Nav.module.css"
 import Colors from "../../styles/ColorSystem"
+import { Link } from "react-router-dom";
 
 interface NavProps {
     setCurrentTheme: (theme: keyof typeof Colors) => void;
@@ -10,11 +11,11 @@ export const Nav = (props: NavProps) => {
     return (
         <div className={NavStyles.Content}>
             <div className={NavStyles.ContentLeft}>
-                <p className={NavStyles.Text}>OpenCourse</p>
+                <Link to="/" className={NavStyles.Text}>OpenCourse</Link>
                 <SelectMenu setCurrentTheme={props.setCurrentTheme} />
             </div>
             <div>
-                <p className={NavStyles.Text}>About</p>
+                <Link to="/about" className={NavStyles.Text}>About</Link>
             </div>
         </div>
     )

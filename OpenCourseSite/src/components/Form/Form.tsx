@@ -1,40 +1,30 @@
-import * as RadioGroup from '@radix-ui/react-radio-group';
+import RadioGroup from "./RadioGroup";
 import FormStyles from "./Form.module.css"
-import RadioGroupStyles from "./RadioGroup.module.css";
-import CourseCombobox from './Combobox';
-import CheckboxGroup from './CheckboxGroup';
-import Checkbox from './Checkbox';
+import CourseCombobox from "./Combobox";
+import CheckboxGroup from "./CheckboxGroup";
+
+const radioOptions = [
+    { id: "r1", value: "fall", label: "Fall 2023" },
+    { id: "r2", value: "winter", label: "Winter 2023" },
+    { id: "r3", value: "summer", label: "Summer 2024" },
+];
+
+const sectionOptions = [
+    { sectionType: "lec", sectionNum: "001", crn: 2343, days: ["Tuesday, Thursday"], times: ["11:07 – 23:04"]},
+    { sectionType: "lec", sectionNum: "001", crn: 2343, days: ["Tuesday, Thursday"], times: ["11:07 – 23:04"]},
+]
+
+const formFields = [
+    { id: "name", label: "Name", type: "text" },
+    { id: "email", label: "Email", type: "email" },
+    { id: "pnum", label: "Phone Number", type: "tel" }
+];
 
 const Form = () => (
     <form className={FormStyles.Content}>
         <div className={FormStyles.SectionContent}>
             <h3>Term</h3>
-            <RadioGroup.Root className={RadioGroupStyles.Root} defaultValue="default" aria-label="View density">
-                <div className={RadioGroupStyles.Container}>
-                    <RadioGroup.Item className={RadioGroupStyles.Item} value="default" id="r1">
-                    <RadioGroup.Indicator className={RadioGroupStyles.Indicator} />
-                    </RadioGroup.Item>
-                    <label className={RadioGroupStyles.Label} htmlFor="r1">
-                        Default
-                    </label>
-                </div>
-                <div className={RadioGroupStyles.Container}>
-                    <RadioGroup.Item className={RadioGroupStyles.Item} value="comfortable" id="r2">
-                    <RadioGroup.Indicator className={RadioGroupStyles.Indicator} />
-                    </RadioGroup.Item>
-                    <label className={RadioGroupStyles.Label} htmlFor="r2">
-                        Comfortable
-                    </label>
-                </div>
-                <div className={RadioGroupStyles.Container}>
-                <RadioGroup.Item className={RadioGroupStyles.Item} value="meow" id="r3">
-                    <RadioGroup.Indicator className={RadioGroupStyles.Indicator} />
-                    </RadioGroup.Item>
-                    <label className={RadioGroupStyles.Label} htmlFor="r3">
-                        Meow
-                    </label>
-                </div>
-            </RadioGroup.Root>
+            <RadioGroup options={radioOptions} />
         </div>
         
         <div className={FormStyles.SectionContent}>
@@ -43,23 +33,16 @@ const Form = () => (
         </div>
         <div className={FormStyles.SectionContent}>
             <h3>Section</h3>
-            <CheckboxGroup />
-            <Checkbox />
+            <CheckboxGroup sections={sectionOptions} />
         </div>
         <div className={FormStyles.SectionContent}>
             <h3>Contact Info</h3>
-            <fieldset className={FormStyles.Fieldset}>
-                <label className={FormStyles.Label} htmlFor="name">Name</label>
-                <input className={FormStyles.Input} id="name" />
-            </fieldset>
-            <fieldset className={FormStyles.Fieldset}>
-                <label className={FormStyles.Label} htmlFor="email">Email</label>
-                <input className={FormStyles.Input} id="email" />
-            </fieldset>
-            <fieldset className={FormStyles.Fieldset}>
-                <label className={FormStyles.Label} htmlFor="pnum">Phone Number</label>
-                <input className={FormStyles.Input} id="pnum" />
-            </fieldset>
+            {formFields.map(field => (
+                <fieldset key={field.id} className={FormStyles.Fieldset}>
+                <label className={FormStyles.Label} htmlFor={field.id}>{field.label}</label>
+                <input className={FormStyles.Input} id={field.id} type={field.type} />
+                </fieldset>
+            ))}
             <button className={FormStyles.Button}>Checkout</button>
         </div>
     </form>

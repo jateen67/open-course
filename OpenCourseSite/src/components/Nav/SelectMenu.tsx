@@ -8,7 +8,7 @@ interface SelectMenuProps {
   setCurrentTheme: (theme: keyof typeof Colors) => void;
 }
 
-interface SelectItemProps extends React.ComponentPropsWithoutRef<'div'> {
+interface SelectItemProps extends React.ComponentPropsWithoutRef<"div"> {
   value: string;
   children: React.ReactNode;
 };
@@ -29,7 +29,7 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({ setCurrentTheme }) => {
   };
 
   return (
-    <Select.Root defaultValue="blue" onValueChange={handleSelect}>
+    <Select.Root defaultValue="red" onValueChange={handleSelect}>
         <Select.Trigger className={SelectStyles.Trigger} aria-label="University Menu">
         <Select.Value />
         <Select.Icon className={SelectStyles.Icon}>
@@ -43,7 +43,7 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({ setCurrentTheme }) => {
               </Select.ScrollUpButton>
               <Select.Viewport className={SelectStyles.Viewport}>
                 <Select.Group>
-                  <SelectItem value="blue">McGill University</SelectItem>
+                  <SelectItem value="red">McGill University</SelectItem>
                   <SelectItem value="burgundy">Concordia University</SelectItem>
                   <SelectItem value="green">University of Northern Texas</SelectItem>
                 </Select.Group>

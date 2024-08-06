@@ -32,6 +32,7 @@ const createTheme = (tertiary: string): ThemeColors => ({
 });
 
 const Colors = {
+    red: createTheme("rgb(56, 34, 35)"),
     burgundy: createTheme("rgb(40, 27, 29)"),
     blue: createTheme("rgb(34, 43, 56)"),
     green: createTheme("rgb(28, 36, 29)"),

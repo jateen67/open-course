@@ -5,7 +5,7 @@ import Colors, { applyTheme } from '../../styles/ColorSystem';
 import { MainContent } from "../../components/MainContent/MainContent";
 
 export const LandingPage: React.FC = () => {
-    const [currentTheme, setCurrentTheme] = useState<keyof typeof Colors>("blue");
+    const [currentTheme, setCurrentTheme] = useState<keyof typeof Colors>("red");
 
     useEffect(() => {
         applyTheme(Colors[currentTheme]);

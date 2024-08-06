@@ -3,13 +3,18 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { useState } from "react"
 import ComboboxStyles from "./Combobox.module.css"
 
+interface Course {
+    code: string;
+    name: string;
+}
+
 const courses = [
     { id: 1, name: "COMP 202 – Introduction to Programming idk" },
     { id: 2, name: "COMP 250 – Introduction to Computer Science" },
 ]
 
 const CourseCombobox = () => {
-    const [selectedCourse, setSelectedCourse] = useState(courses[0])
+    const [selectedCourse, setSelectedCourse] = useState("")
     const [query, setQuery] = useState("")
 
     const filteredCourses =
@@ -28,7 +33,7 @@ const CourseCombobox = () => {
                 <div className={ComboboxStyles.InputContainer}>
                     <ComboboxInput
                         aria-label="Selected Course"
-                        autofocus
+                        placeholder="Search for courses..."
                         displayValue={(selectedCourse: { id: number; name: string }) => selectedCourse?.name}
                         onChange={(event) => setQuery(event.target.value)}
                         className={ComboboxStyles.Input}

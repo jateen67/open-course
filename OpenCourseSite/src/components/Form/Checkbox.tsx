@@ -1,19 +1,27 @@
-import { Checkbox as HeadlessCheckbox } from '@headlessui/react'
+import { Checkbox as HeadlessCheckbox, Field, Label } from '@headlessui/react'
 import { useState } from 'react'
 import CheckboxStyles from "./CheckboxGroup.module.css"
 
-const Checkbox = () => {
+interface CheckboxProps {
+    section: string;
+    crn: number;
+    days: string[];
+    times: string[];
+}
+
+const Checkbox: React.FC<CheckboxProps> = ({ section, crn, days, times }) => {
     const [enabled, setEnabled] = useState(false);
+    const toggleCheck = () => setEnabled(!enabled);
+
     
     return (
         <>
-        <div className={CheckboxStyles.Row}>
+        <Field className={enabled ? `${CheckboxStyles.Row} ${CheckboxStyles.Checked}` : CheckboxStyles.Row} onClick={toggleCheck}>
             <div className={CheckboxStyles.BoxContainer}>
                 <HeadlessCheckbox
                     checked={enabled}
                     onChange={setEnabled}
                     className={`${CheckboxStyles.CheckboxContainer} ${enabled ? CheckboxStyles.checked : ""}`}
-                    
                 >
                     <svg
                         className={`${CheckboxStyles.CheckIcon} ${enabled ? CheckboxStyles.checked : ""}`}
@@ -29,21 +37,25 @@ const Checkbox = () => {
                     </svg>
                 </HeadlessCheckbox>
             </div>
-            <div className={CheckboxStyles.SectionContainer}>
-                <p>Lec 001</p>
-            </div>
-            <div className={CheckboxStyles.CRNContainer}>
-                <p>8102</p>
-            </div>
-            <div className={CheckboxStyles.DayContainer}>
-                <p>tuesday</p>
-                <p>thursday</p>
-            </div>
-            <div className={CheckboxStyles.TimeContainer}>
-                <p>11:00 – 12:45</p>
-            </div>
-        </div>
-        <hr/>
+            <Label className={CheckboxStyles.LabelRow}>
+                    <div className={CheckboxStyles.SectionContainer}>
+                        <p>{section}</p>
+                    </div>
+                    <div className={CheckboxStyles.CRNContainer}>
+                        <p>{crn}</p>
+                    </div>
+                    <div className={CheckboxStyles.DayContainer}>
+                        {days.map((day) => (
+                            <p>{day}</p>
+                        ))}
+                    </div>
+                    <div className={CheckboxStyles.TimeContainer}>
+                        {times.map((time) => (
+                            <p>{time}</p>
+                        ))}
+                    </div>
+            </Label>
+        </Field>
         </>
     );
 }
