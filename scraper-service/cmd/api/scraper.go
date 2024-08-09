@@ -86,11 +86,11 @@ func scraperMain(conn *amqp.Connection) {
 	}()
 
 	for rabbitList := range ch {
-		sendToMailer(conn, rabbitList)
+		sendToNotifier(conn, rabbitList)
 	}
 }
 
-func sendToMailer(conn *amqp.Connection, rabbitList []RabbitPayload) {
+func sendToNotifier(conn *amqp.Connection, rabbitList []RabbitPayload) {
 	for _, rabbit := range rabbitList {
 		if rabbit.OpenSeats > 0 || rabbit.WaitlistAvailable > 0 {
 			pushToQueue(conn, rabbit)

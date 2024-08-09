@@ -97,7 +97,7 @@ func Listen(conn *amqp.Connection) error {
 				log.Fatalf("invalid data: %s", err)
 			}
 
-			mail := RabbitPayload{
+			notifInfo := RabbitPayload{
 				CourseID:          courseID,
 				CourseCode:        split[1],
 				CourseTitle:       split[2],
@@ -111,9 +111,9 @@ func Listen(conn *amqp.Connection) error {
 				Email:             split[10],
 				Phone:             split[11],
 			}
-			err = sendMail(mail)
+			err = sendNotification(notifInfo)
 			if err != nil {
-				log.Fatalf("could not send email: %s", err)
+				log.Fatalf("could not send notification: %s", err)
 			}
 			d.Ack(false)
 		}
@@ -125,10 +125,10 @@ func Listen(conn *amqp.Connection) error {
 	return nil
 }
 
-func sendMail(msg RabbitPayload) error {
+func sendNotification(msg RabbitPayload) error {
 	jsonData, _ := json.MarshalIndent(msg, "", "\t")
 
-	request, err := http.NewRequest("POST", "http://mailer-service/mail", bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("POST", "http://notifier-service/notify", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
