@@ -59,6 +59,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 			reqPayload.Name, reqPayload.CourseCode, reqPayload.CourseTitle, reqPayload.Section, reqPayload.Semester),
 	}
 
+	// == LOG NOTIFICATION TO MONGO ==
 	objectId, err := primitive.ObjectIDFromHex("66a862e4b2fddb9ea6768279")
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
@@ -71,12 +72,14 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// == SEND MAIL ==
 	err = s.Mailer.SendSMTPMessage(msg)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
+	// == SEND SMS ==
 	client := twilio.NewRestClient()
 
 	params := &api.CreateMessageParams{}
