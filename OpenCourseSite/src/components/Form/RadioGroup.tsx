@@ -1,4 +1,6 @@
-import * as RadixRadio from '@radix-ui/react-radio-group';
+import { Radio as HeadlessRadio, RadioGroup as HeadlessRadioGroup } from '@headlessui/react'
+import { CheckCircleIcon } from '@heroicons/react/24/solid'
+import { useState } from "react";
 import RadioGroupStyles from "./RadioGroup.module.css";
 
 interface Option {
@@ -11,21 +13,32 @@ interface RadioGroupProps {
     options: Option[];
 }
 
-const RadioGroup: React.FC<RadioGroupProps> = ({ options }) => (
-    <RadixRadio.Root
-        className={RadioGroupStyles.Root}
-        defaultValue="default"
-        aria-label="View density"
-    >
-        {options.map((option) => (
-            <div key={option.id} className={RadioGroupStyles.Container}>
-                <RadixRadio.Item className={RadioGroupStyles.Item} value={option.value} id={option.id}>
-                    <RadixRadio.Indicator className={RadioGroupStyles.Indicator} />
-                </RadixRadio.Item>
-                <label className={RadioGroupStyles.Label} htmlFor={option.id}>{option.label}</label>
-            </div>
-        ))}
-    </RadixRadio.Root>
-);
+const RadioGroup: React.FC<RadioGroupProps> = ({ options }) =>  {
+    const [selected, setSelected] = useState(options[0])
+
+    return (
+        <HeadlessRadioGroup
+            value={selected}
+            onChange={setSelected}
+            aria-label="Term"
+            className={RadioGroupStyles.RadioGroup}
+        >
+            {options.map((option) => (
+                <HeadlessRadio
+                    key={option.id}
+                    value={option}
+                    className={`${RadioGroupStyles.Radio} ${(selected.id === option.id) ? RadioGroupStyles.Checked : ""}`}
+                >
+                <div className={RadioGroupStyles.RadioContent}>
+                    <div className={RadioGroupStyles.RadioLabel}>
+                        <p>{option.label}</p>
+                    </div>
+                    {/* <CheckCircleIcon className={`${RadioGroupStyles.CheckCircle} ${(selected.id === option.id) ? RadioGroupStyles.Checked : ""}`} /> */}
+                </div>
+                </HeadlessRadio>
+            ))}
+        </HeadlessRadioGroup>
+    );
+}
 
 export default RadioGroup;

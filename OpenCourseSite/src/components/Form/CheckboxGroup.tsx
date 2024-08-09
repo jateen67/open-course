@@ -13,23 +13,23 @@ interface CheckboxGroupProps {
     sections: Section[];
 }
 
+const headers = [
+    { label: "Section", containerClass: CheckboxGroupStyles.SectionContainer },
+    { label: "CRN", containerClass: CheckboxGroupStyles.CRNContainer },
+    { label: "Day", containerClass: CheckboxGroupStyles.DayContainer },
+    { label: "Time", containerClass: CheckboxGroupStyles.TimeContainer }
+];
+
 const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ sections }) => (
     <div className={CheckboxGroupStyles.Container}>
         <div className={CheckboxGroupStyles.HeaderRow}>
             <div className={CheckboxGroupStyles.BoxContainer}>
             </div>
-            <div className={CheckboxGroupStyles.SectionContainer}>
-                <p>Section</p>
-            </div>
-            <div className={CheckboxGroupStyles.CRNContainer}>
-                <p>CRN</p>
-            </div>
-            <div className={CheckboxGroupStyles.DayContainer}>
-                <p>Day</p>
-            </div>
-            <div className={CheckboxGroupStyles.TimeContainer}>
-                <p>Time</p>
-            </div>
+            {headers.map(header => (
+                <div className={header.containerClass} key={header.label}>
+                    <p className={CheckboxGroupStyles.Heading}>{header.label}</p>
+                </div>
+            ))}
         </div>
         {sections.map((section) => (
             <Checkbox

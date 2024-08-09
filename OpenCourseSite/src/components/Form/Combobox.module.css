@@ -25,7 +25,7 @@
 }
 .Input:focus {
     outline: none;
-    outline: 2px solid rgba(255, 255, 255, 0.25);
+    outline: 2px solid var(--brightBlue);
     outline-offset: -2px;
 }
 

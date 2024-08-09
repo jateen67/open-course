@@ -13,7 +13,7 @@ export const AboutPage: React.FC = () => {
     return (
         <>
             <Nav setCurrentTheme={setCurrentTheme} />
-            <div className={MainContentStyles.Content}>
+            <div className={MainContentStyles.AboutContent}>
                 <h3>About OpenCourse</h3>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris et nisi eget ligula scelerisque euismod sed ac metus.
                     Praesent vel nisi vel erat luctus congue. Vestibulum euismod mollis est at hendrerit. Curabitur euismod mauris risus,

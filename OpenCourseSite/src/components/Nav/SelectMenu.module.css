@@ -17,6 +17,7 @@ button {
     font-weight: 600;
     background-color: var(--primary500);
     color: var(--secondary100);
+    cursor: pointer;
 }
 .Trigger:hover {
     background-color: var(--primary600);
@@ -49,10 +50,10 @@ button {
     border-radius: 4px;
     display: flex;
     align-items: center;
-    height: 25px;
-    padding: 4px 12px 4px 12px;
+    padding: 8px 12px;
     position: relative;
     user-: none;
+    cursor: pointer;
 }
 .Item[data-disabled] {
     color: white;

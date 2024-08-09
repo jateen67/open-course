@@ -21,6 +21,9 @@
     font-weight: 700;
     letter-spacing: -0.5px;
 }
+.Text:hover {
+    color: var(--brightBlue);
+}
 
 @media only screen and (max-width: 1020px) {
     .Content {

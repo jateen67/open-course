@@ -21,6 +21,12 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(({ children, ...p
   );
 });
 
+const universities = [
+  { value: "red", label: "McGill University" },
+  { value: "burgundy", label: "Concordia University" },
+  { value: "green", label: "University of Northern Texas" }
+];
+
 export const SelectMenu: React.FC<SelectMenuProps> = ({ setCurrentTheme }) => {
   const handleSelect = (value: string) => {
     if (Object.keys(Colors).includes(value)) {
@@ -43,9 +49,11 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({ setCurrentTheme }) => {
               </Select.ScrollUpButton>
               <Select.Viewport className={SelectStyles.Viewport}>
                 <Select.Group>
-                  <SelectItem value="red">McGill University</SelectItem>
-                  <SelectItem value="burgundy">Concordia University</SelectItem>
-                  <SelectItem value="green">University of Northern Texas</SelectItem>
+                {universities.map(university => (
+                  <SelectItem key={university.value} value={university.value}>
+                    {university.label}
+                  </SelectItem>
+                ))}
                 </Select.Group>
               </Select.Viewport>
               <Select.ScrollDownButton className={SelectStyles.ScrollButton}>
