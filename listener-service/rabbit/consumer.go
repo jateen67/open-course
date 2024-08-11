@@ -5,25 +5,27 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type RabbitPayload struct {
-	CourseID          int    `json:"courseId"`
-	CourseCode        string `json:"courseCode"`
-	CourseTitle       string `json:"courseTitle"`
-	Semester          string `json:"semester"`
-	Section           string `json:"section"`
-	OpenSeats         int    `json:"openSeats"`
-	WaitlistAvailable int    `json:"waitlistAvailable"`
-	WaitlistCapacity  int    `json:"waitlistCapacity"`
-	OrderID           int    `json:"orderId"`
-	Name              string `json:"name"`
-	Email             string `json:"email"`
-	Phone             string `json:"phone"`
+type OrderPayload struct {
+	CourseID          int     `json:"courseId"`
+	CourseCode        string  `json:"courseCode"`
+	CourseTitle       string  `json:"courseTitle"`
+	Semester          string  `json:"semester"`
+	Section           string  `json:"section"`
+	OpenSeats         int     `json:"openSeats"`
+	WaitlistAvailable int     `json:"waitlistAvailable"`
+	WaitlistCapacity  int     `json:"waitlistCapacity"`
+	Orders            []Order `json:"orders"`
+}
+
+type Order struct {
+	OrderID int    `json:"orderId"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
 }
 
 func Listen(conn *amqp.Connection) error {
@@ -74,42 +76,24 @@ func Listen(conn *amqp.Connection) error {
 	go func() {
 		for d := range msgs {
 			log.Printf("Received a message: %s", d.Body)
-			split := strings.Split(string(d.Body), ";")
-			//courseID, courseCode, courseTitle, semester, section, openSeats, wa, wc, orderID, name, email, phone
-			courseID, err := strconv.Atoi(split[0])
+			var orderPayload OrderPayload
+			buf := bytes.NewBuffer(d.Body)
+			decoder := json.NewDecoder(buf)
+			err := decoder.Decode(&orderPayload)
 			if err != nil {
-				log.Fatalf("invalid data: %s", err)
-			}
-			openSeats, err := strconv.Atoi(split[5])
-			if err != nil {
-				log.Fatalf("invalid data: %s", err)
-			}
-			wa, err := strconv.Atoi(split[6])
-			if err != nil {
-				log.Fatalf("invalid data: %s", err)
-			}
-			wc, err := strconv.Atoi(split[7])
-			if err != nil {
-				log.Fatalf("invalid data: %s", err)
-			}
-			orderID, err := strconv.Atoi(split[8])
-			if err != nil {
-				log.Fatalf("invalid data: %s", err)
+				log.Fatalf("error deserializing message: %s", err)
 			}
 
-			notifInfo := RabbitPayload{
-				CourseID:          courseID,
-				CourseCode:        split[1],
-				CourseTitle:       split[2],
-				Semester:          split[3],
-				Section:           split[4],
-				OpenSeats:         openSeats,
-				WaitlistAvailable: wa,
-				WaitlistCapacity:  wc,
-				OrderID:           orderID,
-				Name:              split[9],
-				Email:             split[10],
-				Phone:             split[11],
+			notifInfo := OrderPayload{
+				CourseID:          orderPayload.CourseID,
+				CourseCode:        orderPayload.CourseCode,
+				CourseTitle:       orderPayload.CourseTitle,
+				Semester:          orderPayload.Semester,
+				Section:           orderPayload.Section,
+				OpenSeats:         orderPayload.OpenSeats,
+				WaitlistAvailable: orderPayload.WaitlistAvailable,
+				WaitlistCapacity:  orderPayload.WaitlistCapacity,
+				Orders:            orderPayload.Orders,
 			}
 			err = sendNotification(notifInfo)
 			if err != nil {
@@ -125,7 +109,7 @@ func Listen(conn *amqp.Connection) error {
 	return nil
 }
 
-func sendNotification(msg RabbitPayload) error {
+func sendNotification(msg OrderPayload) error {
 	jsonData, _ := json.MarshalIndent(msg, "", "\t")
 
 	request, err := http.NewRequest("POST", "http://notifier-service/notify", bytes.NewBuffer(jsonData))

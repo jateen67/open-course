@@ -25,19 +25,23 @@ type XMLCourse struct {
 	WaitlistCapacity  []string `xml:"wc,attr"`
 }
 
-type RabbitPayload struct {
-	CourseID          int    `json:"courseId"`
-	CourseCode        string `json:"courseCode"`
-	CourseTitle       string `json:"courseTitle"`
-	Semester          string `json:"semester"`
-	Section           string `json:"section"`
-	OpenSeats         int    `json:"openSeats"`
-	WaitlistAvailable int    `json:"waitlistAvailable"`
-	WaitlistCapacity  int    `json:"waitlistCapacity"`
-	OrderID           int    `json:"orderId"`
-	Name              string `json:"name"`
-	Email             string `json:"email"`
-	Phone             string `json:"phone"`
+type OrderPayload struct {
+	CourseID          int     `json:"courseId"`
+	CourseCode        string  `json:"courseCode"`
+	CourseTitle       string  `json:"courseTitle"`
+	Semester          string  `json:"semester"`
+	Section           string  `json:"section"`
+	OpenSeats         int     `json:"openSeats"`
+	WaitlistAvailable int     `json:"waitlistAvailable"`
+	WaitlistCapacity  int     `json:"waitlistCapacity"`
+	Orders            []Order `json:"orders"`
+}
+
+type Order struct {
+	OrderID int    `json:"orderId"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
 }
 
 func scraperMain(conn *amqp.Connection) {
@@ -66,18 +70,18 @@ func scraperMain(conn *amqp.Connection) {
 		log.Fatalln(err)
 	}
 
-	var rabbits []RabbitPayload
+	var orders []OrderPayload
 
-	if err := json.Unmarshal(body, &rabbits); err != nil {
+	if err := json.Unmarshal(body, &orders); err != nil {
 		log.Fatalln(err)
 	}
 
 	var wg sync.WaitGroup
-	ch := make(chan []RabbitPayload, len(rabbits))
+	ch := make(chan []OrderPayload, len(orders))
 
-	for _, rabbit := range rabbits {
+	for _, order := range orders {
 		wg.Add(1)
-		go scrape(&wg, rabbit, ch)
+		go scrape(&wg, order, ch)
 	}
 
 	go func() {
@@ -85,26 +89,26 @@ func scraperMain(conn *amqp.Connection) {
 		close(ch)
 	}()
 
-	for rabbitList := range ch {
-		sendToNotifier(conn, rabbitList)
+	for orderList := range ch {
+		sendToNotifier(conn, orderList)
 	}
 }
 
-func sendToNotifier(conn *amqp.Connection, rabbitList []RabbitPayload) {
-	for _, rabbit := range rabbitList {
-		if rabbit.OpenSeats > 0 || rabbit.WaitlistAvailable > 0 {
-			pushToQueue(conn, rabbit)
+func sendToNotifier(conn *amqp.Connection, orderList []OrderPayload) {
+	for _, order := range orderList {
+		if order.OpenSeats > 0 || order.WaitlistAvailable > 0 {
+			pushToQueue(conn, order)
 		}
 	}
 }
 
-func scrape(wg *sync.WaitGroup, rabbit RabbitPayload, ch chan<- []RabbitPayload) {
+func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 	defer wg.Done()
 
 	url := ""
 	c := colly.NewCollector()
 	var _course XMLCourse
-	rabbitList := []RabbitPayload{}
+	orderList := []OrderPayload{}
 
 	c.OnXML("//errors", func(e *colly.XMLElement) {
 		err := e.ChildText("error")
@@ -119,21 +123,18 @@ func scrape(wg *sync.WaitGroup, rabbit RabbitPayload, ch chan<- []RabbitPayload)
 		_course.WaitlistAvailable = e.ChildAttrs("uselection/selection/block", "ws")
 		_course.WaitlistCapacity = e.ChildAttrs("uselection/selection/block", "wc")
 		for i := range _course.Section {
-			if _course.Section[i] == rabbit.Section {
-				var newRabbit RabbitPayload
-				newRabbit.CourseID = rabbit.CourseID
-				newRabbit.CourseCode = rabbit.CourseCode
-				newRabbit.CourseTitle = rabbit.CourseTitle
-				newRabbit.Semester = rabbit.Semester
-				newRabbit.Section = _course.Section[i]
-				newRabbit.OpenSeats, _ = strconv.Atoi(_course.OpenSeats[i])
-				newRabbit.WaitlistAvailable, _ = strconv.Atoi(_course.WaitlistAvailable[i])
-				newRabbit.WaitlistCapacity, _ = strconv.Atoi(_course.WaitlistCapacity[i])
-				newRabbit.OrderID = rabbit.OrderID
-				newRabbit.Name = rabbit.Name
-				newRabbit.Email = rabbit.Email
-				newRabbit.Phone = rabbit.Phone
-				rabbitList = append(rabbitList, newRabbit)
+			if _course.Section[i] == order.Section {
+				var newOrder OrderPayload
+				newOrder.CourseID = order.CourseID
+				newOrder.CourseCode = order.CourseCode
+				newOrder.CourseTitle = order.CourseTitle
+				newOrder.Semester = order.Semester
+				newOrder.Section = _course.Section[i]
+				newOrder.OpenSeats, _ = strconv.Atoi(_course.OpenSeats[i])
+				newOrder.WaitlistAvailable, _ = strconv.Atoi(_course.WaitlistAvailable[i])
+				newOrder.WaitlistCapacity, _ = strconv.Atoi(_course.WaitlistCapacity[i])
+				newOrder.Orders = order.Orders
+				orderList = append(orderList, newOrder)
 			}
 		}
 	})
@@ -147,18 +148,23 @@ func scrape(wg *sync.WaitGroup, rabbit RabbitPayload, ch chan<- []RabbitPayload)
 		log.Fatal(err)
 	}
 
-	ch <- rabbitList
+	ch <- orderList
 }
 
-func pushToQueue(conn *amqp.Connection, rabbit RabbitPayload) error {
+func pushToQueue(conn *amqp.Connection, order OrderPayload) error {
 	emitter, q, err := event.NewEventEmitter(conn)
 	if err != nil {
 		return err
 	}
 
-	err = emitter.Push(&q, rabbit.CourseID, rabbit.CourseCode, rabbit.CourseTitle, rabbit.Semester,
-		rabbit.Section, rabbit.OpenSeats, rabbit.WaitlistAvailable, rabbit.WaitlistCapacity, rabbit.OrderID,
-		rabbit.Name, rabbit.Email, rabbit.Phone)
+	var b bytes.Buffer
+	encoder := json.NewEncoder(&b)
+	err = encoder.Encode(order)
+	if err != nil {
+		return err
+	}
+
+	err = emitter.Push(&q, b.Bytes())
 	if err != nil {
 		return err
 	}

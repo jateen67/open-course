@@ -9,4 +9,5 @@ func (s *server) routes() {
 	s.Router.Get("/ordersbycourseid/{courseId}", s.getOrdersByCourseID)
 	s.Router.Post("/orders", s.createOrder)
 	s.Router.Put("/orders", s.editOrder)
+	s.Router.Put("/orderstatus", s.updateOrderStatus)
 }

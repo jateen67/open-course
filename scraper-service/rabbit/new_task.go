@@ -2,9 +2,7 @@ package event
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -14,8 +12,26 @@ type emitter struct {
 	connection *amqp.Connection
 }
 
-func (e *emitter) Push(q *amqp.Queue, courseID int, courseCode, courseTitle, semester, section string,
-	openSeats, wa, wc, orderID int, name, email, phone string) error {
+type OrderPayload struct {
+	CourseID          int     `json:"courseId"`
+	CourseCode        string  `json:"courseCode"`
+	CourseTitle       string  `json:"courseTitle"`
+	Semester          string  `json:"semester"`
+	Section           string  `json:"section"`
+	OpenSeats         int     `json:"openSeats"`
+	WaitlistAvailable int     `json:"waitlistAvailable"`
+	WaitlistCapacity  int     `json:"waitlistCapacity"`
+	Orders            []Order `json:"orders"`
+}
+
+type Order struct {
+	OrderID int    `json:"orderId"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+}
+
+func (e *emitter) Push(q *amqp.Queue, payload []byte) error {
 	ch, err := e.connection.Channel()
 	if err != nil {
 		return err
@@ -25,8 +41,6 @@ func (e *emitter) Push(q *amqp.Queue, courseID int, courseCode, courseTitle, sem
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	body := fmt.Sprintf("%s;%s;%s;%s;%s;%s;%s;%s;%v;%s;%s;%s", strconv.Itoa(courseID), courseCode, courseTitle, semester, section,
-		strconv.Itoa(openSeats), strconv.Itoa(wa), strconv.Itoa(wc), orderID, name, email, phone)
 	err = ch.PublishWithContext(ctx,
 		"",     // exchange
 		q.Name, // routing key
@@ -35,13 +49,13 @@ func (e *emitter) Push(q *amqp.Queue, courseID int, courseCode, courseTitle, sem
 		amqp.Publishing{
 			DeliveryMode: amqp.Persistent,
 			ContentType:  "text/plain",
-			Body:         []byte(body),
+			Body:         []byte(payload),
 		})
 	if err != nil {
 		return err
 	}
 
-	log.Printf(" [x] Sent %s\n", body)
+	log.Printf(" [x] Sent %s\n", payload)
 	return nil
 }
 

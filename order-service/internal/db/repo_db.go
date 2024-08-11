@@ -22,4 +22,5 @@ type OrderDB interface {
 	GetActiveOrders() ([]Order, error)
 	CreateOrder(Order) (int, error)
 	UpdateOrder(Order) error
+	UpdateOrderStatus([]int) error
 }

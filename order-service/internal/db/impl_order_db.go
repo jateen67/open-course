@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type OrderDBImpl struct {
@@ -217,6 +219,19 @@ func (d *OrderDBImpl) UpdateOrder(order Order) error {
 		updatedAt = $4
 		WHERE phone = $1 AND courseId = $2`
 	_, err := d.DB.Exec(query, order.Phone, order.CourseID, order.IsActive, time.Now())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *OrderDBImpl) UpdateOrderStatus(orderIds []int) error {
+	query := `UPDATE tbl_Orders SET 
+		isActive = 0,
+		updatedAt = $2
+		WHERE id = ANY($1)`
+	_, err := d.DB.Exec(query, pq.Array(orderIds), time.Now())
 	if err != nil {
 		return err
 	}

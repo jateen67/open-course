@@ -12,19 +12,23 @@ import (
 	"github.com/jateen67/order-service/internal/db"
 )
 
-type RabbitPayload struct {
-	CourseID          int    `json:"courseId"`
-	CourseCode        string `json:"courseCode"`
-	CourseTitle       string `json:"courseTitle"`
-	Semester          string `json:"semester"`
-	Section           string `json:"section"`
-	OpenSeats         int    `json:"openSeats"`
-	WaitlistAvailable int    `json:"waitlistAvailable"`
-	WaitlistCapacity  int    `json:"waitlistCapacity"`
-	OrderID           int    `json:"orderId"`
-	Name              string `json:"name"`
-	Email             string `json:"email"`
-	Phone             string `json:"phone"`
+type OrderPayload struct {
+	CourseID          int     `json:"courseId"`
+	CourseCode        string  `json:"courseCode"`
+	CourseTitle       string  `json:"courseTitle"`
+	Semester          string  `json:"semester"`
+	Section           string  `json:"section"`
+	OpenSeats         int     `json:"openSeats"`
+	WaitlistAvailable int     `json:"waitlistAvailable"`
+	WaitlistCapacity  int     `json:"waitlistCapacity"`
+	Orders            []Order `json:"orders"`
+}
+
+type Order struct {
+	OrderID int    `json:"orderId"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
 }
 
 func (s *server) getOrderByID(w http.ResponseWriter, r *http.Request) {
@@ -143,6 +147,40 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 	log.Println("order service: successful update")
 }
 
+func (s *server) updateOrderStatus(w http.ResponseWriter, r *http.Request) {
+	var reqPayload OrderPayload
+
+	err := s.readJSON(w, r, &reqPayload)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	var orderIds []int
+	for _, o := range reqPayload.Orders {
+		orderIds = append(orderIds, o.OrderID)
+	}
+
+	err = s.OrderDB.UpdateOrderStatus(orderIds)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	resPayload := jsonResponse{
+		Error:   false,
+		Message: fmt.Sprintf("order status for course %d turned to 0 successfully", reqPayload.CourseID),
+	}
+
+	err = s.writeJSON(w, resPayload, http.StatusOK)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("order service: successful isActive turn to 0")
+}
+
 func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 	courses, err := s.CourseDB.GetCourses()
 	if err != nil {
@@ -172,34 +210,32 @@ func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	orderMap := make(map[db.Order]int)
+	orderMap := make(map[int][]Order)
 	for _, order := range orders {
-		orderMap[order] = order.CourseID
+		if _, ok := orderMap[order.CourseID]; !ok {
+			newSlice := []Order{{OrderID: order.ID, Name: order.Name, Email: order.Email, Phone: order.Phone}}
+			orderMap[order.CourseID] = newSlice
+		} else {
+			orderMap[order.CourseID] = append(orderMap[order.CourseID],
+				Order{OrderID: order.ID, Name: order.Name, Email: order.Email, Phone: order.Phone})
+		}
 	}
 
-	courseMap := make(map[int]db.Course)
+	var orderPayload []OrderPayload
+
 	for _, course := range courses {
-		courseMap[course.ID] = course
+		var payload OrderPayload
+		payload.CourseID = course.ID
+		payload.CourseCode = course.CourseCode
+		payload.CourseTitle = course.CourseTitle
+		payload.Semester = course.Semester
+		payload.Section = course.Section
+		payload.OpenSeats = course.OpenSeats
+		payload.WaitlistAvailable = course.WaitlistAvailable
+		payload.WaitlistCapacity = course.WaitlistCapacity
+		payload.Orders = orderMap[course.ID]
+		orderPayload = append(orderPayload, payload)
 	}
 
-	var rabbits []RabbitPayload
-
-	for _, order := range orders {
-		var payload RabbitPayload
-		payload.CourseID = order.CourseID
-		payload.CourseCode = courseMap[order.CourseID].CourseCode
-		payload.CourseTitle = courseMap[order.CourseID].CourseTitle
-		payload.Semester = courseMap[order.CourseID].Semester
-		payload.Section = courseMap[order.CourseID].Section
-		payload.OpenSeats = courseMap[order.CourseID].OpenSeats
-		payload.WaitlistAvailable = courseMap[order.CourseID].WaitlistAvailable
-		payload.WaitlistCapacity = courseMap[order.CourseID].WaitlistCapacity
-		payload.OrderID = order.ID
-		payload.Name = order.Name
-		payload.Email = order.Email
-		payload.Phone = order.Phone
-		rabbits = append(rabbits, payload)
-	}
-
-	json.NewEncoder(w).Encode(rabbits)
+	json.NewEncoder(w).Encode(orderPayload)
 }
