@@ -1,21 +1,24 @@
 import { Combobox, ComboboxInput, ComboboxButton, ComboboxOption, ComboboxOptions } from "@headlessui/react"
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import ComboboxStyles from "./Combobox.module.css"
 
 interface Course {
-    code: string;
-    name: string;
+    courseCode: string;
+    courseTitle: string;
 }
-
-const courses = [
-    { id: 1, name: "COMP 202 – Introduction to Programming idk" },
-    { id: 2, name: "COMP 250 – Introduction to Computer Science" },
-]
 
 const CourseCombobox = () => {
     const [selectedCourse, setSelectedCourse] = useState("")
     const [query, setQuery] = useState("")
+    const [courses, setCourses] = useState<Course[]>([])
+
+    useEffect(() => {
+        fetch("../../data/courses.json")
+            .then(response => response.json())
+            .then(data => setCourses(data))
+            .catch(error => console.error('Error fetching courses:', error))
+    }, [])
 
     const filteredCourses =
         query === ""

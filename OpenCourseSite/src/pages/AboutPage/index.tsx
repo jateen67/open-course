@@ -4,7 +4,7 @@ import Colors, { applyTheme } from '../../styles/ColorSystem';
 import MainContentStyles from "../../components/MainContent/MainContent.module.css"
 
 export const AboutPage: React.FC = () => {
-    const [currentTheme, setCurrentTheme] = useState<keyof typeof Colors>("red");
+    const [currentTheme, setCurrentTheme] = useState<keyof typeof Colors>("burgundy");
 
     useEffect(() => {
         applyTheme(Colors[currentTheme]);
@@ -12,7 +12,7 @@ export const AboutPage: React.FC = () => {
 
     return (
         <>
-            <Nav setCurrentTheme={setCurrentTheme} />
+            <Nav />
             <div className={MainContentStyles.AboutContent}>
                 <h3>About OpenCourse</h3>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris et nisi eget ligula scelerisque euismod sed ac metus.

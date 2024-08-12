@@ -1,8 +1,4 @@
-button {
-    all: unset;
-}
-
-.Trigger {
+.Container {
     font-family: "Inter", sans-serif;
     display: inline-flex;
     align-items: center;
@@ -19,66 +15,16 @@ button {
     color: var(--secondary100);
     cursor: pointer;
 }
-.Trigger:hover {
-    background-color: var(--primary600);
-}
-.Trigger:focus {
-    box-shadow: 0 0 0 2px var(--brightBlue);
-}
 
-.Icon {
-    color: var(--secondary100);
-}
-
-.Content {
-    overflow: hidden;
-    background-color: var(--primary700);
-    border-radius: 8px;
-    box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2);
-    stroke: var(--primary600);
-}
-
-.Viewport {
-    padding: 4px;
-}
-
-.Item {
+.Text {
     font-family: "Inter", sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1;
     color: var(--secondary100);
     border-radius: 4px;
     display: flex;
     align-items: center;
-    padding: 8px 12px;
     position: relative;
     user-: none;
     cursor: pointer;
-}
-.Item[data-disabled] {
-    color: white;
-    pointer-events: none;
-}
-.Item[data-highlighted] {
-    outline: none;
-    background-color: var(--primary600);
-}
-
-.ItemIndicator {
-    position: absolute;
-    left: 0;
-    width: 25px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.ScrollButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 25px;
-    background-color: white;
-    color: violet;
-    cursor: default;
 }

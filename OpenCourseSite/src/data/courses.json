@@ -1,0 +1,28 @@
+[
+    {
+        "id": 101,
+        "courseCode": "COMP-202",
+        "courseTitle": "Introduction to Programming",
+        "semester": "Fall 2023",
+        "credits": "3",
+        "section": "001",
+        "openSeats": 25,
+        "waitlistAvailable": 5,
+        "waitlistCapacity": 30,
+        "createdAt": "2023-01-15T14:35:22Z",
+        "updatedAt": "2023-01-20T11:47:54Z"
+    },
+    {
+        "id": 102,
+        "courseCode": "COMP-250",
+        "courseTitle": "Introduction to Computer Science",
+        "semester": "Fall 2023",
+        "credits": "3",
+        "section": "002",
+        "openSeats": 30,
+        "waitlistAvailable": 0,
+        "waitlistCapacity": 25,
+        "createdAt": "2023-01-16T09:00:00Z",
+        "updatedAt": "2023-01-21T12:00:00Z"
+    }
+]

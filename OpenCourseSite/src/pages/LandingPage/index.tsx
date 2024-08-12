@@ -5,7 +5,7 @@ import Colors, { applyTheme } from '../../styles/ColorSystem';
 import { MainContent } from "../../components/MainContent/MainContent";
 
 export const LandingPage: React.FC = () => {
-    const [currentTheme, setCurrentTheme] = useState<keyof typeof Colors>("red");
+    const [currentTheme, setCurrentTheme] = useState<keyof typeof Colors>("burgundy");
 
     useEffect(() => {
         applyTheme(Colors[currentTheme]);
@@ -13,7 +13,7 @@ export const LandingPage: React.FC = () => {
 
     return (
         <>
-            <Nav setCurrentTheme={setCurrentTheme} />
+            <Nav />
             <MainContent />
             <Test />
         </>

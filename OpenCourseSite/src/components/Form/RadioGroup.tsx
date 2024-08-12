@@ -1,5 +1,5 @@
 import { Radio as HeadlessRadio, RadioGroup as HeadlessRadioGroup } from '@headlessui/react'
-import { CheckCircleIcon } from '@heroicons/react/24/solid'
+// import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import { useState } from "react";
 import RadioGroupStyles from "./RadioGroup.module.css";
 
