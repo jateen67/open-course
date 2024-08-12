@@ -10,8 +10,8 @@ export interface Course {
     openSeats: number;
     waitlistAvailable: number;
     waitlistCapacity: number;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Order {

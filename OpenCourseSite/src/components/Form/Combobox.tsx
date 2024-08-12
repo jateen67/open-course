@@ -1,43 +1,48 @@
 import { Combobox, ComboboxInput, ComboboxButton, ComboboxOption, ComboboxOptions } from "@headlessui/react"
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { Course } from "../../typing"
 import ComboboxStyles from "./Combobox.module.css"
+import coursesData from "../../data/courses.json"
 
-interface Course {
-    courseCode: string;
-    courseTitle: string;
+interface CourseComboboxProps {
+    onChange: (value: string) => void;
 }
 
-const CourseCombobox = () => {
-    const [selectedCourse, setSelectedCourse] = useState("")
-    const [query, setQuery] = useState("")
-    const [courses, setCourses] = useState<Course[]>([])
+const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
+    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+    const [query, setQuery] = useState("");
 
-    useEffect(() => {
-        fetch("../../data/courses.json")
-            .then(response => response.json())
-            .then(data => setCourses(data))
-            .catch(error => console.error('Error fetching courses:', error))
-    }, [])
+    const getCourseDisplay = (course: Course | null) => {
+        if (!course) return "";
+        const formattedCourseCode = course.courseCode.replace("-", " ");
+        return `${formattedCourseCode} – ${course.courseTitle}`;
+    };
+    
+    const filteredCourses = useMemo(() => {
+        const normalizedQuery = query.toLowerCase().split(/\s+/);
+        return coursesData.filter((course) => {
+            const courseString = getCourseDisplay(course).toLowerCase();
+            return normalizedQuery.every((word) => courseString.includes(word));
+        });
+    }, [query]);
 
-    const filteredCourses =
-        query === ""
-        ? courses
-        : courses.filter((course) => {
-            return course.name.toLowerCase().includes(query.toLowerCase())
-            })
+    const handleOnChange = (course: Course) => {
+        setSelectedCourse(course);
+        onChange(getCourseDisplay(course));
+    };
 
     return (
         <div className={ComboboxStyles.Container}>
             <Combobox
                 value={selectedCourse}
-                onChange={(value) => setSelectedCourse(value as { id: number; name: string })}
+                onChange={handleOnChange}
             >
                 <div className={ComboboxStyles.InputContainer}>
                     <ComboboxInput
                         aria-label="Selected Course"
                         placeholder="Search for courses..."
-                        displayValue={(selectedCourse: { id: number; name: string }) => selectedCourse?.name}
+                        displayValue={getCourseDisplay}
                         onChange={(event) => setQuery(event.target.value)}
                         className={ComboboxStyles.Input}
                     />
@@ -56,7 +61,7 @@ const CourseCombobox = () => {
                             value={course}
                             className={ComboboxStyles.Option}
                         >
-                            <div className={ComboboxStyles.Text}>{course.name}</div>
+                            <div className={ComboboxStyles.Text}>{`${getCourseDisplay(course)}`}</div>
                         </ComboboxOption>
                     ))}
                 </ComboboxOptions>

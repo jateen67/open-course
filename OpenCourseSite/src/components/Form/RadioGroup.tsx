@@ -11,15 +11,20 @@ interface Option {
 
 interface RadioGroupProps {
     options: Option[];
+    onChange: (value: string) => void;
 }
 
-const RadioGroup: React.FC<RadioGroupProps> = ({ options }) =>  {
-    const [selected, setSelected] = useState(options[0])
+const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => {
+    const [selected, setSelected] = useState(options[0]);
+    const handleOnChange = (option: Option) => {
+        setSelected(option);
+        onChange(option.value);
+    }
 
     return (
         <HeadlessRadioGroup
             value={selected}
-            onChange={setSelected}
+            onChange={handleOnChange}
             aria-label="Term"
             className={RadioGroupStyles.RadioGroup}
         >

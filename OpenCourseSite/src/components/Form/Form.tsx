@@ -22,35 +22,52 @@ const formFields = [
 ];
 
 const Form = () => {
-    const [selectedTerm, setSelectedTerm] = useState("");
-    const [selectedCourse, setSelectedCourse] = useState("");
-    const [checkboxSelection, setCheckboxSelection] = useState(false);
+    const [termSelected, setTermSelected] = useState(false);
+    const [courseSelected, setCourseSelected] = useState(false);
+    const [checkboxSelected, setCheckboxSelected] = useState(false);
+
+    const handleTermSelected = () => {
+        setTermSelected(true);
+    };
+
+    const handleCourseSelected = () => {
+        setCourseSelected(true);
+    };
+
+    const handleCheckboxSelected = () => {
+        setCheckboxSelected(true);
+    }
 
     return (
         <form className={FormStyles.Content}>
             <div className={FormStyles.SectionContent}>
                 <h3>Term</h3>
-                <RadioGroup options={radioOptions} />
+                <RadioGroup options={radioOptions} onChange={handleTermSelected} />
             </div>
-            
-            <div className={FormStyles.SectionContent}>
-                <h3>Course</h3>
-                <CourseCombobox />
-            </div>
-            <div className={FormStyles.SectionContent}>
-                <h3>Section</h3>
-                <CheckboxGroup sections={sectionOptions} />
-            </div>
-            <div className={FormStyles.SectionContent}>
-                <h3>Contact Info</h3>
-                {formFields.map(field => (
-                    <fieldset key={field.id} className={FormStyles.Fieldset}>
-                    <label className={FormStyles.Label} htmlFor={field.id}>{field.label}</label>
-                    <input className={FormStyles.Input} id={field.id} type={field.type} />
-                    </fieldset>
-                ))}
-                <button className={FormStyles.Button}>Checkout</button>
-            </div>
+            {termSelected && (
+                <div className={FormStyles.SectionContent}>
+                    <h3>Course</h3>
+                    <CourseCombobox onChange={handleCourseSelected} />
+                </div>
+            )}
+            { courseSelected && (
+                <div className={FormStyles.SectionContent}>
+                    <h3>Section</h3>
+                    <CheckboxGroup sections={sectionOptions} />
+                </div>
+            )}
+            { checkboxSelected && (
+                <div className={FormStyles.SectionContent}>
+                    <h3>Contact Info</h3>
+                    {formFields.map(field => (
+                        <fieldset key={field.id} className={FormStyles.Fieldset}>
+                        <label className={FormStyles.Label} htmlFor={field.id}>{field.label}</label>
+                        <input className={FormStyles.Input} id={field.id} type={field.type} />
+                        </fieldset>
+                    ))}
+                    <button className={FormStyles.Button}>Checkout</button>
+                </div>
+            )}
         </form>
     );
 }
