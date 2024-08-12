@@ -123,7 +123,7 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 
 	c.OnXML("//classdata/course", func(e *colly.XMLElement) {
 		_course.Section = e.ChildAttrs("uselection/selection/block", "disp")
-		_course.EnrollmentCapacity = e.ChildAttrs("uselection/selection/block", "os")
+		_course.EnrollmentCapacity = e.ChildAttrs("uselection/selection/block", "me")
 		_course.CurrentEnrollment = e.ChildAttrs("uselection/selection/block", "os")
 		_course.CurrentWaitlistTotal = e.ChildAttrs("uselection/selection/block", "ws")
 		_course.WaitlistCapacity = e.ChildAttrs("uselection/selection/block", "wc")
