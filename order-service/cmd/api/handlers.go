@@ -13,20 +13,23 @@ import (
 )
 
 type OrderPayload struct {
-	CourseID          int     `json:"courseId"`
-	CourseCode        string  `json:"courseCode"`
-	CourseTitle       string  `json:"courseTitle"`
-	Semester          string  `json:"semester"`
-	Section           string  `json:"section"`
-	OpenSeats         int     `json:"openSeats"`
-	WaitlistAvailable int     `json:"waitlistAvailable"`
-	WaitlistCapacity  int     `json:"waitlistCapacity"`
-	Orders            []Order `json:"orders"`
+	ID                   int     `json:"Id"`
+	CourseID             int     `json:"courseId"`
+	Subject              string  `json:"subject"`
+	Catalog              string  `json:"catalog"`
+	CourseTitle          string  `json:"courseTitle"`
+	Semester             string  `json:"semester"`
+	ComponentCode        string  `json:"componentCode"`
+	Section              string  `json:"section"`
+	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
+	CurrentEnrollment    int     `json:"currentEnrollment"`
+	WaitlistCapacity     int     `json:"waitlistCapacity"`
+	CurrentWaitlistTotal int     `json:"currentWaitlistTotal"`
+	Orders               []Order `json:"orders"`
 }
 
 type Order struct {
 	OrderID int    `json:"orderId"`
-	Name    string `json:"name"`
 	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 }
@@ -225,10 +228,12 @@ func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 
 // 	for _, course := range courses {
 // 		var payload OrderPayload
-// 		payload.CourseID = course.ID
+// 		payload.ID = course.ID
+// 		payload.CourseID = course.CourseID
 // 		payload.CourseCode = course.CourseCode
 // 		payload.CourseTitle = course.CourseTitle
 // 		payload.Semester = course.Semester
+// 		payload.ComponentCode = course.ComponentCode
 // 		payload.Section = course.Section
 // 		payload.OpenSeats = course.OpenSeats
 // 		payload.WaitlistAvailable = course.WaitlistAvailable

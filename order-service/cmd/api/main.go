@@ -79,50 +79,51 @@ func main() {
 }
 
 func seedCourses(database *sql.DB, subject string, termCode int) {
-	jsonData, _ := json.MarshalIndent("", "", "\t")
-
-	request, err := http.NewRequest("GET",
-		fmt.Sprintf("https://opendata.concordia.ca/API/v1/course/scheduleTerm/filter/%s/%v", subject, termCode),
-		bytes.NewBuffer(jsonData))
-	if err != nil {
-		log.Fatalf("could not make new http request: %s", err)
-	}
-
-	request.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	res, err := client.Do(request)
-	if err != nil {
-		log.Fatalf("could not do http request: %s", err)
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		log.Fatalf("error code: %v", res.StatusCode)
-	}
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	var courses []Course
-
-	if err := json.Unmarshal(body, &courses); err != nil {
-		log.Fatalln(err)
-	}
-
 	coursesTablePopulated, err := db.CoursesTablePopulated(database)
 	if err != nil {
 		log.Fatalf("error checking if courses table populated: %v", err)
 	}
 
 	if !coursesTablePopulated {
+		jsonData, _ := json.MarshalIndent("", "", "\t")
+
+		request, err := http.NewRequest("GET",
+			fmt.Sprintf("https://opendata.concordia.ca/API/v1/course/scheduleTerm/filter/%s/%v", subject, termCode),
+			bytes.NewBuffer(jsonData))
+		if err != nil {
+			log.Fatalf("could not make new http request: %s", err)
+		}
+
+		request.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		res, err := client.Do(request)
+		if err != nil {
+			log.Fatalf("could not do http request: %s", err)
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode != http.StatusOK {
+			log.Fatalf("error code: %v", res.StatusCode)
+		}
+
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		var courses []Course
+
+		if err := json.Unmarshal(body, &courses); err != nil {
+			log.Fatalln(err)
+		}
+
 		for _, course := range courses {
 			addCourse(database, course)
 		}
+
+		log.Printf("all courses for %s for term %v inserted successfully", subject, termCode)
 	}
-	log.Printf("all courses for %s for term %v inserted successfully", subject, termCode)
 }
 
 func seedOrders(database *sql.DB) {

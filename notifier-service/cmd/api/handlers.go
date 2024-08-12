@@ -14,20 +14,23 @@ import (
 )
 
 type OrderPayload struct {
-	CourseID          int     `json:"courseId"`
-	CourseCode        string  `json:"courseCode"`
-	CourseTitle       string  `json:"courseTitle"`
-	Semester          string  `json:"semester"`
-	Section           string  `json:"section"`
-	OpenSeats         int     `json:"openSeats"`
-	WaitlistAvailable int     `json:"waitlistAvailable"`
-	WaitlistCapacity  int     `json:"waitlistCapacity"`
-	Orders            []Order `json:"orders"`
+	ID                   int     `json:"Id"`
+	CourseID             int     `json:"courseId"`
+	Subject              string  `json:"subject"`
+	Catalog              string  `json:"catalog"`
+	CourseTitle          string  `json:"courseTitle"`
+	Semester             string  `json:"semester"`
+	ComponentCode        string  `json:"componentCode"`
+	Section              string  `json:"section"`
+	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
+	CurrentEnrollment    int     `json:"currentEnrollment"`
+	WaitlistCapacity     int     `json:"waitlistCapacity"`
+	CurrentWaitlistTotal int     `json:"currentWaitlistTotal"`
+	Orders               []Order `json:"orders"`
 }
 
 type Order struct {
 	OrderID int    `json:"orderId"`
-	Name    string `json:"name"`
 	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 }
@@ -62,9 +65,10 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 	msg := Message{
 		From:    os.Getenv("MAIL_FROM_ADDRESS"),
 		To:      reqPayload.Email,
-		Subject: fmt.Sprintf("%s Seat Opened!", reqPayload.CourseCode),
-		Data: fmt.Sprintf("Hi %s,\nA seat in %s - %s (%s) has opened up for the %s semester. Sign up quickly!",
-			reqPayload.Name, reqPayload.CourseCode, reqPayload.CourseTitle, reqPayload.Section, reqPayload.Semester),
+		Subject: fmt.Sprintf("%s-%s Seat Opened!", reqPayload.Subject, reqPayload.Catalog),
+		Data: fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %s semester. Sign up quickly!",
+			reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
+			reqPayload.Section, reqPayload.Semester),
 	}
 
 	// == LOG NOTIFICATION TO MONGO ==
@@ -93,8 +97,9 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 	params := &api.CreateMessageParams{}
 	params.SetFrom(os.Getenv("TWILIO_FROM_PHONE_NUMBER"))
 	params.SetTo(reqPayload.Phone)
-	params.SetBody(fmt.Sprintf("Hi %s,\nA seat in %s - %s (%s) has opened up for the %s semester. Sign up quickly!",
-		reqPayload.Name, reqPayload.CourseCode, reqPayload.CourseTitle, reqPayload.Section, reqPayload.Semester))
+	params.SetBody(fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %s semester. Sign up quickly!",
+		reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
+		reqPayload.Section, reqPayload.Semester))
 
 	resp, err := twilioClient.Api.CreateMessage(params)
 	if err != nil {

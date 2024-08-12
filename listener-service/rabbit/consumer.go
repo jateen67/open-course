@@ -10,20 +10,23 @@ import (
 )
 
 type OrderPayload struct {
-	CourseID          int     `json:"courseId"`
-	CourseCode        string  `json:"courseCode"`
-	CourseTitle       string  `json:"courseTitle"`
-	Semester          string  `json:"semester"`
-	Section           string  `json:"section"`
-	OpenSeats         int     `json:"openSeats"`
-	WaitlistAvailable int     `json:"waitlistAvailable"`
-	WaitlistCapacity  int     `json:"waitlistCapacity"`
-	Orders            []Order `json:"orders"`
+	ID                   int     `json:"Id"`
+	CourseID             int     `json:"courseId"`
+	Subject              string  `json:"subject"`
+	Catalog              string  `json:"catalog"`
+	CourseTitle          string  `json:"courseTitle"`
+	Semester             string  `json:"semester"`
+	ComponentCode        string  `json:"componentCode"`
+	Section              string  `json:"section"`
+	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
+	CurrentEnrollment    int     `json:"currentEnrollment"`
+	WaitlistCapacity     int     `json:"waitlistCapacity"`
+	CurrentWaitlistTotal int     `json:"currentWaitlistTotal"`
+	Orders               []Order `json:"orders"`
 }
 
 type Order struct {
 	OrderID int    `json:"orderId"`
-	Name    string `json:"name"`
 	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 }
@@ -85,15 +88,19 @@ func Listen(conn *amqp.Connection) error {
 			}
 
 			notifInfo := OrderPayload{
-				CourseID:          orderPayload.CourseID,
-				CourseCode:        orderPayload.CourseCode,
-				CourseTitle:       orderPayload.CourseTitle,
-				Semester:          orderPayload.Semester,
-				Section:           orderPayload.Section,
-				OpenSeats:         orderPayload.OpenSeats,
-				WaitlistAvailable: orderPayload.WaitlistAvailable,
-				WaitlistCapacity:  orderPayload.WaitlistCapacity,
-				Orders:            orderPayload.Orders,
+				ID:                   orderPayload.ID,
+				CourseID:             orderPayload.CourseID,
+				Subject:              orderPayload.Subject,
+				Catalog:              orderPayload.Catalog,
+				CourseTitle:          orderPayload.CourseTitle,
+				Semester:             orderPayload.Semester,
+				ComponentCode:        orderPayload.ComponentCode,
+				Section:              orderPayload.Section,
+				EnrollmentCapacity:   orderPayload.EnrollmentCapacity,
+				CurrentEnrollment:    orderPayload.CurrentEnrollment,
+				CurrentWaitlistTotal: orderPayload.CurrentWaitlistTotal,
+				WaitlistCapacity:     orderPayload.WaitlistCapacity,
+				Orders:               orderPayload.Orders,
 			}
 			err = sendNotification(notifInfo)
 			if err != nil {

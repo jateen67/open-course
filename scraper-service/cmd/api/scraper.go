@@ -15,31 +15,35 @@ import (
 )
 
 type XMLCourse struct {
-	CourseCode        string   `xml:"key,attr"`
-	CourseTitle       string   `xml:"title,attr"`
-	Semester          string   `xml:"ssid,attr"`
-	Credits           string   `xml:"credits,attr"`
-	Section           []string `xml:"disp,attr"`
-	OpenSeats         []string `xml:"os,attr"`
-	WaitlistAvailable []string `xml:"ws,attr"`
-	WaitlistCapacity  []string `xml:"wc,attr"`
+	CourseCode           string   `xml:"key,attr"`
+	CourseTitle          string   `xml:"title,attr"`
+	Semester             string   `xml:"ssid,attr"`
+	Credits              string   `xml:"credits,attr"`
+	Section              []string `xml:"disp,attr"`
+	EnrollmentCapacity   []string `json:"enrollmentCapacity"`
+	CurrentEnrollment    []string `json:"currentEnrollment"`
+	WaitlistCapacity     []string `json:"waitlistCapacity"`
+	CurrentWaitlistTotal []string `json:"currentWaitlistTotal"`
 }
 
 type OrderPayload struct {
-	CourseID          int     `json:"courseId"`
-	CourseCode        string  `json:"courseCode"`
-	CourseTitle       string  `json:"courseTitle"`
-	Semester          string  `json:"semester"`
-	Section           string  `json:"section"`
-	OpenSeats         int     `json:"openSeats"`
-	WaitlistAvailable int     `json:"waitlistAvailable"`
-	WaitlistCapacity  int     `json:"waitlistCapacity"`
-	Orders            []Order `json:"orders"`
+	ID                   int     `json:"Id"`
+	CourseID             int     `json:"courseId"`
+	Subject              string  `json:"subject"`
+	Catalog              string  `json:"catalog"`
+	CourseTitle          string  `json:"courseTitle"`
+	Semester             string  `json:"semester"`
+	ComponentCode        string  `json:"componentCode"`
+	Section              string  `json:"section"`
+	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
+	CurrentEnrollment    int     `json:"currentEnrollment"`
+	WaitlistCapacity     int     `json:"waitlistCapacity"`
+	CurrentWaitlistTotal int     `json:"currentWaitlistTotal"`
+	Orders               []Order `json:"orders"`
 }
 
 type Order struct {
 	OrderID int    `json:"orderId"`
-	Name    string `json:"name"`
 	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 }
@@ -96,7 +100,7 @@ func scraperMain(conn *amqp.Connection) {
 
 func sendToNotifier(conn *amqp.Connection, orderList []OrderPayload) {
 	for _, order := range orderList {
-		if order.OpenSeats > 0 || order.WaitlistAvailable > 0 {
+		if (order.EnrollmentCapacity-order.CurrentEnrollment) > 0 || (order.WaitlistCapacity-order.CurrentWaitlistTotal) > 0 {
 			pushToQueue(conn, order)
 		}
 	}
@@ -119,19 +123,23 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 
 	c.OnXML("//classdata/course", func(e *colly.XMLElement) {
 		_course.Section = e.ChildAttrs("uselection/selection/block", "disp")
-		_course.OpenSeats = e.ChildAttrs("uselection/selection/block", "os")
-		_course.WaitlistAvailable = e.ChildAttrs("uselection/selection/block", "ws")
+		_course.EnrollmentCapacity = e.ChildAttrs("uselection/selection/block", "os")
+		_course.CurrentEnrollment = e.ChildAttrs("uselection/selection/block", "os")
+		_course.CurrentWaitlistTotal = e.ChildAttrs("uselection/selection/block", "ws")
 		_course.WaitlistCapacity = e.ChildAttrs("uselection/selection/block", "wc")
 		for i := range _course.Section {
 			if _course.Section[i] == order.Section {
 				var newOrder OrderPayload
+				newOrder.ID = order.ID
 				newOrder.CourseID = order.CourseID
-				newOrder.CourseCode = order.CourseCode
+				newOrder.Subject = order.Subject
+				newOrder.ComponentCode = order.ComponentCode
 				newOrder.CourseTitle = order.CourseTitle
 				newOrder.Semester = order.Semester
 				newOrder.Section = _course.Section[i]
-				newOrder.OpenSeats, _ = strconv.Atoi(_course.OpenSeats[i])
-				newOrder.WaitlistAvailable, _ = strconv.Atoi(_course.WaitlistAvailable[i])
+				newOrder.CurrentEnrollment, _ = strconv.Atoi(_course.CurrentEnrollment[i])
+				newOrder.EnrollmentCapacity, _ = strconv.Atoi(_course.EnrollmentCapacity[i])
+				newOrder.CurrentWaitlistTotal, _ = strconv.Atoi(_course.CurrentWaitlistTotal[i])
 				newOrder.WaitlistCapacity, _ = strconv.Atoi(_course.WaitlistCapacity[i])
 				newOrder.Orders = order.Orders
 				orderList = append(orderList, newOrder)
