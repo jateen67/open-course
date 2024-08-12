@@ -27,7 +27,7 @@ func (d *OrderDBImpl) GetOrders() ([]Order, error) {
 
 	for rows.Next() {
 		var order Order
-		if err := rows.Scan(&order.OrderID, &order.Email,
+		if err := rows.Scan(&order.ID, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
 			return orders, err
@@ -45,7 +45,7 @@ func (d *OrderDBImpl) GetOrders() ([]Order, error) {
 func (d *OrderDBImpl) GetOrder(orderID int) (*Order, error) {
 	query := "SELECT * FROM tbl_Orders where id = $1"
 	var order Order
-	if err := d.DB.QueryRow(query, orderID).Scan(&order.OrderID,
+	if err := d.DB.QueryRow(query, orderID).Scan(&order.ID,
 		&order.Email, &order.Phone, &order.CourseID,
 		&order.IsActive, &order.CreatedAt, &order.UpdatedAt); err != nil {
 		if err == sql.ErrNoRows {
@@ -69,7 +69,7 @@ func (d *OrderDBImpl) GetOrdersByUserEmail(email string) ([]Order, error) {
 
 	for rows.Next() {
 		var order Order
-		if err := rows.Scan(&order.OrderID, &order.Email,
+		if err := rows.Scan(&order.ID, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
 			return orders, err
@@ -96,7 +96,7 @@ func (d *OrderDBImpl) GetOrdersByUserPhone(phone string) ([]Order, error) {
 
 	for rows.Next() {
 		var order Order
-		if err := rows.Scan(&order.OrderID, &order.Email,
+		if err := rows.Scan(&order.ID, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
 			return orders, err
@@ -123,7 +123,7 @@ func (d *OrderDBImpl) GetActiveOrders() ([]Order, error) {
 
 	for rows.Next() {
 		var order Order
-		if err := rows.Scan(&order.OrderID, &order.Email,
+		if err := rows.Scan(&order.ID, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
 			return orders, err
@@ -150,7 +150,7 @@ func (d *OrderDBImpl) GetOrdersByCourseID(courseID int) ([]Order, error) {
 
 	for rows.Next() {
 		var order Order
-		if err := rows.Scan(&order.OrderID, &order.Email,
+		if err := rows.Scan(&order.ID, &order.Email,
 			&order.Phone, &order.CourseID, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
 			return orders, err

@@ -16,12 +16,12 @@ func main() {
 	}
 	defer conn.Close()
 
-	go func() {
-		for {
-			time.Sleep(5 * time.Second)
-			scraperMain(conn)
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		time.Sleep(5 * time.Second)
+	// 		scraperMain(conn)
+	// 	}
+	// }()
 }
 
 func connectToRabbitMQ() (*amqp.Connection, error) {

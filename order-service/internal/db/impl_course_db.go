@@ -26,7 +26,8 @@ func (d *CourseDBImpl) GetCourses() ([]Course, error) {
 
 	for rows.Next() {
 		var course Course
-		if err := rows.Scan(&course.CourseID, &course.TermCode, &course.Session, &course.Subject, &course.Catalog, &course.Section,
+		if err := rows.Scan(
+			&course.ID, &course.CourseID, &course.TermCode, &course.Session, &course.Subject, &course.Catalog, &course.Section,
 			&course.ComponentCode, &course.ComponentDescription, &course.ClassNumber, &course.ClassAssociation, &course.CourseTitle,
 			&course.ClassStartTime, &course.ClassEndTime, &course.Mondays, &course.Tuesdays, &course.Wednesdays, &course.Thursdays,
 			&course.Fridays, &course.Saturdays, &course.Sundays, &course.ClassStartDate, &course.ClassEndDate,
@@ -48,7 +49,7 @@ func (d *CourseDBImpl) GetCourse(courseID int) (*Course, error) {
 	query := "SELECT * FROM tbl_Courses where courseId = $1"
 	var course Course
 	if err := d.DB.QueryRow(query, courseID).Scan(
-		&course.CourseID, &course.TermCode, &course.Session, &course.Subject, &course.Catalog, &course.Section,
+		&course.ID, &course.CourseID, &course.TermCode, &course.Session, &course.Subject, &course.Catalog, &course.Section,
 		&course.ComponentCode, &course.ComponentDescription, &course.ClassNumber, &course.ClassAssociation, &course.CourseTitle,
 		&course.ClassStartTime, &course.ClassEndTime, &course.Mondays, &course.Tuesdays, &course.Wednesdays, &course.Thursdays,
 		&course.Fridays, &course.Saturdays, &course.Sundays, &course.ClassStartDate, &course.ClassEndDate,
@@ -65,7 +66,7 @@ func (d *CourseDBImpl) GetCourse(courseID int) (*Course, error) {
 }
 
 func (d *CourseDBImpl) GetCoursesByMultpleIDs(courseIDs []int) ([]Course, error) {
-	query := "SELECT * FROM tbl_Courses WHERE courseId = ANY($1)"
+	query := "SELECT * FROM tbl_Courses WHERE Id = ANY($1)"
 	rows, err := d.DB.Query(query, pq.Array(courseIDs))
 	if err != nil {
 		return nil, err
@@ -76,7 +77,8 @@ func (d *CourseDBImpl) GetCoursesByMultpleIDs(courseIDs []int) ([]Course, error)
 
 	for rows.Next() {
 		var course Course
-		if err := rows.Scan(&course.CourseID, &course.TermCode, &course.Session, &course.Subject, &course.Catalog, &course.Section,
+		if err := rows.Scan(
+			&course.ID, &course.CourseID, &course.TermCode, &course.Session, &course.Subject, &course.Catalog, &course.Section,
 			&course.ComponentCode, &course.ComponentDescription, &course.ClassNumber, &course.ClassAssociation, &course.CourseTitle,
 			&course.ClassStartTime, &course.ClassEndTime, &course.Mondays, &course.Tuesdays, &course.Wednesdays, &course.Thursdays,
 			&course.Fridays, &course.Saturdays, &course.Sundays, &course.ClassStartDate, &course.ClassEndDate,
@@ -106,7 +108,8 @@ func (d *CourseDBImpl) GetCoursesBySemester(semester int) ([]Course, error) {
 
 	for rows.Next() {
 		var course Course
-		if err := rows.Scan(&course.CourseID, &course.TermCode, &course.Session, &course.Subject, &course.Catalog, &course.Section,
+		if err := rows.Scan(
+			&course.ID, &course.CourseID, &course.TermCode, &course.Session, &course.Subject, &course.Catalog, &course.Section,
 			&course.ComponentCode, &course.ComponentDescription, &course.ClassNumber, &course.ClassAssociation, &course.CourseTitle,
 			&course.ClassStartTime, &course.ClassEndTime, &course.Mondays, &course.Tuesdays, &course.Wednesdays, &course.Thursdays,
 			&course.Fridays, &course.Saturdays, &course.Sundays, &course.ClassStartDate, &course.ClassEndDate,

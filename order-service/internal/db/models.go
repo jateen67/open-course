@@ -3,7 +3,8 @@ package db
 import "time"
 
 type Course struct {
-	CourseID             int    `json:"courseID"`
+	ID                   int    `json:"Id"`
+	CourseID             int    `json:"courseId"`
 	TermCode             int    `json:"termCode"`
 	Session              string `json:"session"`
 	Subject              string `json:"subject"`
@@ -32,7 +33,7 @@ type Course struct {
 }
 
 type Order struct {
-	OrderID   int       `json:"orderId"`
+	ID        int       `json:"Id"`
 	Email     string    `json:"email"`
 	Phone     string    `json:"phone"`
 	CourseID  int       `json:"courseId"`

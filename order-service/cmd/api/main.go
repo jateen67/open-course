@@ -1,15 +1,47 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/jateen67/order-service/internal/db"
 )
+
+type Course struct {
+	CourseID             int    `json:"courseID"`
+	TermCode             int    `json:"termCode"`
+	Session              string `json:"session"`
+	Subject              string `json:"subject"`
+	Catalog              string `json:"catalog"`
+	Section              int    `json:"section"`
+	ComponentCode        string `json:"componentCode"`
+	ComponentDescription string `json:"componentDescription"`
+	ClassNumber          int    `json:"classNumber"`
+	ClassAssociation     int    `json:"classAssociation"`
+	CourseTitle          string `json:"courseTitle"`
+	ClassStartTime       string `json:"classStartTime"`
+	ClassEndTime         string `json:"classEndTime"`
+	Mondays              bool   `json:"modays"`
+	Tuesdays             bool   `json:"tuesdays"`
+	Wednesdays           bool   `json:"wednesdays"`
+	Thursdays            bool   `json:"thursdays"`
+	Fridays              bool   `json:"fridays"`
+	Saturdays            bool   `json:"saturdays"`
+	Sundays              bool   `json:"sundays"`
+	ClassStartDate       string `json:"classStartDate"`
+	ClassEndDate         string `json:"classEndDate"`
+	EnrollmentCapacity   int    `json:"enrollmentCapacity"`
+	CurrentEnrollment    int    `json:"currentEnrollment"`
+	WaitlistCapacity     int    `json:"waitlistCapacity"`
+	CurrentWaitlistTotal int    `json:"currentWaitlistTotal"`
+}
 
 const port = "80"
 
@@ -29,7 +61,8 @@ func main() {
 
 	log.Println("tables created successfully")
 
-	seed(database)
+	seedCourses(database, "COMP", 2242) // 2242 = f2024, 2244 = w2025
+	seedOrders(database)
 
 	courseDB := db.NewCourseDBImpl(database)
 	orderDB := db.NewOrderDBImpl(database)
@@ -45,60 +78,85 @@ func main() {
 	}
 }
 
-func seed(database *sql.DB) {
-	addCourse(database, "MATH-323", "Probability", "202409", "Lec 001", "3.0", 8, 0, 0)
-	addCourse(database, "COMP-250", "Introduction to Computer Science", "202409", "Lec 001", "3.0", 10, 0, 0)
-	addCourse(database, "COMP-251", "Algorithms and Data Structures", "202409", "Lec 001", "3.0", 10, 3, 6)
-	addCourse(database, "COMP-273", "Introduction to Computer Systems", "202501", "Lec 001", "3.0", 10, 10, 18)
-	addCourse(database, "COMP-302", "Programming Languages and Paradigms", "202409", "Lec 001", "3.0", 117, 20, 20)
-	addCourse(database, "COMP-303", "Software Design", "202409", "Lec 001", "3.0", 10, 4, 5)
-	addCourse(database, "COMP-421", "Database Systems", "202501", "Lec 001", "3.0", 10, 2, 15)
-	addCourse(database, "SOCI-213", "Deviance", "202501", "Lec 001", "3.0", 10, 0, 0)
-	addOrder(database, "danny", "dannymousa@cae.com", "5143430343", 3)
-	addOrder(database, "danny", "dannymousa@cae.com", "5143430343", 2)
-	addOrder(database, "danny", "dannymousa@cae.com", "5143430343", 7)
-	addOrder(database, "danny", "dannymousa@cae.com", "5143430343", 1)
-	addOrder(database, "rei", "reikong@gmail.com", "5143430343", 6)
-	addOrder(database, "rei", "reikong@gmail.com", "5143430343", 2)
-	addOrder(database, "rei", "reikong@gmail.com", "5143430343", 1)
-	addOrder(database, "rei", "reikong@gmail.com", "5143430343", 4)
-	addOrder(database, "p drizzy", "pdrizzy@hotmail.com", "6969696969", 8)
-	addOrder(database, "jateen", "kalsijatin67@icloud.com", "4389893868", 5)
-	addOrder(database, "jateen", "kalsijatin67@icloud.com", "4389893868", 2)
-	addOrder(database, "jateen", "kalsijatin67@icloud.com", "4389893868", 6)
-	addOrder(database, "jateen", "kalsijatin67@icloud.com", "4389893868", 4)
+func seedCourses(database *sql.DB, subject string, termCode int) {
+	jsonData, _ := json.MarshalIndent("", "", "\t")
+
+	request, err := http.NewRequest("GET",
+		fmt.Sprintf("https://opendata.concordia.ca/API/v1/course/scheduleTerm/filter/%s/%v", subject, termCode),
+		bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatalf("could not make new http request: %s", err)
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(request)
+	if err != nil {
+		log.Fatalf("could not do http request: %s", err)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		log.Fatalf("error code: %v", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var courses []Course
+
+	if err := json.Unmarshal(body, &courses); err != nil {
+		log.Fatalln(err)
+	}
+
+	coursesTablePopulated, err := db.CoursesTablePopulated(database)
+	if err != nil {
+		log.Fatalf("error checking if courses table populated: %v", err)
+	}
+
+	if !coursesTablePopulated {
+		for _, course := range courses {
+			addCourse(database, course)
+		}
+	}
+	log.Printf("all courses for %s for term %v inserted successfully", subject, termCode)
 }
 
-func addCourse(database *sql.DB, courseCode, courseTitle, semester, section, credits string, openSeats, wa, wc int) {
-	courseExists, err := db.CourseExists(database, courseCode, semester, section)
+func seedOrders(database *sql.DB) {
+	ordersTablePopulated, err := db.OrdersTablePopulated(database)
 	if err != nil {
-		log.Fatalf("error checking if course exists: %v", err)
+		log.Fatalf("error checking if orders table populated: %v", err)
 	}
 
-	if !courseExists {
-		err = db.CreateDefaultCourse(database, courseCode, courseTitle, semester, section, credits, openSeats, wa, wc)
-		if err != nil {
-			log.Fatalf("error inserting course: %v", err)
-		}
-		log.Println("course inserted successfully")
-	} else {
-		log.Println("course already inserted")
+	if !ordersTablePopulated {
+		addOrder(database, "dannymousa@cae.com", "5143430343", 1)
+		addOrder(database, "dannymousa@cae.com", "5143430343", 10)
+		addOrder(database, "reikong@gmail.com", "5143430343", 132)
+		addOrder(database, "reikong@gmail.com", "5143430343", 45)
+		addOrder(database, "reikong@gmail.com", "5143430343", 165)
+		addOrder(database, "kalsijatin67@icloud.com", "4389893868", 44)
+		addOrder(database, "kalsijatin67@icloud.com", "4389893868", 45)
 	}
 }
 
-func addOrder(database *sql.DB, name, email, phone string, courseID int) {
-	orderExists, err := db.OrderExists(database, name, email, phone, courseID)
+func addCourse(database *sql.DB, course Course) {
+	err := db.CreateDefaultCourse(database, course.CourseID, course.TermCode, course.Session, course.Subject, course.Catalog,
+		course.Section, course.ComponentCode, course.ComponentDescription, course.ClassNumber, course.ClassAssociation,
+		course.CourseTitle, course.ClassStartTime, course.ClassEndTime, course.Mondays, course.Tuesdays, course.Wednesdays,
+		course.Thursdays, course.Fridays, course.Saturdays, course.Sundays, course.ClassStartDate, course.ClassEndDate,
+		course.EnrollmentCapacity, course.CurrentEnrollment, course.WaitlistCapacity, course.CurrentWaitlistTotal)
 	if err != nil {
-		log.Fatalf("error checking if order exists: %v", err)
+		log.Fatalf("error inserting course: %v", err)
 	}
+}
 
-	if !orderExists {
-		err = db.CreateDefaultOrder(database, name, email, phone, courseID)
-		if err != nil {
-			log.Fatalf("error inserting order: %v", err)
-		}
-		log.Println("order inserted successfully")
-	} else {
-		log.Println("order already inserted")
+func addOrder(database *sql.DB, email, phone string, FK_courseID int) {
+	err := db.CreateDefaultOrder(database, email, phone, FK_courseID)
+	if err != nil {
+		log.Fatalf("error inserting order: %v", err)
 	}
+	log.Println("order inserted successfully")
 }

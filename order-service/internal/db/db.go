@@ -49,7 +49,8 @@ func CreateTables(db *sql.DB) error {
 		END $$;
 
 		CREATE TABLE IF NOT EXISTS tbl_Courses (
-            courseID INT PRIMARY KEY,
+            Id SERIAL PRIMARY KEY,
+            courseID INT NOT NULL,
             termCode INT NOT NULL,
             session VARCHAR(5) NOT NULL,
             subject VARCHAR(4) NOT NULL,
@@ -78,10 +79,10 @@ func CreateTables(db *sql.DB) error {
         );
 
 		CREATE TABLE IF NOT EXISTS tbl_Orders (
-            orderId SERIAL PRIMARY KEY,
+            Id SERIAL PRIMARY KEY,
             email TEXT NOT NULL,
 			phone TEXT NOT NULL,
-			courseId INT REFERENCES tbl_Courses (courseId),
+			courseId INT REFERENCES tbl_Courses (Id),
 			isActive BOOLEAN NOT NULL,
 			createdAt TIMESTAMPTZ DEFAULT NOW(),
 			updatedAt TIMESTAMPTZ DEFAULT NOW()
@@ -91,10 +92,10 @@ func CreateTables(db *sql.DB) error {
 	return err
 }
 
-func CourseExists(db *sql.DB, courseId int) (bool, error) {
-	query := "SELECT COUNT(*) FROM tbl_Courses WHERE courseId = $1"
+func CoursesTablePopulated(db *sql.DB) (bool, error) {
+	query := "SELECT COUNT(1) WHERE EXISTS (SELECT * FROM tbl_Courses)"
 	var count int
-	err := db.QueryRow(query, courseId).Scan(&count)
+	err := db.QueryRow(query).Scan(&count)
 	if err != nil {
 		return false, err
 	}
@@ -117,18 +118,18 @@ func CreateDefaultCourse(db *sql.DB, courseID, termCode int, session, subject, c
 	return err
 }
 
-func OrderExists(db *sql.DB, email, phone string, courseID int) (bool, error) {
-	query := "SELECT COUNT(*) FROM tbl_Orders WHERE (email = $1 OR phone = $2) AND courseId = $3"
+func OrdersTablePopulated(db *sql.DB) (bool, error) {
+	query := "SELECT COUNT(1) WHERE EXISTS (SELECT * FROM tbl_Orders)"
 	var count int
-	err := db.QueryRow(query, email, phone, courseID).Scan(&count)
+	err := db.QueryRow(query).Scan(&count)
 	if err != nil {
 		return false, err
 	}
 	return count > 0, nil
 }
 
-func CreateDefaultOrder(db *sql.DB, email, phone string, courseID int) error {
+func CreateDefaultOrder(db *sql.DB, email, phone string, FK_courseID int) error {
 	query := "INSERT INTO tbl_Orders (email, phone, courseId, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6)"
-	_, err := db.Exec(query, email, phone, courseID, 1, time.Now(), time.Now())
+	_, err := db.Exec(query, email, phone, FK_courseID, 1, time.Now(), time.Now())
 	return err
 }
