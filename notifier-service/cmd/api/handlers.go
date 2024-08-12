@@ -134,7 +134,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 
 	payload := jsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("db entry + sms/email notification sent for course %s", reqPayload.CourseID),
+		Message: fmt.Sprintf("db entry + order update + sms/email notification sent for course %s", reqPayload.CourseID),
 	}
 
 	s.writeJSON(w, payload, http.StatusAccepted)

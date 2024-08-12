@@ -191,51 +191,51 @@ func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(courses)
 }
 
-func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
-	orders, err := s.OrderDB.GetActiveOrders()
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
+// func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
+// 	orders, err := s.OrderDB.GetActiveOrders()
+// 	if err != nil {
+// 		s.errorJSON(w, err, http.StatusBadRequest)
+// 		return
+// 	}
 
-	courseIDArray := make([]int, len(orders))
+// 	courseIDArray := make([]int, len(orders))
 
-	for i, order := range orders {
-		courseIDArray[i] = order.CourseID
-	}
+// 	for i, order := range orders {
+// 		courseIDArray[i] = order.CourseID
+// 	}
 
-	courses, err := s.CourseDB.GetCoursesByMultpleIDs(courseIDArray)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
+// 	courses, err := s.CourseDB.GetCoursesByMultpleIDs(courseIDArray)
+// 	if err != nil {
+// 		s.errorJSON(w, err, http.StatusBadRequest)
+// 		return
+// 	}
 
-	orderMap := make(map[int][]Order)
-	for _, order := range orders {
-		if _, ok := orderMap[order.CourseID]; !ok {
-			newSlice := []Order{{OrderID: order.ID, Name: order.Name, Email: order.Email, Phone: order.Phone}}
-			orderMap[order.CourseID] = newSlice
-		} else {
-			orderMap[order.CourseID] = append(orderMap[order.CourseID],
-				Order{OrderID: order.ID, Name: order.Name, Email: order.Email, Phone: order.Phone})
-		}
-	}
+// 	orderMap := make(map[int][]Order)
+// 	for _, order := range orders {
+// 		if _, ok := orderMap[order.CourseID]; !ok {
+// 			newSlice := []Order{{OrderID: order.ID, Name: order.Name, Email: order.Email, Phone: order.Phone}}
+// 			orderMap[order.CourseID] = newSlice
+// 		} else {
+// 			orderMap[order.CourseID] = append(orderMap[order.CourseID],
+// 				Order{OrderID: order.ID, Name: order.Name, Email: order.Email, Phone: order.Phone})
+// 		}
+// 	}
 
-	var orderPayload []OrderPayload
+// 	var orderPayload []OrderPayload
 
-	for _, course := range courses {
-		var payload OrderPayload
-		payload.CourseID = course.ID
-		payload.CourseCode = course.CourseCode
-		payload.CourseTitle = course.CourseTitle
-		payload.Semester = course.Semester
-		payload.Section = course.Section
-		payload.OpenSeats = course.OpenSeats
-		payload.WaitlistAvailable = course.WaitlistAvailable
-		payload.WaitlistCapacity = course.WaitlistCapacity
-		payload.Orders = orderMap[course.ID]
-		orderPayload = append(orderPayload, payload)
-	}
+// 	for _, course := range courses {
+// 		var payload OrderPayload
+// 		payload.CourseID = course.ID
+// 		payload.CourseCode = course.CourseCode
+// 		payload.CourseTitle = course.CourseTitle
+// 		payload.Semester = course.Semester
+// 		payload.Section = course.Section
+// 		payload.OpenSeats = course.OpenSeats
+// 		payload.WaitlistAvailable = course.WaitlistAvailable
+// 		payload.WaitlistCapacity = course.WaitlistCapacity
+// 		payload.Orders = orderMap[course.ID]
+// 		orderPayload = append(orderPayload, payload)
+// 	}
 
-	json.NewEncoder(w).Encode(orderPayload)
-}
+// 	json.NewEncoder(w).Encode(orderPayload)
+// }
