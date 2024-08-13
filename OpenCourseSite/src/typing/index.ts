@@ -25,6 +25,12 @@ export interface Order {
     updatedAt: Date
 }
 
+export type SemesterOption = {
+    id: number;
+    label: string;
+    value: "fall" | "winter" | "fall|winter" | "summer";
+}
+
 export interface ThemeContextType {
     currentTheme: string;
     setCurrentTheme: (theme: string) => void;

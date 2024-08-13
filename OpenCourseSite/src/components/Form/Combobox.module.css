@@ -88,6 +88,10 @@
     color: var(--primary300);
 }
 
+.MatchingQuery {
+    text-decoration: underline;
+}
+
 .Text {
     font-size: 14px;
     color: var(--primary400);

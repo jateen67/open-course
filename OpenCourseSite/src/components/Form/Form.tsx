@@ -1,19 +1,10 @@
-import { useState } from "react";
+import { useState ,useEffect } from "react";
 import RadioGroup from "./RadioGroup";
 import FormStyles from "./Form.module.css"
 import CourseCombobox from "./Combobox";
 import CheckboxGroup from "./CheckboxGroup";
-
-const radioOptions = [
-    { id: "r1", value: "fall", label: "Fall 2023" },
-    { id: "r2", value: "winter", label: "Winter 2023" },
-    { id: "r3", value: "summer", label: "Summer 2024" },
-];
-
-const sectionOptions = [
-    { sectionType: "lec", sectionNum: "001", crn: 2343, days: ["Tuesday", "Thursday"], times: ["11:07 – 23:04"]},
-    { sectionType: "lec", sectionNum: "001", crn: 2343, days: ["Tuesday", "Thursday"], times: ["11:07 – 23:04"]},
-]
+import { Course, SemesterOption } from "../../typing"; 
+import semestersData from "../../data/semesters.json";
 
 const formFields = [
     { id: "name", label: "Name", type: "text" },
@@ -22,21 +13,30 @@ const formFields = [
 ];
 
 const Form = () => {
-    const [termSelected, setTermSelected] = useState(false);
-    const [courseSelected, setCourseSelected] = useState(false);
+    const [radioOptions, setRadioOptions] = useState<SemesterOption[]>([]);
     const [checkboxSelected, setCheckboxSelected] = useState(false);
+    const [selectedTerm, setSelectedTerm] = useState("");
+    const [query, setQuery] = useState<string>("");
+    const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
 
-    const handleTermSelected = () => {
-        setTermSelected(true);
+    const handleTermSelected = (term: string) => {
+        setSelectedTerm(term);
+        setSelectedCourses([]);
+        setQuery("");
     };
 
-    const handleCourseSelected = () => {
-        setCourseSelected(true);
+    const handleCourseSelected = (courses: Course[]) => {
+        setSelectedCourses(courses);
     };
 
     const handleCheckboxSelected = () => {
         setCheckboxSelected(true);
-    }
+    };
+
+    useEffect(() => {
+        setRadioOptions(semestersData as SemesterOption[]);
+    }, []);
+
 
     return (
         <form className={FormStyles.Content}>
@@ -44,16 +44,20 @@ const Form = () => {
                 <h3>Term</h3>
                 <RadioGroup options={radioOptions} onChange={handleTermSelected} />
             </div>
-            {termSelected && (
+            {selectedTerm.length > 0 && (
                 <div className={FormStyles.SectionContent}>
                     <h3>Course</h3>
-                    <CourseCombobox onChange={handleCourseSelected} />
+                    <CourseCombobox
+                        term={selectedTerm}
+                        query={query}
+                        onQueryChange={setQuery}
+                        onChange={handleCourseSelected} />
                 </div>
             )}
-            { courseSelected && (
+            { selectedCourses.length > 0 && (
                 <div className={FormStyles.SectionContent}>
                     <h3>Section</h3>
-                    <CheckboxGroup sections={sectionOptions} />
+                    <CheckboxGroup courses={selectedCourses} onChange={handleCheckboxSelected} />
                 </div>
             )}
             { checkboxSelected && (

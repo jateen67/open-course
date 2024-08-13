@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "label": "Fall 2023",
+        "value": "fall"
+    },
+    {
+        "id": 2,
+        "label": "Winter 2024",
+        "value": "winter"
+    },
+    {
+        "id": 3,
+        "label": "Fall/Winter 2023-2024",
+        "value": "fall|winter"
+    },
+    {
+        "id": 4,
+        "label": "Summer 2024",
+        "value": "summer"
+    }
+]
