@@ -46,7 +46,7 @@ func (d *CourseDBImpl) GetCourses() ([]Course, error) {
 }
 
 func (d *CourseDBImpl) GetCoursesByInput(input string) ([]Course, error) {
-	query := "SELECT * FROM tbl_Courses WHERE (subject || '' || catalog '' || coursetitle) LIKE '%' || $1 || '%' LIMIT 5"
+	query := "SELECT * FROM tbl_Courses WHERE LOWER(subject || ' ' || catalog || ' ' || coursetitle) LIKE '%' || LOWER($1) || '%' LIMIT 5"
 	rows, err := d.DB.Query(query, input)
 	if err != nil {
 		return nil, err
