@@ -3,7 +3,7 @@
 
 order-service/orderExec
 scraper-service/scraperExec
-mailer-service/mailerExec
+notifier-service/notifierExec
 listener-service/listenerExec
 
 ### Python ###

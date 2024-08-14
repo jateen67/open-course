@@ -1,6 +1,6 @@
 ORDER_SERVICE_BINARY=orderExec
 SCRAPER_SERVICE_BINARY=scraperExec
-MAILER_SERVICE_BINARY=mailerExec
+NOTIFIER_SERVICE_BINARY=notifierExec
 LISTENER_SERVICE_BINARY=listenerExec
 
 
@@ -16,11 +16,11 @@ build_scraper_service:
 	cd scraper-service && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${SCRAPER_SERVICE_BINARY} ./cmd/api
 	@echo "scraper service binary built!"
 
-# BUILD MAILER SERVICE
-build_mailer_service:
-	@echo "building mailer service binary.."
-	cd mailer-service && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${MAILER_SERVICE_BINARY} ./cmd/api
-	@echo "mailer service binary built!"
+# BUILD NOTIFIER SERVICE
+build_notifier_service:
+	@echo "building notifier service binary.."
+	cd notifier-service && env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${NOTIFIER_SERVICE_BINARY} ./cmd/api
+	@echo "notifier service binary built!"
 
 # BUILD LISTENER SERVICE
 build_listener_service:
@@ -41,7 +41,7 @@ down:
 	@echo "docker images stopped!"
 
 # BUILD AND START ALL DOCKER CONTAINERS
-up_build: build_order_service build_scraper_service build_mailer_service build_listener_service
+up_build: build_order_service build_scraper_service build_notifier_service build_listener_service
 	@echo "stopping running docker images..."
 	docker-compose down
 	@echo "building and starting docker images..."
@@ -66,14 +66,14 @@ scraper-service: build_scraper_service
 	docker-compose start scraper-service
 	@echo "scraper-service built and started!"
 
-# BUILD AND START ONLY MAILER SERVICE DOCKER CONTAINER
-mailer-service: build_mailer_service
-	@echo "building mailer-service docker image..."
-	- docker-compose stop mailer-service
-	- docker-compose rm -f mailer-service
-	docker-compose up --build -d mailer-service
-	docker-compose start mailer-service
-	@echo "mailer-service built and started!"
+# BUILD AND START ONLY NOTIFIER SERVICE DOCKER CONTAINER
+notifier-service: build_notifier_service
+	@echo "building notifier-service docker image..."
+	- docker-compose stop notifier-service
+	- docker-compose rm -f notifier-service
+	docker-compose up --build -d notifier-service
+	docker-compose start notifier-service
+	@echo "notifier-service built and started!"
 	
 # BUILD AND START ONLY LISTENER SERVICE DOCKER CONTAINER
 listener-service: build_listener_service
@@ -91,8 +91,8 @@ clean:
 	@cd order-service && go clean
 	@cd scraper-service && rm -f ${SCRAPER_SERVICE_BINARY}
 	@cd scraper-service && go clean
-	@cd mailer-service && rm -f ${MAILER_SERVICE_BINARY}
-	@cd mailer-service && go clean
+	@cd notifier-service && rm -f ${NOTIFIER_SERVICE_BINARY}
+	@cd notifier-service && go clean
 	@cd listener-service && rm -f ${LISTENER_SERVICE_BINARY}
 	@cd listener-service && go clean
 	@echo "cleaned!"

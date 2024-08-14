@@ -19,10 +19,10 @@ services:
       - "8082:80"
     environment:
       RABBITMQ_CONNECTION_STRING: "amqp://guest:guest@rabbitmq:5672"
-  mailer-service:
+  notifier-service:
     build:
-      context: mailer-service
-      dockerfile: mailer-service.Dockerfile
+      context: notifier-service
+      dockerfile: notifier-service.Dockerfile
     environment:
       MAIL_DOMAIN: localhost
       MAIL_HOST: mailhog
@@ -30,8 +30,9 @@ services:
       MAIL_ENCRYPTION: none
       MAIL_USERNAME: ""
       MAIL_PASSWORD: ""
-      FROM_NAME: "John Doe"
-      FROM_ADDRESS: john.doe@example.com
+      FROM_NAME: "OpenCourse Admin"
+      MAIL_FROM_ADDRESS: opencourseadmin@gmail.com
+      TWILIO_FROM_PHONE_NUMBER: 6789998212
   listener-service:
     build:
       context: listener-service

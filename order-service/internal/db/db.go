@@ -49,25 +49,39 @@ func CreateTables(db *sql.DB) error {
 		END $$;
 
 		CREATE TABLE IF NOT EXISTS tbl_Courses (
-            id SERIAL PRIMARY KEY,
-            courseCode VARCHAR(10) NOT NULL,
+            classNumber INT PRIMARY KEY,
+            courseId INT NOT NULL,
+            termCode INT NOT NULL,
+            session VARCHAR(5) NOT NULL,
+            subject VARCHAR(4) NOT NULL,
+            catalog VARCHAR(4) NOT NULL,
+            section VARCHAR(10) NOT NULL,
+            componentCode VARCHAR(3) NOT NULL,
+            componentDescription VARCHAR(20) NOT NULL,
+            classAssociation INT NOT NULL,
             courseTitle TEXT NOT NULL,
-			semester VARCHAR(10) NOT NULL,
-			section VARCHAR(10) NOT NULL,
-			credits VARCHAR(5) NOT NULL,
-			openSeats INT NOT NULL,
-			waitlistAvailable INT NOT NULL,
+            classStartTime VARCHAR(10) NOT NULL,
+            classEndTime VARCHAR(10) NOT NULL,
+			mondays BOOLEAN NOT NULL,
+			tuesdays BOOLEAN NOT NULL,
+			wednesdays BOOLEAN NOT NULL,
+			thursdays BOOLEAN NOT NULL,
+			fridays BOOLEAN NOT NULL,
+			saturdays BOOLEAN NOT NULL,
+			sundays BOOLEAN NOT NULL,
+            classStartDate VARCHAR(10) NOT NULL,
+            classEndDate VARCHAR(10) NOT NULL,
+			enrollmentCapacity INT NOT NULL,
+			currentEnrollment INT NOT NULL,
 			waitlistCapacity INT NOT NULL,
-			createdAt TIMESTAMPTZ DEFAULT NOW(),
-			updatedAt TIMESTAMPTZ DEFAULT NOW()
+			currentWaitlistTotal INT NOT NULL
         );
 
 		CREATE TABLE IF NOT EXISTS tbl_Orders (
-            id SERIAL PRIMARY KEY,
-            name TEXT NOT NULL,
+            Id SERIAL PRIMARY KEY,
             email TEXT NOT NULL,
 			phone TEXT NOT NULL,
-			courseId INT REFERENCES tbl_Courses (id),
+			classNumber INT REFERENCES tbl_Courses (classNumber),
 			isActive BOOLEAN NOT NULL,
 			createdAt TIMESTAMPTZ DEFAULT NOW(),
 			updatedAt TIMESTAMPTZ DEFAULT NOW()
@@ -77,36 +91,43 @@ func CreateTables(db *sql.DB) error {
 	return err
 }
 
-func CourseExists(db *sql.DB, courseCode, semester, section string) (bool, error) {
-	query := "SELECT COUNT(*) FROM tbl_Courses WHERE courseCode = $1 AND semester = $2 AND section = $3"
+func CoursesTablePopulated(db *sql.DB) (bool, error) {
+	query := "SELECT COUNT(1) WHERE EXISTS (SELECT * FROM tbl_Courses)"
 	var count int
-	err := db.QueryRow(query, courseCode, semester, section).Scan(&count)
+	err := db.QueryRow(query).Scan(&count)
 	if err != nil {
 		return false, err
 	}
 	return count > 0, nil
 }
 
-func CreateDefaultCourse(db *sql.DB, courseCode, courseTitle, semester, section, credits string, openSeats, wa, wc int) error {
-	query := `INSERT INTO tbl_Courses (courseCode, courseTitle, 
-			  semester, section, credits, openSeats, waitlistAvailable, waitlistCapacity, createdAt, updatedAt)
-	 		  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
-	_, err := db.Exec(query, courseCode, courseTitle, semester, section, credits, openSeats, wa, wc, time.Now(), time.Now())
+func CreateDefaultCourse(db *sql.DB, classNumber, courseID, termCode int, session, subject, catalog, section string,
+	componentCode, componentDescription string, classAssociation int, courseTitle, classStartTime, classEndTime string,
+	mondays, tuesdays, wednesdays, thursdays, fridays, saturdays, sundays bool, classStartDate, classEndDate string,
+	enrollmentCapacity, currentEnrollment, waitlistCapacity, currentWaitlistTotal int) error {
+	query := `INSERT INTO tbl_Courses (classNumber, courseId, termCode, session, subject, catalog, section, componentCode, componentDescription,
+			  classAssociation, courseTitle, classStartTime, classEndTime, mondays, tuesdays, wednesdays, thursdays,
+			  fridays, saturdays, sundays, classStartDate, classEndDate, enrollmentCapacity, currentEnrollment, waitlistCapacity,
+			  currentWaitlistTotal) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 
+			  $18, $19, $20, $21, $22, $23, $24, $25, $26)`
+	_, err := db.Exec(query, classNumber, courseID, termCode, session, subject, catalog, section, componentCode, componentDescription,
+		classAssociation, courseTitle, classStartTime, classEndTime, mondays, tuesdays, wednesdays, thursdays, fridays, saturdays,
+		sundays, classStartDate, classEndDate, enrollmentCapacity, currentEnrollment, waitlistCapacity, currentWaitlistTotal)
 	return err
 }
 
-func OrderExists(db *sql.DB, name, email, phone string, courseID int) (bool, error) {
-	query := "SELECT COUNT(*) FROM tbl_Orders WHERE (email = $1 OR name = $2 OR phone = $3) AND courseId = $4"
+func OrdersTablePopulated(db *sql.DB) (bool, error) {
+	query := "SELECT COUNT(1) WHERE EXISTS (SELECT * FROM tbl_Orders)"
 	var count int
-	err := db.QueryRow(query, email, name, phone, courseID).Scan(&count)
+	err := db.QueryRow(query).Scan(&count)
 	if err != nil {
 		return false, err
 	}
 	return count > 0, nil
 }
 
-func CreateDefaultOrder(db *sql.DB, name, email, phone string, courseID int) error {
-	query := "INSERT INTO tbl_Orders (name, email, phone, courseId, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6, $7)"
-	_, err := db.Exec(query, name, email, phone, courseID, 1, time.Now(), time.Now())
+func CreateDefaultOrder(db *sql.DB, email, phone string, classNumber int) error {
+	query := "INSERT INTO tbl_Orders (email, phone, classNumber, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6)"
+	_, err := db.Exec(query, email, phone, classNumber, 1, time.Now(), time.Now())
 	return err
 }

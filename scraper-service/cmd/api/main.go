@@ -1,17 +1,12 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
-
-const port = "80"
 
 func main() {
 	log.Println("starting rabbitmq server...")
@@ -21,16 +16,12 @@ func main() {
 	}
 	defer conn.Close()
 
-	srv := newServer(conn).Router
-	log.Println("starting scraper service...")
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)
-
-	if errors.Is(err, http.ErrServerClosed) {
-		log.Println("order service closed")
-	} else if err != nil {
-		log.Println("error starting order service: ", err)
-		os.Exit(1)
-	}
+	// go func() {
+	// 	for {
+	// 		time.Sleep(5 * time.Second)
+	// 		scraperMain(conn)
+	// 	}
+	// }()
 }
 
 func connectToRabbitMQ() (*amqp.Connection, error) {
@@ -39,7 +30,7 @@ func connectToRabbitMQ() (*amqp.Connection, error) {
 	for {
 		conn, err := amqp.Dial(os.Getenv("RABBITMQ_CONNECTION_STRING"))
 		if err != nil {
-			fmt.Println("rabbitmq not yet ready...")
+			log.Println("rabbitmq not yet ready...")
 			count++
 		} else {
 			log.Println("connected to rabbitmq successfully")

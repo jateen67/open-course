@@ -2,7 +2,6 @@ package event
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -13,7 +12,29 @@ type emitter struct {
 	connection *amqp.Connection
 }
 
-func (e *emitter) Push(q *amqp.Queue, courseCode, courseTitle, semester, section string) error {
+type OrderPayload struct {
+	ID                   int     `json:"Id"`
+	ClassNumber          int     `json:"classNumber"`
+	Subject              string  `json:"subject"`
+	Catalog              string  `json:"catalog"`
+	CourseTitle          string  `json:"courseTitle"`
+	Semester             string  `json:"semester"`
+	ComponentCode        string  `json:"componentCode"`
+	Section              string  `json:"section"`
+	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
+	CurrentEnrollment    int     `json:"currentEnrollment"`
+	WaitlistCapacity     int     `json:"waitlistCapacity"`
+	CurrentWaitlistTotal int     `json:"currentWaitlistTotal"`
+	Orders               []Order `json:"orders"`
+}
+
+type Order struct {
+	OrderID int    `json:"orderId"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+}
+
+func (e *emitter) Push(q *amqp.Queue, payload []byte) error {
 	ch, err := e.connection.Channel()
 	if err != nil {
 		return err
@@ -23,7 +44,6 @@ func (e *emitter) Push(q *amqp.Queue, courseCode, courseTitle, semester, section
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	body := fmt.Sprintf("%s - %s (%s) has opened up for %s. Hurry and register!", courseCode, courseTitle, section, semester)
 	err = ch.PublishWithContext(ctx,
 		"",     // exchange
 		q.Name, // routing key
@@ -32,13 +52,13 @@ func (e *emitter) Push(q *amqp.Queue, courseCode, courseTitle, semester, section
 		amqp.Publishing{
 			DeliveryMode: amqp.Persistent,
 			ContentType:  "text/plain",
-			Body:         []byte(body),
+			Body:         []byte(payload),
 		})
 	if err != nil {
 		return err
 	}
 
-	log.Printf(" [x] Sent %s\n", body)
+	log.Printf(" [x] Sent %s\n", payload)
 	return nil
 }
 
