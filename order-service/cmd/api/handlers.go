@@ -194,6 +194,34 @@ func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(courses)
 }
 
+func (s *server) getCourseInfo(w http.ResponseWriter, r *http.Request) {
+	courseID, err := strconv.Atoi(chi.URLParam(r, "courseId"))
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	courses, err := s.CourseDB.GetCourseInfo(courseID)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(courses)
+}
+
+func (s *server) getCourseSearch(w http.ResponseWriter, r *http.Request) {
+	input := chi.URLParam(r, "input")
+
+	courses, err := s.CourseDB.GetCoursesByInput(input)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(courses)
+}
+
 // func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 // 	orders, err := s.OrderDB.GetActiveOrders()
 // 	if err != nil {
