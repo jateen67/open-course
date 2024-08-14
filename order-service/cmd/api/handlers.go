@@ -14,7 +14,7 @@ import (
 
 type OrderPayload struct {
 	ID                   int     `json:"Id"`
-	CourseID             int     `json:"courseId"`
+	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
@@ -66,14 +66,14 @@ func (s *server) getOrdersByEmail(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(order)
 }
 
-func (s *server) getOrdersByCourseID(w http.ResponseWriter, r *http.Request) {
-	courseID, err := strconv.Atoi(chi.URLParam(r, "courseId"))
+func (s *server) getOrdersByClassNumber(w http.ResponseWriter, r *http.Request) {
+	classNumber, err := strconv.Atoi(chi.URLParam(r, "classNumber"))
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
-	order, err := s.OrderDB.GetOrdersByCourseID(courseID)
+	order, err := s.OrderDB.GetOrdersByClassNumber(classNumber)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -138,7 +138,7 @@ func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
 
 	resPayload := jsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("user %s order for course %d updated successfully", reqPayload.Phone, reqPayload.CourseID),
+		Message: fmt.Sprintf("user %s order for course %d updated successfully", reqPayload.Phone, reqPayload.ClassNumber),
 	}
 
 	err = s.writeJSON(w, resPayload, http.StatusOK)
@@ -172,7 +172,7 @@ func (s *server) updateOrderStatus(w http.ResponseWriter, r *http.Request) {
 
 	resPayload := jsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("order status for course %d turned to 0 successfully", reqPayload.CourseID),
+		Message: fmt.Sprintf("order status for course %d turned to 0 successfully", reqPayload.ClassNumber),
 	}
 
 	err = s.writeJSON(w, resPayload, http.StatusOK)

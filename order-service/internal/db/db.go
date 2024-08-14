@@ -49,16 +49,15 @@ func CreateTables(db *sql.DB) error {
 		END $$;
 
 		CREATE TABLE IF NOT EXISTS tbl_Courses (
-            Id SERIAL PRIMARY KEY,
-            courseID INT NOT NULL,
+            classNumber INT PRIMARY KEY,
+            courseId INT NOT NULL,
             termCode INT NOT NULL,
             session VARCHAR(5) NOT NULL,
             subject VARCHAR(4) NOT NULL,
             catalog VARCHAR(4) NOT NULL,
-            section INT NOT NULL,
+            section VARCHAR(10) NOT NULL,
             componentCode VARCHAR(3) NOT NULL,
             componentDescription VARCHAR(20) NOT NULL,
-            classNumber INT NOT NULL,
             classAssociation INT NOT NULL,
             courseTitle TEXT NOT NULL,
             classStartTime VARCHAR(10) NOT NULL,
@@ -82,7 +81,7 @@ func CreateTables(db *sql.DB) error {
             Id SERIAL PRIMARY KEY,
             email TEXT NOT NULL,
 			phone TEXT NOT NULL,
-			courseId INT REFERENCES tbl_Courses (Id),
+			classNumber INT REFERENCES tbl_Courses (classNumber),
 			isActive BOOLEAN NOT NULL,
 			createdAt TIMESTAMPTZ DEFAULT NOW(),
 			updatedAt TIMESTAMPTZ DEFAULT NOW()
@@ -102,19 +101,18 @@ func CoursesTablePopulated(db *sql.DB) (bool, error) {
 	return count > 0, nil
 }
 
-func CreateDefaultCourse(db *sql.DB, courseID, termCode int, session, subject, catalog string, section int,
-	componentCode, componentDescription string, classNumber, classAssociation int, courseTitle, classStartTime, classEndTime string,
+func CreateDefaultCourse(db *sql.DB, classNumber, courseID, termCode int, session, subject, catalog, section string,
+	componentCode, componentDescription string, classAssociation int, courseTitle, classStartTime, classEndTime string,
 	mondays, tuesdays, wednesdays, thursdays, fridays, saturdays, sundays bool, classStartDate, classEndDate string,
 	enrollmentCapacity, currentEnrollment, waitlistCapacity, currentWaitlistTotal int) error {
-	query := `INSERT INTO tbl_Courses (courseID, termCode, session, subject, catalog, section, componentCode, componentDescription,
-			  classNumber, classAssociation, courseTitle, classStartTime, classEndTime, mondays, tuesdays, wednesdays, thursdays,
+	query := `INSERT INTO tbl_Courses (classNumber, courseId, termCode, session, subject, catalog, section, componentCode, componentDescription,
+			  classAssociation, courseTitle, classStartTime, classEndTime, mondays, tuesdays, wednesdays, thursdays,
 			  fridays, saturdays, sundays, classStartDate, classEndDate, enrollmentCapacity, currentEnrollment, waitlistCapacity,
 			  currentWaitlistTotal) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 
 			  $18, $19, $20, $21, $22, $23, $24, $25, $26)`
-	_, err := db.Exec(query, courseID, termCode, session, subject, catalog, section, componentCode, componentDescription,
-		classNumber, classAssociation, courseTitle, classStartTime, classEndTime, mondays, tuesdays, wednesdays, thursdays,
-		fridays, saturdays, sundays, classStartDate, classEndDate, enrollmentCapacity, currentEnrollment, waitlistCapacity,
-		currentWaitlistTotal)
+	_, err := db.Exec(query, classNumber, courseID, termCode, session, subject, catalog, section, componentCode, componentDescription,
+		classAssociation, courseTitle, classStartTime, classEndTime, mondays, tuesdays, wednesdays, thursdays, fridays, saturdays,
+		sundays, classStartDate, classEndDate, enrollmentCapacity, currentEnrollment, waitlistCapacity, currentWaitlistTotal)
 	return err
 }
 
@@ -128,8 +126,8 @@ func OrdersTablePopulated(db *sql.DB) (bool, error) {
 	return count > 0, nil
 }
 
-func CreateDefaultOrder(db *sql.DB, email, phone string, FK_courseID int) error {
-	query := "INSERT INTO tbl_Orders (email, phone, courseId, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6)"
-	_, err := db.Exec(query, email, phone, FK_courseID, 1, time.Now(), time.Now())
+func CreateDefaultOrder(db *sql.DB, email, phone string, classNumber int) error {
+	query := "INSERT INTO tbl_Orders (email, phone, classNumber, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6)"
+	_, err := db.Exec(query, email, phone, classNumber, 1, time.Now(), time.Now())
 	return err
 }

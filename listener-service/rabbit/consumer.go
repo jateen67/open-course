@@ -11,7 +11,7 @@ import (
 
 type OrderPayload struct {
 	ID                   int     `json:"Id"`
-	CourseID             int     `json:"courseId"`
+	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
@@ -89,7 +89,7 @@ func Listen(conn *amqp.Connection) error {
 
 			notifInfo := OrderPayload{
 				ID:                   orderPayload.ID,
-				CourseID:             orderPayload.CourseID,
+				ClassNumber:          orderPayload.ClassNumber,
 				Subject:              orderPayload.Subject,
 				Catalog:              orderPayload.Catalog,
 				CourseTitle:          orderPayload.CourseTitle,

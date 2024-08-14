@@ -3,16 +3,15 @@ package db
 import "time"
 
 type Course struct {
-	ID                   int    `json:"Id"`
+	ClassNumber          int    `json:"classNumber"`
 	CourseID             int    `json:"courseId"`
 	TermCode             int    `json:"termCode"`
 	Session              string `json:"session"`
 	Subject              string `json:"subject"`
 	Catalog              string `json:"catalog"`
-	Section              int    `json:"section"`
+	Section              string `json:"section"`
 	ComponentCode        string `json:"componentCode"`
 	ComponentDescription string `json:"componentDescription"`
-	ClassNumber          int    `json:"classNumber"`
 	ClassAssociation     int    `json:"classAssociation"`
 	CourseTitle          string `json:"courseTitle"`
 	ClassStartTime       string `json:"classStartTime"`
@@ -33,11 +32,11 @@ type Course struct {
 }
 
 type Order struct {
-	ID        int       `json:"Id"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone"`
-	CourseID  int       `json:"courseId"`
-	IsActive  bool      `json:"isActive"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID          int       `json:"Id"`
+	Email       string    `json:"email"`
+	Phone       string    `json:"phone"`
+	ClassNumber int       `json:"classNumber"`
+	IsActive    bool      `json:"isActive"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }

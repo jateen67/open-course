@@ -10,20 +10,50 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/jateen67/order-service/internal/db"
 )
 
+type CourseAPI struct {
+	ClassNumber          string `json:"classNumber"`
+	CourseID             string `json:"courseID"`
+	TermCode             string `json:"termCode"`
+	Session              string `json:"session"`
+	Subject              string `json:"subject"`
+	Catalog              string `json:"catalog"`
+	Section              string `json:"section"`
+	ComponentCode        string `json:"componentCode"`
+	ComponentDescription string `json:"componentDescription"`
+	ClassAssociation     string `json:"classAssociation"`
+	CourseTitle          string `json:"courseTitle"`
+	ClassStartTime       string `json:"classStartTime"`
+	ClassEndTime         string `json:"classEndTime"`
+	Mondays              string `json:"modays"`
+	Tuesdays             string `json:"tuesdays"`
+	Wednesdays           string `json:"wednesdays"`
+	Thursdays            string `json:"thursdays"`
+	Fridays              string `json:"fridays"`
+	Saturdays            string `json:"saturdays"`
+	Sundays              string `json:"sundays"`
+	ClassStartDate       string `json:"classStartDate"`
+	ClassEndDate         string `json:"classEndDate"`
+	EnrollmentCapacity   string `json:"enrollmentCapacity"`
+	CurrentEnrollment    string `json:"currentEnrollment"`
+	WaitlistCapacity     string `json:"waitlistCapacity"`
+	CurrentWaitlistTotal string `json:"currentWaitlistTotal"`
+}
+
 type Course struct {
+	ClassNumber          int    `json:"classNumber"`
 	CourseID             int    `json:"courseID"`
 	TermCode             int    `json:"termCode"`
 	Session              string `json:"session"`
 	Subject              string `json:"subject"`
 	Catalog              string `json:"catalog"`
-	Section              int    `json:"section"`
+	Section              string `json:"section"`
 	ComponentCode        string `json:"componentCode"`
 	ComponentDescription string `json:"componentDescription"`
-	ClassNumber          int    `json:"classNumber"`
 	ClassAssociation     int    `json:"classAssociation"`
 	CourseTitle          string `json:"courseTitle"`
 	ClassStartTime       string `json:"classStartTime"`
@@ -95,6 +125,7 @@ func seedCourses(database *sql.DB, subject string, termCode int) {
 		}
 
 		request.Header.Set("Content-Type", "application/json")
+		request.SetBasicAuth("711", "d77946e392ed877022b6e0825cb36aa0")
 
 		client := &http.Client{}
 		res, err := client.Do(request)
@@ -112,7 +143,7 @@ func seedCourses(database *sql.DB, subject string, termCode int) {
 			log.Fatalln(err)
 		}
 
-		var courses []Course
+		var courses []CourseAPI
 
 		if err := json.Unmarshal(body, &courses); err != nil {
 			log.Fatalln(err)
@@ -133,29 +164,46 @@ func seedOrders(database *sql.DB) {
 	}
 
 	if !ordersTablePopulated {
-		addOrder(database, "dannymousa@cae.com", "5143430343", 1)
-		addOrder(database, "dannymousa@cae.com", "5143430343", 10)
-		addOrder(database, "reikong@gmail.com", "5143430343", 132)
-		addOrder(database, "reikong@gmail.com", "5143430343", 45)
-		addOrder(database, "reikong@gmail.com", "5143430343", 165)
-		addOrder(database, "kalsijatin67@icloud.com", "4389893868", 44)
-		addOrder(database, "kalsijatin67@icloud.com", "4389893868", 45)
+		addOrder(database, "dannymousa@cae.com", "5143430343", 5533)
+		addOrder(database, "dannymousa@cae.com", "5143430343", 1616)
+		addOrder(database, "reikong@gmail.com", "5143430343", 1523)
+		addOrder(database, "reikong@gmail.com", "5143430343", 5533)
+		addOrder(database, "reikong@gmail.com", "5143430343", 1498)
+		addOrder(database, "kalsijatin67@icloud.com", "4389893868", 6399)
+		addOrder(database, "kalsijatin67@icloud.com", "4389893868", 1514)
 	}
 }
 
-func addCourse(database *sql.DB, course Course) {
-	err := db.CreateDefaultCourse(database, course.CourseID, course.TermCode, course.Session, course.Subject, course.Catalog,
-		course.Section, course.ComponentCode, course.ComponentDescription, course.ClassNumber, course.ClassAssociation,
-		course.CourseTitle, course.ClassStartTime, course.ClassEndTime, course.Mondays, course.Tuesdays, course.Wednesdays,
-		course.Thursdays, course.Fridays, course.Saturdays, course.Sundays, course.ClassStartDate, course.ClassEndDate,
-		course.EnrollmentCapacity, course.CurrentEnrollment, course.WaitlistCapacity, course.CurrentWaitlistTotal)
+func addCourse(database *sql.DB, course CourseAPI) {
+	idx := 0
+	for _, r := range course.CourseID {
+		if r == '0' {
+			idx++
+		} else {
+			break
+		}
+	}
+	courseID, _ := strconv.Atoi(course.CourseID[idx:])
+	classNumber, _ := strconv.Atoi(course.ClassNumber)
+	termCode, _ := strconv.Atoi(course.TermCode)
+	classAssociation, _ := strconv.Atoi(course.ClassAssociation)
+	enrollmentCapacity, _ := strconv.Atoi(course.EnrollmentCapacity)
+	CurrentEnrollment, _ := strconv.Atoi(course.CurrentEnrollment)
+	waitlistCapacity, _ := strconv.Atoi(course.WaitlistCapacity)
+	currentWaitlistTotal, _ := strconv.Atoi(course.CurrentWaitlistTotal)
+
+	err := db.CreateDefaultCourse(database, classNumber, courseID, termCode, course.Session, course.Subject, course.Catalog,
+		course.Section, course.ComponentCode, course.ComponentDescription, classAssociation, course.CourseTitle,
+		course.ClassStartTime, course.ClassEndTime, course.Mondays == "Y", course.Tuesdays == "Y", course.Wednesdays == "Y",
+		course.Thursdays == "Y", course.Fridays == "Y", course.Saturdays == "Y", course.Sundays == "Y", course.ClassStartDate,
+		course.ClassEndDate, enrollmentCapacity, CurrentEnrollment, waitlistCapacity, currentWaitlistTotal)
 	if err != nil {
 		log.Fatalf("error inserting course: %v", err)
 	}
 }
 
-func addOrder(database *sql.DB, email, phone string, FK_courseID int) {
-	err := db.CreateDefaultOrder(database, email, phone, FK_courseID)
+func addOrder(database *sql.DB, email, phone string, classNumber int) {
+	err := db.CreateDefaultOrder(database, email, phone, classNumber)
 	if err != nil {
 		log.Fatalf("error inserting order: %v", err)
 	}
