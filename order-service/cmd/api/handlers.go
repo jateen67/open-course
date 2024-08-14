@@ -195,13 +195,19 @@ func (s *server) getAllCourses(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) getCourseInfo(w http.ResponseWriter, r *http.Request) {
+	termCode, err := strconv.Atoi(chi.URLParam(r, "termCode"))
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
 	courseID, err := strconv.Atoi(chi.URLParam(r, "courseId"))
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
-	courses, err := s.CourseDB.GetCourseInfo(courseID)
+	courses, err := s.CourseDB.GetCourseInfo(courseID, termCode)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -211,9 +217,14 @@ func (s *server) getCourseInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) getCourseSearch(w http.ResponseWriter, r *http.Request) {
+	termCode, err := strconv.Atoi(chi.URLParam(r, "termCode"))
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 	input := chi.URLParam(r, "input")
 
-	courses, err := s.CourseDB.GetCoursesByInput(input)
+	courses, err := s.CourseDB.GetCoursesByInput(input, termCode)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return

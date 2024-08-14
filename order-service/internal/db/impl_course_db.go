@@ -45,9 +45,9 @@ func (d *CourseDBImpl) GetCourses() ([]Course, error) {
 	return courses, nil
 }
 
-func (d *CourseDBImpl) GetCoursesByInput(input string) ([]Course, error) {
-	query := "SELECT * FROM tbl_Courses WHERE LOWER(subject || ' ' || catalog || ' ' || coursetitle) LIKE '%' || LOWER($1) || '%' LIMIT 5"
-	rows, err := d.DB.Query(query, input)
+func (d *CourseDBImpl) GetCoursesByInput(input string, termCode int) ([]Course, error) {
+	query := "SELECT * FROM tbl_Courses WHERE termCode = $1 AND LOWER(subject || ' ' || catalog || ' ' || coursetitle) LIKE '%' || LOWER($2) || '%' LIMIT 5"
+	rows, err := d.DB.Query(query, termCode, input)
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +76,9 @@ func (d *CourseDBImpl) GetCoursesByInput(input string) ([]Course, error) {
 	return courses, nil
 }
 
-func (d *CourseDBImpl) GetCourseInfo(courseID int) ([]Course, error) {
-	query := "SELECT * FROM tbl_Courses WHERE courseId = $1"
-	rows, err := d.DB.Query(query, courseID)
+func (d *CourseDBImpl) GetCourseInfo(courseID, termCode int) ([]Course, error) {
+	query := "SELECT * FROM tbl_Courses WHERE termCode = $1 AND courseId = $2"
+	rows, err := d.DB.Query(query, termCode, courseID)
 	if err != nil {
 		return nil, err
 	}

@@ -2,8 +2,8 @@ package db
 
 type CourseDB interface {
 	GetCourses() ([]Course, error)
-	GetCoursesByInput(string) ([]Course, error)
-	GetCourseInfo(int) ([]Course, error)
+	GetCoursesByInput(string, int) ([]Course, error)
+	GetCourseInfo(int, int) ([]Course, error)
 	GetCoursesByMultpleIDs([]int) ([]Course, error)
 	GetCoursesBySemester(int) ([]Course, error)
 	CreateCourse(Course) (int, error)
