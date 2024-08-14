@@ -18,16 +18,16 @@ const Form = () => {
     const [checkboxSelected, setCheckboxSelected] = useState(false);
     const [selectedTerm, setSelectedTerm] = useState("");
     const [query, setQuery] = useState<string>("");
-    const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
-    const handleTermSelected = (termCode: string) => {
+    const handleTermSelected = (termCode : string) => {
         setSelectedTerm(termCode);
         setSelectedCourse(null);
         setQuery("");
     };
 
-    const handleCourseSelected = (courseId: number) => {
-        setSelectedCourse(courseId);
+    const handleCourseSelected = (course : Course | null) => {
+        setSelectedCourse(course);
     };
 
     const handleCheckboxSelected = () => {
@@ -55,12 +55,12 @@ const Form = () => {
                         onChange={handleCourseSelected} />
                 </div>
             )}
-            { selectedCourse && (
+            { selectedCourse !== null && (
                 <div className={FormStyles.SectionContent}>
                     <h3>Section</h3>
                     <CheckboxGroup
                         termCode={selectedTerm}
-                        courseId={selectedCourse}
+                        course={selectedCourse}
                         onChange={handleCheckboxSelected}
                     />
                 </div>

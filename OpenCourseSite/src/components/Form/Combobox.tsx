@@ -1,6 +1,6 @@
 import { Course } from "../../models"
 import { Combobox, ComboboxInput, ComboboxButton, ComboboxOption, ComboboxOptions } from "@headlessui/react"
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import { ChevronDownIcon } from "@heroicons/react/20/solid"
 import { useState, useEffect } from "react"
 import ComboboxStyles from "./Combobox.module.css"
 
@@ -8,34 +8,34 @@ interface CourseComboboxProps {
     termCode: string;
     query: string;
     onQueryChange: (query: string) => void;
-    onChange: (course: Course[]) => void;
+    onChange: (course: Course | null) => void;
 }
 
-const fetchCourseSuggestions = async (termCode: string, input: string): Promise<Course[]> => {
-    const response = await fetch(`http://localhost:8081/coursesearch/${termCode}/${input}`);
+const fetchCourseOptions = async (termCode: string, query: string): Promise<Course[]> => {
+    const response = await fetch(`http://localhost:8081/coursesearch/${termCode}/${query}`);
     if (!response.ok) {
-        throw new Error("Failed to fetch course suggestions");
+        throw new Error("Failed to fetch course options");
     }
     return response.json();
 };
 
 const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQueryChange, onChange }) => {
-    const [suggestions, setSuggestions] = useState<Course[]>([]);
+    const [options, setOptions] = useState<Course[]>([]);
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
     useEffect(() => {
         if (query.length === 0) {
-            setSuggestions([]);
+            setOptions([]);
             return;
         }
 
         const fetchData = async () => {
             try {
-                const data = await fetchCourseSuggestions(termCode, query);
-                setSuggestions(data);
+                const data = await fetchCourseOptions(termCode, query);
+                setOptions(data);
             } catch (error) {
-                console.error("Error fetching course suggestions:", error);
-                setSuggestions([]);
+                console.error("Error fetching course options:", error);
+                setOptions([]);
             }
         };
 
@@ -47,13 +47,21 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
         return `${course.subject} ${course.catalog} – ${course.courseTitle}`;
     };
 
-    const highlightMatch = (text: string, query: string) => {
+    const highlightQuery = (text: string, query: string) => {
         if (!query) return text;
-
-        const normalizedQuery = query.toLowerCase().split(/\s+/);
-        const regex = new RegExp(`(${normalizedQuery.join('|')})`, 'gi');
+    
+        const escapeRegExp = (string: string) => {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        };
+    
+        const normalizedQuery = query
+            .toLowerCase()
+            .split(/\s+/)
+            .map(escapeRegExp);
+    
+        const regex = new RegExp(`(${normalizedQuery.join("|")})`, "gi");
         const parts = text.split(regex);
-
+    
         return parts.map((part, index) =>
             normalizedQuery.includes(part.toLowerCase()) ? (
                 <span key={index} className={ComboboxStyles.MatchingQuery}>{part}</span>
@@ -64,10 +72,10 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
     };
 
     const handleOnChange = (course: Course) => {
-        setSelectedCourse(course.courseId);
+        setSelectedCourse(course);
         onQueryChange(getCourseDisplay(course));
 
-        fetch(`http://localhost:8081/coursesearch/${termCode}/${input}`)
+        fetch(`http://localhost:8081/coursesearch/${termCode}/${query}`)
             .then((res) => res.json())
             .then((data) => onChange(data))
             .catch((err) => console.error("Failed to fetch course details:", err));
@@ -97,17 +105,19 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
                     anchor="bottom"
                     className={ComboboxStyles.Options}
                 >
-                    {suggestions.map((course) => (
-                        <ComboboxOption
-                            key={course.classNumber}
-                            value={course}
-                            className={ComboboxStyles.Option}
-                        >
-                            <div className={ComboboxStyles.Text}>
-                                {highlightMatch(getCourseDisplay(course), query)}
-                            </div>
-                        </ComboboxOption>
-                    ))}
+                    {options && options.length > 0 && (
+                        options.map((course) => (
+                            <ComboboxOption
+                                key={course.classNumber}
+                                value={course}
+                                className={ComboboxStyles.Option}
+                            >
+                                <div className={ComboboxStyles.Text}>
+                                    {highlightQuery(getCourseDisplay(course), query)}
+                                </div>
+                            </ComboboxOption>
+                        ))
+                    )}
                 </ComboboxOptions>
             </Combobox>
         </div>
