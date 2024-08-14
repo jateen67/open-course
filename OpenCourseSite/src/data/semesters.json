@@ -2,21 +2,21 @@
     {
         "id": 1,
         "label": "Fall 2023",
-        "value": "fall"
+        "value": "2242"
     },
     {
         "id": 2,
         "label": "Winter 2024",
-        "value": "winter"
+        "value": "2244"
     },
     {
         "id": 3,
         "label": "Fall/Winter 2023-2024",
-        "value": "fall|winter"
+        "value": "2243"
     },
     {
         "id": 4,
         "label": "Summer 2024",
-        "value": "summer"
+        "value": "2245"
     }
 ]

@@ -3,7 +3,8 @@ import RadioGroup from "./RadioGroup";
 import FormStyles from "./Form.module.css"
 import CourseCombobox from "./Combobox";
 import CheckboxGroup from "./CheckboxGroup";
-import { Course, SemesterOption } from "../../typing"; 
+import { Course } from "../../models"
+import { SemesterOption } from "../../typing"; 
 import semestersData from "../../data/semesters.json";
 
 const formFields = [
@@ -17,16 +18,16 @@ const Form = () => {
     const [checkboxSelected, setCheckboxSelected] = useState(false);
     const [selectedTerm, setSelectedTerm] = useState("");
     const [query, setQuery] = useState<string>("");
-    const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
+    const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
 
-    const handleTermSelected = (term: string) => {
-        setSelectedTerm(term);
-        setSelectedCourses([]);
+    const handleTermSelected = (termCode: string) => {
+        setSelectedTerm(termCode);
+        setSelectedCourse(null);
         setQuery("");
     };
 
-    const handleCourseSelected = (courses: Course[]) => {
-        setSelectedCourses(courses);
+    const handleCourseSelected = (courseId: number) => {
+        setSelectedCourse(courseId);
     };
 
     const handleCheckboxSelected = () => {
@@ -48,16 +49,20 @@ const Form = () => {
                 <div className={FormStyles.SectionContent}>
                     <h3>Course</h3>
                     <CourseCombobox
-                        term={selectedTerm}
+                        termCode={selectedTerm}
                         query={query}
                         onQueryChange={setQuery}
                         onChange={handleCourseSelected} />
                 </div>
             )}
-            { selectedCourses.length > 0 && (
+            { selectedCourse && (
                 <div className={FormStyles.SectionContent}>
                     <h3>Section</h3>
-                    <CheckboxGroup courses={selectedCourses} onChange={handleCheckboxSelected} />
+                    <CheckboxGroup
+                        termCode={selectedTerm}
+                        courseId={selectedCourse}
+                        onChange={handleCheckboxSelected}
+                    />
                 </div>
             )}
             { checkboxSelected && (
