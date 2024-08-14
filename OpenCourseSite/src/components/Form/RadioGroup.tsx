@@ -1,22 +1,17 @@
 import { Radio as HeadlessRadio, RadioGroup as HeadlessRadioGroup } from '@headlessui/react'
-// import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import { useState } from "react";
 import RadioGroupStyles from "./RadioGroup.module.css";
-
-interface Option {
-    id: string;
-    value: string;
-    label: string;
-}
+import { SemesterOption } from "../../typing";
 
 interface RadioGroupProps {
-    options: Option[];
+    options: SemesterOption[];
     onChange: (value: string) => void;
 }
 
 const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => {
-    const [selected, setSelected] = useState(options[0]);
-    const handleOnChange = (option: Option) => {
+    const [selected, setSelected] = useState<SemesterOption | null>(null);
+    
+    const handleOnChange = (option: SemesterOption) => {
         setSelected(option);
         onChange(option.value);
     }
@@ -32,13 +27,12 @@ const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => {
                 <HeadlessRadio
                     key={option.id}
                     value={option}
-                    className={`${RadioGroupStyles.Radio} ${(selected.id === option.id) ? RadioGroupStyles.Checked : ""}`}
+                    className={`${RadioGroupStyles.Radio} ${(selected?.id === option.id) ? RadioGroupStyles.Checked : ""}`}
                 >
                 <div className={RadioGroupStyles.RadioContent}>
                     <div className={RadioGroupStyles.RadioLabel}>
                         <p>{option.label}</p>
                     </div>
-                    {/* <CheckCircleIcon className={`${RadioGroupStyles.CheckCircle} ${(selected.id === option.id) ? RadioGroupStyles.Checked : ""}`} /> */}
                 </div>
                 </HeadlessRadio>
             ))}

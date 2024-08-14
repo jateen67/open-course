@@ -12,69 +12,35 @@ interface CourseComboboxProps {
     onChange: (course: Course[]) => void;
 }
 
+const fetchCourseSuggestions = async (termCode: string, input: string): Promise<Course[]> => {
+    const response = await fetch(`/coursesearch/${termCode}/${input}`);
+    if (!response.ok) {
+        throw new Error("Failed to fetch course suggestions");
+    }
+    return response.json();
+};
+
 const CourseCombobox: React.FC<CourseComboboxProps> = ({ term, query, onQueryChange, onChange }) => {
+    const [suggestions, setSuggestions] = useState<Course[]>([]);
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
     useEffect(() => {
-        setSelectedCourse(null);
-    }, [term]);
+        if (query.length === 0) {
+            setSuggestions([]);
+            return;
+        }
 
-    const getCourseDisplay = (course: Course | null) => {
-        if (!course) return "";
-        const formattedCourseCode = course.courseCode.replace("-", " ");
-        return `${formattedCourseCode} – ${course.courseTitle}`;
-    };
-
-    console.log("Current term in Combobox:", term);
-    console.log("Current query in Combobox:", query);
-
-    const highlightMatch = (text: string, query: string) => {
-        if (!query) return text;
-    
-        const normalizedQuery = query.toLowerCase().split(/\s+/);
-        const regex = new RegExp(`(${normalizedQuery.join('|')})`, 'gi');
-        const parts = text.split(regex);
-    
-        return parts.map((part, index) =>
-            normalizedQuery.includes(part.toLowerCase()) ? (
-                <span key={index} className={ComboboxStyles.MatchingQuery}>{part}</span>
-            ) : (
-                <span key={index}>{part}</span>
-            )
-        );
-    };
-
-    const filterCourses = (courses: Course[], term: string, query: string) => {
-        const normalizedTerm = term.toLowerCase();
-        const normalizedQuery = query.toLowerCase().split(/\s+/);
-
-        return courses.filter((course) => {
-            const normalizedSemester = course.semester.toLowerCase();
-            const matchesTerm = normalizedTerm === "fall|winter"
-                ? normalizedSemester.includes("fall") && normalizedSemester.includes("winter")
-                : normalizedSemester.includes(normalizedTerm);
-
-            const courseString = getCourseDisplay(course).toLowerCase();
-            const matchesQuery = normalizedQuery.every((word) => courseString.includes(word));
-
-            return matchesTerm && matchesQuery;
-        });
-    };
-
-    const getUniqueCourses = (courses: Course[]) => {
-        const uniqueCourses = new Map<string, Course>();
-        courses.forEach((course) => {
-            const key = `${course.courseCode}-${course.courseTitle}`;
-            if (!uniqueCourses.has(key)) {
-                uniqueCourses.set(key, course);
+        const fetchData = async () => {
+            try {
+                const data = await fetchCourseSuggestions(term, query);
+                setSuggestions(data);
+            } catch (error) {
+                console.error("Error fetching course suggestions:", error);
+                setSuggestions([]);
             }
-        });
-        return Array.from(uniqueCourses.values());
-    };
+        };
 
-    const filteredCourses = useMemo(() => {
-        const coursesMatchingTermAndQuery = filterCourses(coursesData, term, query);
-        return getUniqueCourses(coursesMatchingTermAndQuery);
+        fetchData();
     }, [term, query]);
 
     const handleOnChange = (course: Course) => {
@@ -82,15 +48,32 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ term, query, onQueryCha
         setSelectedCourse(course);
         onQueryChange(courseDisplayValue);
 
-        const relatedCourses = filterCourses(
-            coursesData.filter(
-                (c) => c.courseCode === course.courseCode && c.courseTitle === course.courseTitle
-            ),
-            term,
-            ""
-        );
+        fetch(`/course/${term}/${course.id}`)
+            .then((res) => res.json())
+            .then((data) => onChange(data))
+            .catch((err) => console.error("Failed to fetch course details:", err));
+    };
 
-        onChange(relatedCourses);
+    const getCourseDisplay = (course: Course | null) => {
+        if (!course) return "";
+        const formattedCourseCode = course.courseCode.replace("-", " ");
+        return `${formattedCourseCode} – ${course.courseTitle}`;
+    };
+
+    const highlightMatch = (text: string, query: string) => {
+        if (!query) return text;
+
+        const normalizedQuery = query.toLowerCase().split(/\s+/);
+        const regex = new RegExp(`(${normalizedQuery.join('|')})`, 'gi');
+        const parts = text.split(regex);
+
+        return parts.map((part, index) =>
+            normalizedQuery.includes(part.toLowerCase()) ? (
+                <span key={index} className={ComboboxStyles.MatchingQuery}>{part}</span>
+            ) : (
+                <span key={index}>{part}</span>
+            )
+        );
     };
 
     return (
@@ -117,7 +100,7 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ term, query, onQueryCha
                     anchor="bottom"
                     className={ComboboxStyles.Options}
                 >
-                    {filteredCourses.map((course) => (
+                    {suggestions.map((course) => (
                         <ComboboxOption
                             key={course.id}
                             value={course}

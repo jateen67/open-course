@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -32,7 +31,7 @@ func connectToRabbitMQ() (*amqp.Connection, error) {
 	for {
 		conn, err := amqp.Dial(os.Getenv("RABBITMQ_CONNECTION_STRING"))
 		if err != nil {
-			fmt.Println("rabbitmq not yet ready...")
+			log.Println("rabbitmq not yet ready...")
 			count++
 		} else {
 			log.Println("connected to rabbitmq successfully")

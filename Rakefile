@@ -1,6 +1,6 @@
 ORDER_SERVICE_BINARY = "orderExec"
 SCRAPER_SERVICE_BINARY = "scraperExec"
-MAILER_SERVICE_BINARY = "mailerExec"
+NOTIFIER_SERVICE_BINARY = "notifierExec"
 LISTENER_SERVICE_BINARY = "listenerExec"
 
 namespace :build do
@@ -22,13 +22,13 @@ namespace :build do
     puts "scraper service binary built!"
   end
 
-  desc "build mailer service binary"
-  task :mailer_service do
-    puts "building mailer service binary.."
-    Dir.chdir('mailer-service') do
+  desc "build notifier service binary"
+  task :notifier_service do
+    puts "building notifier service binary.."
+    Dir.chdir('notifier-service') do
       sh "env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o #{SCRAPER_SERVICE_BINARY} ./cmd/api"
     end
-    puts "mailer service binary built!"
+    puts "notifier service binary built!"
   end
 
   desc "build listener service binary"
@@ -57,7 +57,7 @@ namespace :docker do
   end
 
   desc "build and start all docker containers"
-  task :up_build => ['build:order_service', 'build:scraper_service', 'build:mailer_service', 'build:listener_service'] do
+  task :up_build => ['build:order_service', 'build:scraper_service', 'build:notifier_service', 'build:listener_service'] do
     puts "stopping running docker images..."
     sh "docker-compose down"
     puts "building and starting docker images..."
@@ -85,14 +85,14 @@ namespace :docker do
     puts "scraper-service built and started!"
   end
 
-  desc "build and start only mailer service docker container"
-  task :mailer_service => 'build:mailer_service' do
-    puts "building mailer-service docker image..."
-    sh "docker-compose stop mailer-service || true"
-    sh "docker-compose rm -f mailer-service || true"
-    sh "docker-compose up --build -d mailer-service"
-    sh "docker-compose start mailer-service"
-    puts "mailer-service built and started!"
+  desc "build and start only notifier service docker container"
+  task :notifier_service => 'build:notifier_service' do
+    puts "building notifier-service docker image..."
+    sh "docker-compose stop notifier-service || true"
+    sh "docker-compose rm -f notifier-service || true"
+    sh "docker-compose up --build -d notifier-service"
+    sh "docker-compose start notifier-service"
+    puts "notifier-service built and started!"
   end
 
   desc "build and start only listener service docker container"
@@ -113,7 +113,7 @@ task :clean do
   sh "go clean"
   sh "rm -f #{SCRAPER_SERVICE_BINARY}"
   sh "go clean"
-  sh "rm -f #{MAILER_SERVICE_BINARY}"
+  sh "rm -f #{NOTIFIER_SERVICE_BINARY}"
   sh "go clean"
   sh "rm -f #{LISTENER_SERVICE_BINARY}"
   sh "go clean"

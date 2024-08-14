@@ -36,10 +36,11 @@ the order service is the way the user creates an order (adds a new entry in tbl_
 ## listener-service
 
 go to `http://localhost:15672/` and signin using the conn vars in the docker-compose file <br />
-a message will be sent from the scraper-service to a rabbitmq queue which will then be sent to the mailer-service to send a notification. to check that the message was received successfully, check to see if theres a spike in the graph in the rabbitmq management ui at the time the message was sent then check the mailer to see that the email notification was sent
+a message will be sent from the scraper-service to a rabbitmq queue which will then be sent to the notifier-service to send a notification. to check that the message was received successfully, check to see if theres a spike in the graph in the rabbitmq management ui at the time the message was sent then check the notifier to see that the notification was sent
 
-## mailer
+## notifier
 
-the email service allows the user to send an email out with [mailhog](https://github.com/mailhog/MailHog). it works by taking in a json payload from the client, converting it into a formatted email, then sending it via smtp.
+the email service allows the user to send an email out with [mailhog](https://github.com/mailhog/MailHog) and sms with twilio. it works by taking in a json payload from the client, converting it into a formatted message, then sending it via sms/smtp. a new notification entry also gets logged in the notification collection in mongodb, which can be accessed with [mongodb compass](https://www.mongodb.com/products/tools/compass) using the connection string `mongodb://admin:password@localhost:27017/?ssl=false`
 
-sent emails can be viewed by accessing the mailhog management ui at `http://localhost:8025/`
+sent emails can be viewed by accessing the mailhog management ui at `http://localhost:8025/` <br />
+sent sms can be viewed by accessing the twilio management ui at
