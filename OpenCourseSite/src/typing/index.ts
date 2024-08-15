@@ -1,5 +1,5 @@
 export type SemesterOption = {
-    id: number;
+    id: string;
     label: string;
     value: "2242" | "2244" | "2243" | "2245";
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { Course } from "../models";
 
 interface FormContextProps {
@@ -9,7 +9,7 @@ interface FormContextProps {
     setSelectedTerm: (termCode: string) => void;
     setQuery: (query: string) => void;
     setSelectedCourses: (course: Course | null) => void;
-    setSelectedCheckboxes: (courseIds: number[]) => void;
+    setSelectedCheckboxes: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 const FormContext = createContext<FormContextProps | undefined>(undefined);

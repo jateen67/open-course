@@ -5,19 +5,21 @@ import { useFormContext } from "../../contexts";
 
 interface RadioGroupProps {
     options: SemesterOption[];
-    onChange: (value: string) => void;
+    onChange: (termCode: string) => void;
 }
 
-const RadioGroup: React.FC<RadioGroupProps> = ({ options }) => {
+const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => {
     const { selectedTerm, setSelectedTerm } = useFormContext();
     
-    const handleOnChange = (option: SemesterOption) => {
-        setSelectedTerm(option.value);
+    const handleOnChange = (id: string) => {
+        console.log("RadioGroup.tsx: " + id);
+        setSelectedTerm(id);
+        onChange(id);
     };
 
     return (
         <HeadlessRadioGroup
-            value={selectedTerm || null}
+            value={selectedTerm}
             onChange={handleOnChange}
             aria-label="Term"
             className={RadioGroupStyles.RadioGroup}
@@ -25,8 +27,8 @@ const RadioGroup: React.FC<RadioGroupProps> = ({ options }) => {
             {options.map((option) => (
                 <HeadlessRadio
                     key={option.id}
-                    value={option}
-                    className={`${RadioGroupStyles.Radio} ${(selectedTerm === option.value) ? RadioGroupStyles.Checked : ""}`}
+                    value={option.id}
+                    className={`${RadioGroupStyles.Radio} ${(selectedTerm === option.id) ? RadioGroupStyles.Checked : ""}`}
                 >
                 <div className={RadioGroupStyles.RadioContent}>
                     <div className={RadioGroupStyles.RadioLabel}>

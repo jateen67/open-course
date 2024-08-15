@@ -1,17 +1,15 @@
 import { useState ,useEffect } from "react";
+import { Fieldset } from "@headlessui/react"
 import RadioGroup from "./RadioGroup";
 import CourseCombobox from "./Combobox";
 import CheckboxGroup from "./CheckboxGroup";
+import ContactInfo from "./ContactInfo";
+import Button from "./Button"
 import FormStyles from "./Form.module.css"
 import { Course } from "../../models"
 import { SemesterOption } from "../../typing"; 
 import semestersData from "../../data/semesters.json";
 import { useFormContext } from "../../contexts";
-
-const formFields = [
-    { id: "email", label: "Email", type: "email" },
-    { id: "pnum", label: "Phone Number", type: "tel" }
-];
 
 const Form = () => {
     const [radioOptions, setRadioOptions] = useState<SemesterOption[]>([]);
@@ -25,21 +23,18 @@ const Form = () => {
         setQuery 
     } = useFormContext();
 
-    console.log("Form component rendering");
-
-    const handleTermSelected = (termCode : string) => {
+    const handleTermSelected = (termCode: string) => {
         setSelectedTerm(termCode);
         setSelectedCourses(null);
         setQuery("");
+        console.log("Term selected in Form.tsx: " + termCode);
     };
 
     const handleCourseSelected = (course : Course | null) => {
-        console.log("Selected course in parent:", course);
         setSelectedCourses(course);
     };
 
     const handleCheckboxSelected = (courseIds : number[]) => {
-        console.log("Selected checkboxes in Form.tsx: ", courseIds)
         setSelectedCheckboxes(courseIds);
     };
 
@@ -49,40 +44,34 @@ const Form = () => {
 
 
     return (
-        <form className={FormStyles.Content}>
+        <Fieldset className={FormStyles.Content}>
             <div className={FormStyles.SectionContent}>
                 <h3>Term</h3>
                 <RadioGroup options={radioOptions} onChange={handleTermSelected} />
             </div>
-            {selectedTerm.length > 0 && (
+            {selectedTerm && (
                 <div className={FormStyles.SectionContent}>
                     <h3>Course</h3>
                     <CourseCombobox
                         onChange={handleCourseSelected} />
                 </div>
             )}
-            { selectedCourses !== null && (
+            {selectedCourses && (
                 <div className={FormStyles.SectionContent}>
                     <h3>Section</h3>
                     <CheckboxGroup
-                        course={selectedCourses}
                         onChange={handleCheckboxSelected}
                     />
                 </div>
             )}
-            { selectedCheckboxes?.length > 0 && (
+            {selectedCheckboxes.length > 0 && (
                 <div className={FormStyles.SectionContent}>
                     <h3>Contact Info</h3>
-                    {formFields.map(field => (
-                        <fieldset key={field.id} className={FormStyles.Fieldset}>
-                        <label className={FormStyles.Label} htmlFor={field.id}>{field.label}</label>
-                        <input className={FormStyles.Input} id={field.id} type={field.type} />
-                        </fieldset>
-                    ))}
-                    <button className={FormStyles.Button}>Checkout</button>
+                    <ContactInfo />
+                    <Button />
                 </div>
             )}
-        </form>
+        </Fieldset>
     );
 }
 

@@ -15,7 +15,7 @@ export const LandingPage: React.FC = () => {
         <>
             <Nav />
             <MainContent />
-            <Test />
+            {/* <Test /> */}
         </>
     );
 };

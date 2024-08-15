@@ -5,7 +5,6 @@ import { Course } from "../../models"
 import { useFormContext } from "contexts";
 
 interface CheckboxGroupProps {
-    course: Course;
     onChange: (courseIds: number[]) => void;
 }
 
@@ -25,6 +24,12 @@ const fetchCourseInfo = async (termCode: string, courseId: number): Promise<Cour
         throw new Error("Failed to fetch course sections");
     }
     return response.json();
+};
+
+function formatTime(time: string): string {
+    const [hour, minute] = time.split('.');
+
+    return `${hour}:${minute}`;
 };
 
 const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ onChange }) => {
@@ -55,12 +60,6 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ onChange }) => {
         onChange(selectedCheckboxes);
     }, [selectedCheckboxes, onChange]);
 
-    function formatTime(time: string): string {
-        const [hour, minute] = time.split('.');
-    
-        return `${hour}:${minute}`;
-    }
-
     const handleOnChange = (checked: boolean, classNumber: number) => {
         setSelectedCheckboxes((prevSelectedCheckboxes: number[]) => {
             const updatedSections = checked
@@ -74,28 +73,21 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ onChange }) => {
     return (
         <div className={CheckboxGroupStyles.Container}>
             <div className={CheckboxGroupStyles.HeaderRow}>
-                <div className={CheckboxGroupStyles.BoxContainer}>
-                </div>
-                {headers.map(header => (
-                    <div className={header.containerClass} key={header.label}>
-                        <p className={CheckboxGroupStyles.Heading}>{header.label}</p>
+                <div className={CheckboxGroupStyles.BoxContainer}></div>
+                {headers.map(({ label, containerClass }) => (
+                    <div className={containerClass} key={label}>
+                        <p className={CheckboxGroupStyles.Heading}>{label}</p>
                     </div>
                 ))}
             </div>
-            {sections.map((section) => (
+            {sections.map(({ classNumber, componentCode, section, classStartTime, classEndTime, ...days }) => (
                 <Checkbox
-                    key={section.classNumber}
-                    section={section.componentCode + " " + section.section}
-                    classNumber={section.classNumber}
-                    mondays={section.mondays}
-                    tuesdays={section.tuesdays}
-                    wednesdays={section.wednesdays}
-                    thursdays={section.thursdays}
-                    fridays={section.fridays}
-                    saturdays={section.saturdays}
-                    sundays={section.sundays}
-                    times={formatTime(section.classStartTime) + " – " + formatTime(section.classEndTime)}
-                    onChange={(checked: boolean) => handleOnChange(checked, section.classNumber)}
+                    key={classNumber}
+                    section={`${componentCode} ${section}`}
+                    classNumber={classNumber}
+                    {...days}
+                    times={`${formatTime(classStartTime)} – ${formatTime(classEndTime)}`}
+                    onChange={(checked: boolean) => handleOnChange(checked, classNumber)}
                 />
             ))}
         </div>
