@@ -1,5 +1,5 @@
+- make mongo log handle mass update/send
+- set up webhook for twilio endpoint for user to manage orders
 - test scraper
-- make mongo log + email + twilio handle mass update/send
-- ADD ENDPOINT FOR USERS TO SEND TWILIO SMS COMMANDS AND DO A DB ACTION ACCORDINGLY (MUST SET UP WEBHOOK TOO)
 - create db indexes
 - deployment

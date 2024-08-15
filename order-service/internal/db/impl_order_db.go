@@ -210,3 +210,16 @@ func (d *OrderDBImpl) UpdateOrderStatus(orderIds []int) error {
 
 	return nil
 }
+
+func (d *OrderDBImpl) UpdateOrderStatusTwilio(classNumber int, phone string, isActive bool) error {
+	query := `UPDATE tbl_Orders SET 
+		isActive = $3,
+		updatedAt = $4
+		WHERE classNumber = $1 AND phone = $2`
+	_, err := d.DB.Exec(query, classNumber, phone, isActive, time.Now())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

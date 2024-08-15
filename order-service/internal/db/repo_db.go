@@ -19,4 +19,5 @@ type OrderDB interface {
 	CreateOrder(Order) (int, error)
 	UpdateOrder(Order) error
 	UpdateOrderStatus([]int) error
+	UpdateOrderStatusTwilio(int, string, bool) error
 }
