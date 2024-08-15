@@ -27,7 +27,6 @@ const Form = () => {
         setSelectedTerm(termCode);
         setSelectedCourses(null);
         setQuery("");
-        console.log("Term selected in Form.tsx: " + termCode);
     };
 
     const handleCourseSelected = (course : Course | null) => {

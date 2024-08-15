@@ -1,8 +1,8 @@
-import { Course } from "../../models"
-import { Combobox, ComboboxInput, ComboboxButton, ComboboxOption, ComboboxOptions } from "@headlessui/react"
-import { ChevronDownIcon } from "@heroicons/react/20/solid"
-import { useState, useEffect } from "react"
-import ComboboxStyles from "./Combobox.module.css"
+import { useState, useEffect } from "react";
+import { Course } from "../../models";
+import { Combobox, ComboboxInput, ComboboxButton, ComboboxOption, ComboboxOptions } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import ComboboxStyles from "./Combobox.module.css";
 import { useFormContext } from "../../contexts";
 
 interface CourseComboboxProps {
@@ -73,7 +73,6 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
     const handleOnChange = (course: Course) => {
         setSelectedCourses(course);
         setQuery(getCourseDisplay(course));
-        console.log(course.courseId);
 
         fetch(`http://localhost:8081/course/${selectedTerm}/${course.courseId}`)
             .then((res) => res.json())
