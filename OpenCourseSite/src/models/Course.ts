@@ -1,27 +1,41 @@
 export class Course {
-  public id: number;
-  public courseCode: string;
-  public courseTitle: string;
-  public semester: string;
+  public classNumber: number;
+  public courseId: number;
+  public termCode: number;
+  public session: string;
+  public subject: string;
+  public catalog: string;
   public section: string;
-  public credits: number;
-  public openSeats: number;
-  public waitlistAvailable: number;
-  public waitlistCapacity: number;
-  public createdAt: Date;
-  public updatedAt: Date;
+  public componentCode: string;
+  public courseTitle: string;
+  public classStartTime: string;
+  public classEndTime: string;
+  public mondays: boolean;
+  public tuesdays: boolean;
+  public wednesdays: boolean;
+  public thursdays: boolean;
+  public fridays: boolean;
+  public saturdays: boolean;
+  public sundays: boolean;
 
   constructor(other?: Partial<Course>) {
-    this.id = other?.id || 0;
-    this.courseCode = other?.courseCode || "";
-    this.courseTitle = other?.courseTitle || "";
-    this.semester = other?.semester || "";
+    this.classNumber = other?.classNumber || 0;
+    this.courseId = other?.courseId || 0;
+    this.termCode = other?.termCode || 0;
+    this.session = other?.session || "";
+    this.subject = other?.subject || "";
+    this.catalog = other?.catalog || "";
     this.section = other?.section || "";
-    this.credits = other?.credits || 0;
-    this.openSeats = other?.openSeats || 0;
-    this.waitlistAvailable = other?.waitlistAvailable || 0;
-    this.waitlistCapacity = other?.waitlistCapacity || 0;
-    this.createdAt = other?.createdAt || new Date();
-    this.updatedAt = other?.updatedAt || new Date();
+    this.componentCode = other?.componentCode || "";
+    this.courseTitle = other?.courseTitle || "";
+    this.classStartTime = other?.classStartTime || "";
+    this.classEndTime = other?.classEndTime || "";
+    this.mondays = other?.mondays || false;
+    this.tuesdays = other?.tuesdays || false;
+    this.wednesdays = other?.wednesdays || false;
+    this.thursdays = other?.thursdays || false;
+    this.fridays = other?.fridays || false;
+    this.saturdays = other?.saturdays || false;
+    this.sundays = other?.sundays || false;
   }
 }

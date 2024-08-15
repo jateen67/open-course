@@ -46,7 +46,7 @@ func (d *CourseDBImpl) GetCourses() ([]Course, error) {
 }
 
 func (d *CourseDBImpl) GetCoursesByInput(input string, termCode int) ([]Course, error) {
-	query := "SELECT * FROM tbl_Courses WHERE termCode = $1 AND LOWER(subject || ' ' || catalog || ' ' || coursetitle) LIKE '%' || LOWER($2) || '%' LIMIT 5"
+	query := "SELECT DISTINCT ON (courseId) * FROM tbl_Courses WHERE termCode = $1 AND LOWER(subject || ' ' || catalog || ' ' || coursetitle) LIKE '%' || LOWER($2) || '%' LIMIT 5"
 	rows, err := d.DB.Query(query, termCode, input)
 	if err != nil {
 		return nil, err
