@@ -3,25 +3,23 @@ import { Combobox, ComboboxInput, ComboboxButton, ComboboxOption, ComboboxOption
 import { ChevronDownIcon } from "@heroicons/react/20/solid"
 import { useState, useEffect } from "react"
 import ComboboxStyles from "./Combobox.module.css"
+import { useFormContext } from "../../contexts";
 
 interface CourseComboboxProps {
-    termCode: string;
-    query: string;
-    onQueryChange: (query: string) => void;
     onChange: (course: Course | null) => void;
 }
 
-const fetchCourseOptions = async (termCode: string, query: string): Promise<Course[]> => {
-    const response = await fetch(`http://localhost:8081/coursesearch/${termCode}/${query}`);
+const fetchCourseOptions = async (selectedTerm: string, query: string): Promise<Course[]> => {
+    const response = await fetch(`http://localhost:8081/coursesearch/${selectedTerm}/${query}`);
     if (!response.ok) {
         throw new Error("Failed to fetch course options");
     }
     return response.json();
 };
 
-const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQueryChange, onChange }) => {
+const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
     const [options, setOptions] = useState<Course[]>([]);
-    const [selectedCourses, setSelectedCourses] = useState<Course | null>(null);
+    const { selectedTerm, selectedCourses, query, setQuery, setSelectedCourses } = useFormContext();
 
     useEffect(() => {
         if (query.length === 0) {
@@ -31,7 +29,7 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
 
         const fetchData = async () => {
             try {
-                const data = await fetchCourseOptions(termCode, query);
+                const data = await fetchCourseOptions(selectedTerm, query);
                 console.log("Fetched course options:", data);
                 setOptions(data);
             } catch (error) {
@@ -41,7 +39,7 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
         };
 
         fetchData();
-    }, [termCode, query]);
+    }, [selectedTerm, query]);
 
     const getCourseDisplay = (course: Course | null) => {
         if (!course) return "";
@@ -74,10 +72,10 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
 
     const handleOnChange = (course: Course) => {
         setSelectedCourses(course);
-        onQueryChange(getCourseDisplay(course));
+        setQuery(getCourseDisplay(course));
         console.log(course.courseId);
 
-        fetch(`http://localhost:8081/course/${termCode}/${course.courseId}`)
+        fetch(`http://localhost:8081/course/${selectedTerm}/${course.courseId}`)
             .then((res) => res.json())
             .then((data) => onChange(course))
             .catch((err) => console.error("Failed to fetch course details:", err));
@@ -95,7 +93,7 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
                         placeholder="Search for courses..."
                         displayValue={getCourseDisplay}
                         value={query}
-                        onChange={(event) => onQueryChange(event.target.value)}
+                        onChange={(event) => setQuery(event.target.value)}
                         className={ComboboxStyles.Input}
                     />
                     <ComboboxButton className={ComboboxStyles.Button}>

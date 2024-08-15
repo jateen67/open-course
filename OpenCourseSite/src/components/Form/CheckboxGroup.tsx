@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import Checkbox from "./Checkbox";
 import CheckboxGroupStyles from "./CheckboxGroup.module.css"
 import { Course } from "../../models"
+import { useFormContext } from "contexts";
 
 interface CheckboxGroupProps {
-    termCode: string;
     course: Course;
+    onChange: (courseIds: number[]) => void;
 }
 
 const headers = [
@@ -16,7 +17,7 @@ const headers = [
 ];
 
 const fetchCourseInfo = async (termCode: string, courseId: number): Promise<Course[]> => {
-    console.log("termCode:", termCode);
+    console.log("selectedTerm:", termCode);
     console.log("courseId:", courseId);
 
     const response = await fetch(`http://localhost:8081/course/${termCode}/${courseId}`);
@@ -26,20 +27,19 @@ const fetchCourseInfo = async (termCode: string, courseId: number): Promise<Cour
     return response.json();
 };
 
-const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ termCode, course }) => {
+const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ onChange }) => {
+    const { selectedTerm, selectedCourses, selectedCheckboxes, setSelectedCheckboxes } = useFormContext();
     const [sections, setSections] = useState<Course[]>([]);
 
     useEffect(() => {
-        console.log(course);
-
-        if (!course) {
+        if (!selectedCourses) {
             setSections([]);
             return;
         }
 
         const fetchData = async () => {
             try {
-                const data = await fetchCourseInfo(termCode, course.courseId);
+                const data = await fetchCourseInfo(selectedTerm, selectedCourses.courseId);
                 setSections(data);
             } catch (error) {
                 console.error("Error fetching course sections:", error);
@@ -48,13 +48,28 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ termCode, course }) => {
         };
 
         fetchData();
-    }, [termCode, course]);
+    }, [selectedTerm, selectedCourses]);
 
-    function formatTime(timeString: string): string {
-        const [hour, minute] = timeString.split('.');
+    useEffect(() => {
+        console.log("Selected Sections Updated:", selectedCheckboxes);
+        onChange(selectedCheckboxes);
+    }, [selectedCheckboxes, onChange]);
+
+    function formatTime(time: string): string {
+        const [hour, minute] = time.split('.');
     
         return `${hour}:${minute}`;
     }
+
+    const handleOnChange = (checked: boolean, classNumber: number) => {
+        setSelectedCheckboxes((prevSelectedCheckboxes: number[]) => {
+            const updatedSections = checked
+                ? [...prevSelectedCheckboxes, classNumber]
+                : prevSelectedCheckboxes.filter((id : number) => id !== classNumber);
+    
+            return updatedSections;
+        });
+    };
 
     return (
         <div className={CheckboxGroupStyles.Container}>
@@ -69,8 +84,9 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ termCode, course }) => {
             </div>
             {sections.map((section) => (
                 <Checkbox
+                    key={section.classNumber}
                     section={section.componentCode + " " + section.section}
-                    crn={section.classNumber}
+                    classNumber={section.classNumber}
                     mondays={section.mondays}
                     tuesdays={section.tuesdays}
                     wednesdays={section.wednesdays}
@@ -79,6 +95,7 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ termCode, course }) => {
                     saturdays={section.saturdays}
                     sundays={section.sundays}
                     times={formatTime(section.classStartTime) + " – " + formatTime(section.classEndTime)}
+                    onChange={(checked: boolean) => handleOnChange(checked, section.classNumber)}
                 />
             ))}
         </div>

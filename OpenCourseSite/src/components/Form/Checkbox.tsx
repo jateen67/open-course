@@ -1,10 +1,10 @@
-import { Checkbox as HeadlessCheckbox, Field, Label } from '@headlessui/react'
-import { useState } from 'react'
-import CheckboxStyles from "./CheckboxGroup.module.css"
+import { Checkbox as HeadlessCheckbox, Field, Label } from "@headlessui/react"
+import { useState } from "react";
+import CheckboxStyles from "./CheckboxGroup.module.css";
 
 interface CheckboxProps {
     section: string;
-    crn: number;
+    classNumber: number;
     mondays: boolean;
     tuesdays: boolean;
     wednesdays: boolean;
@@ -13,11 +13,28 @@ interface CheckboxProps {
     saturdays: boolean;
     sundays: boolean;
     times: string;
+    onChange: (checked: boolean) => void;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ section, crn, mondays, tuesdays, wednesdays, thursdays, fridays, saturdays, sundays, times }) => {
+const Checkbox: React.FC<CheckboxProps> = ({
+        section,
+        classNumber, 
+        mondays, 
+        tuesdays, 
+        wednesdays, 
+        thursdays, 
+        fridays, 
+        saturdays, 
+        sundays, 
+        times, 
+        onChange 
+    }) => {
     const [enabled, setEnabled] = useState(false);
-    const toggleCheck = () => setEnabled(!enabled);
+
+    const toggleCheck = () => {
+        setEnabled(!enabled);
+        onChange(!enabled);
+    };
 
     const formatDays = () => {
         const days = [
@@ -46,7 +63,7 @@ const Checkbox: React.FC<CheckboxProps> = ({ section, crn, mondays, tuesdays, we
             <div className={CheckboxStyles.BoxContainer}>
                 <HeadlessCheckbox
                     checked={enabled}
-                    onChange={setEnabled}
+                    onChange={toggleCheck}
                     className={`${CheckboxStyles.CheckboxContainer} ${enabled ? CheckboxStyles.checked : ""}`}
                 >
                     <svg
@@ -68,7 +85,7 @@ const Checkbox: React.FC<CheckboxProps> = ({ section, crn, mondays, tuesdays, we
                         <p>{section}</p>
                     </div>
                     <div className={CheckboxStyles.CRNContainer}>
-                        <p>{crn}</p>
+                        <p>{classNumber}</p>
                     </div>
                     <div className={CheckboxStyles.DayContainer}>
                         <p>{formatDays()}</p>
