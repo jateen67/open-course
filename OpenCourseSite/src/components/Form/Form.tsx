@@ -8,7 +8,6 @@ import { SemesterOption } from "../../typing";
 import semestersData from "../../data/semesters.json";
 
 const formFields = [
-    { id: "name", label: "Name", type: "text" },
     { id: "email", label: "Email", type: "email" },
     { id: "pnum", label: "Phone Number", type: "tel" }
 ];
@@ -18,16 +17,17 @@ const Form = () => {
     const [checkboxSelected, setCheckboxSelected] = useState(false);
     const [selectedTerm, setSelectedTerm] = useState("");
     const [query, setQuery] = useState<string>("");
-    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+    const [selectedCourses, setSelectedCourses] = useState<Course | null>(null);
 
     const handleTermSelected = (termCode : string) => {
         setSelectedTerm(termCode);
-        setSelectedCourse(null);
+        setSelectedCourses(null);
         setQuery("");
     };
 
-    const handleCourseSelected = (course : Course | null) => {
-        setSelectedCourse(course);
+    const handleCourseSelected = (courses : Course | null) => {
+        console.log("Selected course in parent:", courses);
+        setSelectedCourses(courses);
     };
 
     const handleCheckboxSelected = () => {
@@ -55,12 +55,12 @@ const Form = () => {
                         onChange={handleCourseSelected} />
                 </div>
             )}
-            { selectedCourse !== null && (
+            { selectedCourses !== null && (
                 <div className={FormStyles.SectionContent}>
                     <h3>Section</h3>
                     <CheckboxGroup
                         termCode={selectedTerm}
-                        course={selectedCourse}
+                        course={selectedCourses}
                         onChange={handleCheckboxSelected}
                     />
                 </div>

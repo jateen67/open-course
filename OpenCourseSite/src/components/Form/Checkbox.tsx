@@ -5,14 +5,40 @@ import CheckboxStyles from "./CheckboxGroup.module.css"
 interface CheckboxProps {
     section: string;
     crn: number;
-    days: string[];
-    times: string[];
+    mondays: boolean;
+    tuesdays: boolean;
+    wednesdays: boolean;
+    thursdays: boolean;
+    fridays: boolean;
+    saturdays: boolean;
+    sundays: boolean;
+    times: string;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ section, crn, days, times }) => {
+const Checkbox: React.FC<CheckboxProps> = ({ section, crn, mondays, tuesdays, wednesdays, thursdays, fridays, saturdays, sundays, times }) => {
     const [enabled, setEnabled] = useState(false);
     const toggleCheck = () => setEnabled(!enabled);
 
+    const formatDays = () => {
+        const days = [
+            { label: "M ", active: mondays },
+            { label: "T ", active: tuesdays },
+            { label: "W ", active: wednesdays },
+            { label: "T ", active: thursdays },
+            { label: "F ", active: fridays },
+            { label: "S ", active: saturdays },
+            { label: "S", active: sundays },
+        ];
+
+        return days.map((day, index) => (
+            <span
+                key={index}
+                className={day.active ? CheckboxStyles.ActiveDay : CheckboxStyles.InactiveDay}
+            >
+                {day.label}
+            </span>
+        ));
+    };
     
     return (
         <>
@@ -45,14 +71,10 @@ const Checkbox: React.FC<CheckboxProps> = ({ section, crn, days, times }) => {
                         <p>{crn}</p>
                     </div>
                     <div className={CheckboxStyles.DayContainer}>
-                        {days.map((day) => (
-                            <p>{day}</p>
-                        ))}
+                        <p>{formatDays()}</p>
                     </div>
                     <div className={CheckboxStyles.TimeContainer}>
-                        {times.map((time) => (
-                            <p>{time}</p>
-                        ))}
+                        <p>{times}</p>
                     </div>
             </Label>
         </Field>

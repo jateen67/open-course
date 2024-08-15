@@ -21,7 +21,7 @@ const fetchCourseOptions = async (termCode: string, query: string): Promise<Cour
 
 const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQueryChange, onChange }) => {
     const [options, setOptions] = useState<Course[]>([]);
-    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+    const [selectedCourses, setSelectedCourses] = useState<Course | null>(null);
 
     useEffect(() => {
         if (query.length === 0) {
@@ -32,6 +32,7 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
         const fetchData = async () => {
             try {
                 const data = await fetchCourseOptions(termCode, query);
+                console.log("Fetched course options:", data);
                 setOptions(data);
             } catch (error) {
                 console.error("Error fetching course options:", error);
@@ -72,19 +73,20 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ termCode, query, onQuer
     };
 
     const handleOnChange = (course: Course) => {
-        setSelectedCourse(course);
+        setSelectedCourses(course);
         onQueryChange(getCourseDisplay(course));
+        console.log(course.courseId);
 
-        fetch(`http://localhost:8081/coursesearch/${termCode}/${query}`)
+        fetch(`http://localhost:8081/course/${termCode}/${course.courseId}`)
             .then((res) => res.json())
-            .then((data) => onChange(data))
+            .then((data) => onChange(course))
             .catch((err) => console.error("Failed to fetch course details:", err));
     };
 
     return (
         <div className={ComboboxStyles.Container}>
             <Combobox
-                value={selectedCourse}
+                value={selectedCourses}
                 onChange={handleOnChange}
             >
                 <div className={ComboboxStyles.InputContainer}>

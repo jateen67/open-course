@@ -77,3 +77,12 @@ p {
     display: block;
     opacity: 100;
 }
+
+.ActiveDay {
+    font-weight: 600;
+    color: var(--primary300);
+}
+
+.InactiveDay {
+    color: var(--primary500);
+}
