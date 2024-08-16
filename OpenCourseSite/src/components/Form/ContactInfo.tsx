@@ -2,9 +2,23 @@ import ContactInfoStyles from "./ContactInfo.module.css"
 import { Field, Label, Input } from "@headlessui/react"
 import { useOrderContext } from "contexts";
 
-const formFields = [
-    { id: "email", label: "Email", type: "email" },
-    { id: "phone", label: "Phone Number", type: "text" }
+const inputs = [
+    { 
+        id: "email", 
+        label: "Email", 
+        type: "email", 
+        pattern: "^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",
+        required: true,
+        errorMessage: "Please enter a valid email."
+    },
+    { 
+        id: "phone", 
+        label: "Phone Number", 
+        type: "text", 
+        pattern: "",
+        required: true,
+        errorMessage: "Please enter a valid phone number."
+    }
 ];
 
 const ContactInfo = () => {
@@ -17,14 +31,16 @@ const ContactInfo = () => {
 
     return (
         <>
-            {formFields.map(field => (
-                <Field key={field.id}>
-                    <Label className={ContactInfoStyles.Label} htmlFor={field.id}>{field.label}</Label>
+            {inputs.map(input => (
+                <Field key={input.id}>
+                    <Label className={ContactInfoStyles.Label} htmlFor={input.id}>{input.label}</Label>
                     <Input 
                         className={ContactInfoStyles.Input} 
-                        id={field.id} 
-                        type={field.type}
-                        onChange={(event) => handleChange(field.id, event.target.value)}
+                        id={input.id} 
+                        type={input.type}
+                        pattern={input.pattern}
+                        required
+                        onChange={(event) => handleChange(input.id, event.target.value)}
                     />
                 </Field>
             ))}

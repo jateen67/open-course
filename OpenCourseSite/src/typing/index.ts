@@ -1,7 +1,6 @@
 export type SemesterOption = {
-    id: string;
+    id: "2242" | "2244" | "2243" | "2245";
     label: string;
-    value: "2242" | "2244" | "2243" | "2245";
 }
 
 export interface ThemeContextType {
