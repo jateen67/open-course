@@ -32,7 +32,9 @@ services:
       MAIL_PASSWORD: ""
       FROM_NAME: "OpenCourse Admin"
       MAIL_FROM_ADDRESS: opencourseadmin@gmail.com
-      TWILIO_FROM_PHONE_NUMBER: 6789998212
+      TWILIO_FROM_PHONE_NUMBER: ""
+      TWILIO_ACCOUNT_SID: ""
+      TWILIO_AUTH_TOKEN: ""
   listener-service:
     build:
       context: listener-service

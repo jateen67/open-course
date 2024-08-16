@@ -30,14 +30,15 @@ type LogNotification struct {
 	TimeSent           time.Time          `bson:"timeSent" json:"timeSent"`
 }
 
-func (l *LogNotification) Insert(n LogNotification) error {
+func (l *LogNotification) Insert(orderIDs []int, notificationTypeId primitive.ObjectID) error {
 	collection := client.Database("notificationsdb").Collection("notifications")
 
-	_, err := collection.InsertOne(context.TODO(), LogNotification{
-		OrderID:            n.OrderID,
-		NotificationTypeId: n.NotificationTypeId,
-		TimeSent:           time.Now(),
-	})
+	var logs []interface{}
+	for _, i := range orderIDs {
+		logs = append(logs, LogNotification{OrderID: i, NotificationTypeId: notificationTypeId, TimeSent: time.Now()})
+	}
+
+	_, err := collection.InsertMany(context.TODO(), logs)
 
 	if err != nil {
 		log.Println("error logging notification: ", err)

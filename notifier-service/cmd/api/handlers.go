@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
-	"github.com/jateen67/notifier-service/internal/data"
 	"github.com/twilio/twilio-go"
 	twilioApi "github.com/twilio/twilio-go/rest/api/v2010"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -35,13 +35,9 @@ type Order struct {
 	Phone   string `json:"phone"`
 }
 
-func (s *server) logNotification(orderId int, notificationTypeId primitive.ObjectID) error {
-	event := data.LogNotification{
-		OrderID:            orderId,
-		NotificationTypeId: notificationTypeId,
-	}
+func (s *server) logNotification(orderIDs []int, notificationTypeId primitive.ObjectID) error {
 
-	err := s.Models.LogNotification.Insert(event)
+	err := s.Models.LogNotification.Insert(orderIDs, notificationTypeId)
 	if err != nil {
 		return err
 	}
@@ -61,6 +57,11 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 	var emails []string
 	for _, i := range reqPayload.Orders {
 		emails = append(emails, i.Email)
+	}
+
+	var orderIDs []int
+	for _, i := range reqPayload.Orders {
+		orderIDs = append(orderIDs, i.OrderID)
 	}
 
 	msg := Message{
@@ -85,14 +86,17 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
-	err = s.logNotification(reqPayload.OrderID, objectId)
+	err = s.logNotification(orderIDs, objectId)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
 	// == SEND SMS ==
-	twilioClient := twilio.NewRestClient()
+	twilioClient := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username: os.Getenv("TWILIO_ACCOUNT_SID"),
+		Password: os.Getenv("TWILIO_AUTH_TOKEN"),
+	})
 
 	for _, i := range reqPayload.Orders {
 		params := &twilioApi.CreateMessageParams{}
@@ -102,16 +106,12 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 			reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
 			reqPayload.Section, reqPayload.Semester))
 
-		resp, err := twilioClient.Api.CreateMessage(params)
+		_, err := twilioClient.Api.CreateMessage(params)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Println(err.Error())
 			os.Exit(1)
 		} else {
-			if resp.Body != nil {
-				fmt.Println(*resp.Body)
-			} else {
-				fmt.Println(resp.Body)
-			}
+			log.Printf("sent sms to %s", i.Phone)
 		}
 	}
 
@@ -121,7 +121,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
-	err = s.logNotification(reqPayload.OrderID, objectId)
+	err = s.logNotification(orderIDs, objectId)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -153,7 +153,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 
 	payload := jsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("db entry + order update + sms/email notification sent for course %s", reqPayload.ClassNumber),
+		Message: fmt.Sprintf("db entry + order update + sms/email notification sent for course %v", reqPayload.ClassNumber),
 	}
 
 	s.writeJSON(w, payload, http.StatusAccepted)

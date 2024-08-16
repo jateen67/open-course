@@ -290,8 +290,8 @@ func (s *server) getCourseSearch(w http.ResponseWriter, r *http.Request) {
 // slop
 func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	body := r.FormValue("Body")
-	phoneNumber := r.FormValue("From")
+	body := r.FormValue("body")
+	phoneNumber := r.FormValue("from")
 
 	if phoneNumber == "" {
 		s.errorJSON(w, errors.New("couldnt retrieve phone number from received twilio message"), http.StatusBadRequest)
@@ -309,7 +309,6 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 				Body: "Error: Please enter a valid command",
 			}
 		} else {
-			command = input[0]
 			orders, err := s.OrderDB.GetOrdersByUserPhone(phoneNumber)
 			if err != nil {
 				message = &twiml.MessagingMessage{
@@ -329,6 +328,9 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 					var buffer bytes.Buffer
 					for _, i := range courses {
 						buffer.WriteString(fmt.Sprintf("%s%s - %s\n", i.Subject, i.Catalog, i.CourseTitle))
+					}
+					if len(courses) == 0 {
+						buffer.WriteString("You currently have no OpenCourse orders")
 					}
 					message = &twiml.MessagingMessage{
 						Body: buffer.String(),
