@@ -1,15 +1,20 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jateen67/order-service/internal/db"
+	"github.com/twilio/twilio-go/twiml"
 )
 
 type OrderPayload struct {
@@ -32,6 +37,11 @@ type Order struct {
 	OrderID int    `json:"orderId"`
 	Email   string `json:"email"`
 	Phone   string `json:"phone"`
+}
+
+type Text struct {
+	From string
+	Body string
 }
 
 func (s *server) getOrderByID(w http.ResponseWriter, r *http.Request) {
@@ -286,90 +296,99 @@ func (s *server) getCourseSearch(w http.ResponseWriter, r *http.Request) {
 
 // slop
 func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
-	log.Println("fuzzy pickles")
-	// r.ParseForm()
-	// body := r.FormValue("body")
-	// phoneNumber := r.FormValue("from")
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Println("error: ", err)
+		return
+	}
+	log.Println("r.Body: ", string(body))
 
-	// if phoneNumber == "" {
-	// 	s.errorJSON(w, errors.New("couldnt retrieve phone number from received twilio message"), http.StatusBadRequest)
-	// 	return
-	// }
+	values, err := url.ParseQuery(string(body))
+	if err != nil {
+		log.Println("error: ", err)
+		return
+	}
+	phoneNumber := values.Get("From")
 
-	// var message *twiml.MessagingMessage
-	// var command string
-	// var classNumber int
+	if phoneNumber == "" {
+		s.errorJSON(w, errors.New("couldnt retrieve phone number from received twilio message"), http.StatusBadRequest)
+		return
+	}
 
-	// input := strings.Split(body, " ")
-	// if len(input) == 1 {
-	// 	if input[0] != "ORDERS" {
-	// 		message = &twiml.MessagingMessage{
-	// 			Body: "Error: Please enter a valid command",
-	// 		}
-	// 	} else {
-	// 		orders, err := s.OrderDB.GetOrdersByUserPhone(phoneNumber)
-	// 		if err != nil {
-	// 			message = &twiml.MessagingMessage{
-	// 				Body: "Error: Could not retrieve all your orders",
-	// 			}
-	// 		} else {
-	// 			var classNumbers []int
-	// 			for _, i := range orders {
-	// 				classNumbers = append(classNumbers, i.ClassNumber)
-	// 			}
-	// 			courses, err := s.CourseDB.GetCoursesByMultpleIDs(classNumbers)
-	// 			if err != nil {
-	// 				message = &twiml.MessagingMessage{
-	// 					Body: "Error: Could not retrieve all course info for your orders",
-	// 				}
-	// 			} else {
-	// 				var buffer bytes.Buffer
-	// 				for _, i := range courses {
-	// 					buffer.WriteString(fmt.Sprintf("%s%s - %s\n", i.Subject, i.Catalog, i.CourseTitle))
-	// 				}
-	// 				if len(courses) == 0 {
-	// 					buffer.WriteString("You currently have no OpenCourse orders")
-	// 				}
-	// 				message = &twiml.MessagingMessage{
-	// 					Body: buffer.String(),
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// } else {
-	// 	if (len(input) != 2) || (input[0] != "START" && input[0] != "STOP") {
-	// 		message = &twiml.MessagingMessage{
-	// 			Body: "Error: Please enter a valid command",
-	// 		}
-	// 	} else {
-	// 		if _, err := strconv.Atoi(input[1]); err != nil {
-	// 			message = &twiml.MessagingMessage{
-	// 				Body: "Error: Please enter a valid class number",
-	// 			}
-	// 		} else {
-	// 			command = input[0]
-	// 			classNumber, _ = strconv.Atoi(input[1])
-	// 			err = s.OrderDB.UpdateOrderStatusTwilio(classNumber, phoneNumber, command == "START")
-	// 			if err != nil {
-	// 				message = &twiml.MessagingMessage{
-	// 					Body: "Error: Could not set order to active",
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
+	var message *twiml.MessagingMessage
+	var command string
+	var classNumber int
 
-	// twimlResult, err := twiml.Messages([]twiml.Element{message})
-	// if err != nil {
-	// 	s.errorJSON(w, err, http.StatusInternalServerError)
-	// 	return
-	// }
+	input := strings.Split(values.Get("Body"), " ")
+	if len(input) == 1 {
+		if input[0] != "ORDERS" {
+			message = &twiml.MessagingMessage{
+				Body: "Error: Please enter a valid command",
+			}
+		} else {
+			orders, err := s.OrderDB.GetOrdersByUserPhone(phoneNumber)
+			if err != nil {
+				message = &twiml.MessagingMessage{
+					Body: "Error: Could not retrieve all your orders",
+				}
+			} else {
+				var classNumbers []int
+				for _, i := range orders {
+					classNumbers = append(classNumbers, i.ClassNumber)
+				}
+				courses, err := s.CourseDB.GetCoursesByMultpleIDs(classNumbers)
+				if err != nil {
+					message = &twiml.MessagingMessage{
+						Body: "Error: Could not retrieve all course info for your orders",
+					}
+				} else {
+					var buffer bytes.Buffer
+					for _, i := range courses {
+						buffer.WriteString(fmt.Sprintf("%s%s - %s\n", i.Subject, i.Catalog, i.CourseTitle))
+					}
+					if len(courses) == 0 {
+						buffer.WriteString("You currently have no OpenCourse orders")
+					}
+					message = &twiml.MessagingMessage{
+						Body: buffer.String(),
+					}
+				}
+			}
+		}
+	} else {
+		if (len(input) != 2) || (input[0] != "START" && input[0] != "STOP") {
+			message = &twiml.MessagingMessage{
+				Body: "Error: Please enter a valid command",
+			}
+		} else {
+			if _, err := strconv.Atoi(input[1]); err != nil {
+				message = &twiml.MessagingMessage{
+					Body: "Error: Please enter a valid class number",
+				}
+			} else {
+				command = input[0]
+				classNumber, _ = strconv.Atoi(input[1])
+				err = s.OrderDB.UpdateOrderStatusTwilio(classNumber, phoneNumber, command == "START")
+				if err != nil {
+					message = &twiml.MessagingMessage{
+						Body: "Error: Could not set order to active",
+					}
+				}
+			}
+		}
+	}
 
-	// w.WriteHeader(http.StatusOK)
-	// w.Header().Set("Content-Type", "text/xml")
-	// _, err = w.Write([]byte(twimlResult))
-	// if err != nil {
-	// 	s.errorJSON(w, err, http.StatusInternalServerError)
-	// 	return
-	// }
+	twimlResult, err := twiml.Messages([]twiml.Element{message})
+	if err != nil {
+		s.errorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "text/xml")
+	_, err = w.Write([]byte(twimlResult))
+	if err != nil {
+		s.errorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
 }
