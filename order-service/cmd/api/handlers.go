@@ -301,7 +301,6 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 		log.Println("error: ", err)
 		return
 	}
-	log.Println("r.Body: ", string(body))
 
 	values, err := url.ParseQuery(string(body))
 	if err != nil {
