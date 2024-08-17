@@ -1,18 +1,15 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jateen67/order-service/internal/db"
-	"github.com/twilio/twilio-go/twiml"
 )
 
 type OrderPayload struct {
@@ -289,89 +286,90 @@ func (s *server) getCourseSearch(w http.ResponseWriter, r *http.Request) {
 
 // slop
 func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	body := r.FormValue("body")
-	phoneNumber := r.FormValue("from")
+	log.Println("fuzzy pickles")
+	// r.ParseForm()
+	// body := r.FormValue("body")
+	// phoneNumber := r.FormValue("from")
 
-	if phoneNumber == "" {
-		s.errorJSON(w, errors.New("couldnt retrieve phone number from received twilio message"), http.StatusBadRequest)
-		return
-	}
+	// if phoneNumber == "" {
+	// 	s.errorJSON(w, errors.New("couldnt retrieve phone number from received twilio message"), http.StatusBadRequest)
+	// 	return
+	// }
 
-	var message *twiml.MessagingMessage
-	var command string
-	var classNumber int
+	// var message *twiml.MessagingMessage
+	// var command string
+	// var classNumber int
 
-	input := strings.Split(body, " ")
-	if len(input) == 1 {
-		if input[0] != "ORDERS" {
-			message = &twiml.MessagingMessage{
-				Body: "Error: Please enter a valid command",
-			}
-		} else {
-			orders, err := s.OrderDB.GetOrdersByUserPhone(phoneNumber)
-			if err != nil {
-				message = &twiml.MessagingMessage{
-					Body: "Error: Could not retrieve all your orders",
-				}
-			} else {
-				var classNumbers []int
-				for _, i := range orders {
-					classNumbers = append(classNumbers, i.ClassNumber)
-				}
-				courses, err := s.CourseDB.GetCoursesByMultpleIDs(classNumbers)
-				if err != nil {
-					message = &twiml.MessagingMessage{
-						Body: "Error: Could not retrieve all course info for your orders",
-					}
-				} else {
-					var buffer bytes.Buffer
-					for _, i := range courses {
-						buffer.WriteString(fmt.Sprintf("%s%s - %s\n", i.Subject, i.Catalog, i.CourseTitle))
-					}
-					if len(courses) == 0 {
-						buffer.WriteString("You currently have no OpenCourse orders")
-					}
-					message = &twiml.MessagingMessage{
-						Body: buffer.String(),
-					}
-				}
-			}
-		}
-	} else {
-		if (len(input) != 2) || (input[0] != "START" && input[0] != "STOP") {
-			message = &twiml.MessagingMessage{
-				Body: "Error: Please enter a valid command",
-			}
-		} else {
-			if _, err := strconv.Atoi(input[1]); err != nil {
-				message = &twiml.MessagingMessage{
-					Body: "Error: Please enter a valid class number",
-				}
-			} else {
-				command = input[0]
-				classNumber, _ = strconv.Atoi(input[1])
-				err = s.OrderDB.UpdateOrderStatusTwilio(classNumber, phoneNumber, command == "START")
-				if err != nil {
-					message = &twiml.MessagingMessage{
-						Body: "Error: Could not set order to active",
-					}
-				}
-			}
-		}
-	}
+	// input := strings.Split(body, " ")
+	// if len(input) == 1 {
+	// 	if input[0] != "ORDERS" {
+	// 		message = &twiml.MessagingMessage{
+	// 			Body: "Error: Please enter a valid command",
+	// 		}
+	// 	} else {
+	// 		orders, err := s.OrderDB.GetOrdersByUserPhone(phoneNumber)
+	// 		if err != nil {
+	// 			message = &twiml.MessagingMessage{
+	// 				Body: "Error: Could not retrieve all your orders",
+	// 			}
+	// 		} else {
+	// 			var classNumbers []int
+	// 			for _, i := range orders {
+	// 				classNumbers = append(classNumbers, i.ClassNumber)
+	// 			}
+	// 			courses, err := s.CourseDB.GetCoursesByMultpleIDs(classNumbers)
+	// 			if err != nil {
+	// 				message = &twiml.MessagingMessage{
+	// 					Body: "Error: Could not retrieve all course info for your orders",
+	// 				}
+	// 			} else {
+	// 				var buffer bytes.Buffer
+	// 				for _, i := range courses {
+	// 					buffer.WriteString(fmt.Sprintf("%s%s - %s\n", i.Subject, i.Catalog, i.CourseTitle))
+	// 				}
+	// 				if len(courses) == 0 {
+	// 					buffer.WriteString("You currently have no OpenCourse orders")
+	// 				}
+	// 				message = &twiml.MessagingMessage{
+	// 					Body: buffer.String(),
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// } else {
+	// 	if (len(input) != 2) || (input[0] != "START" && input[0] != "STOP") {
+	// 		message = &twiml.MessagingMessage{
+	// 			Body: "Error: Please enter a valid command",
+	// 		}
+	// 	} else {
+	// 		if _, err := strconv.Atoi(input[1]); err != nil {
+	// 			message = &twiml.MessagingMessage{
+	// 				Body: "Error: Please enter a valid class number",
+	// 			}
+	// 		} else {
+	// 			command = input[0]
+	// 			classNumber, _ = strconv.Atoi(input[1])
+	// 			err = s.OrderDB.UpdateOrderStatusTwilio(classNumber, phoneNumber, command == "START")
+	// 			if err != nil {
+	// 				message = &twiml.MessagingMessage{
+	// 					Body: "Error: Could not set order to active",
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
-	twimlResult, err := twiml.Messages([]twiml.Element{message})
-	if err != nil {
-		s.errorJSON(w, err, http.StatusInternalServerError)
-		return
-	}
+	// twimlResult, err := twiml.Messages([]twiml.Element{message})
+	// if err != nil {
+	// 	s.errorJSON(w, err, http.StatusInternalServerError)
+	// 	return
+	// }
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "text/xml")
-	_, err = w.Write([]byte(twimlResult))
-	if err != nil {
-		s.errorJSON(w, err, http.StatusInternalServerError)
-		return
-	}
+	// w.WriteHeader(http.StatusOK)
+	// w.Header().Set("Content-Type", "text/xml")
+	// _, err = w.Write([]byte(twimlResult))
+	// if err != nil {
+	// 	s.errorJSON(w, err, http.StatusInternalServerError)
+	// 	return
+	// }
 }

@@ -13,5 +13,4 @@ func (s *server) routes() {
 	s.Router.Put("/orders", s.editOrder)
 	s.Router.Put("/orderstatus", s.updateOrderStatus)
 	s.Router.Post("/smsmanage", s.ManageOrders)
-
 }
