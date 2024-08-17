@@ -344,7 +344,7 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 				} else {
 					var buffer bytes.Buffer
 					for _, i := range courses {
-						buffer.WriteString(fmt.Sprintf("%s%s - %s\n", i.Subject, i.Catalog, i.CourseTitle))
+						buffer.WriteString(fmt.Sprintf("(%v) %s%s - %s %s %s\n\n", i.ClassNumber, i.Subject, i.Catalog, i.CourseTitle, i.ComponentCode, i.Section))
 					}
 					if len(courses) == 0 {
 						buffer.WriteString("You currently have no orders")
