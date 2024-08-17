@@ -164,13 +164,10 @@ func seedOrders(database *sql.DB) {
 	}
 
 	if !ordersTablePopulated {
-		addOrder(database, "dannymousa@cae.com", "5143430343", 5533)
-		addOrder(database, "dannymousa@cae.com", "5143430343", 1616)
-		addOrder(database, "reikong@gmail.com", "5143430343", 1523)
 		addOrder(database, "reikong@gmail.com", "5143430343", 5533)
 		addOrder(database, "reikong@gmail.com", "5143430343", 1498)
-		addOrder(database, "kalsijatin67@icloud.com", "4389893868", 6399)
-		addOrder(database, "kalsijatin67@icloud.com", "4389893868", 1514)
+		addOrder(database, "kalsijatin67@icloud.com", "+14389893868", 6399)
+		addOrder(database, "kalsijatin67@icloud.com", "+14389893868", 1514)
 	}
 }
 

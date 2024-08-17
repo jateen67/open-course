@@ -347,7 +347,7 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 						buffer.WriteString(fmt.Sprintf("%s%s - %s\n", i.Subject, i.Catalog, i.CourseTitle))
 					}
 					if len(courses) == 0 {
-						buffer.WriteString("You currently have no OpenCourse orders")
+						buffer.WriteString("You currently have no orders")
 					}
 					message = &twiml.MessagingMessage{
 						Body: buffer.String(),
@@ -371,7 +371,17 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 				err = s.OrderDB.UpdateOrderStatusTwilio(classNumber, phoneNumber, command == "START")
 				if err != nil {
 					message = &twiml.MessagingMessage{
-						Body: "Error: Could not set order to active",
+						Body: "Error: Could not change order status",
+					}
+				} else {
+					if command == "START" {
+						message = &twiml.MessagingMessage{
+							Body: "Order successfully enabled!",
+						}
+					} else {
+						message = &twiml.MessagingMessage{
+							Body: "Order successfully disabled!",
+						}
 					}
 				}
 			}
