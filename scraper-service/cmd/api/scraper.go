@@ -27,12 +27,11 @@ type XMLCourse struct {
 }
 
 type OrderPayload struct {
-	ID                   int     `json:"Id"`
 	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
-	Semester             string  `json:"semester"`
+	TermCode             int     `json:"termCode"`
 	ComponentCode        string  `json:"componentCode"`
 	Section              string  `json:"section"`
 	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
@@ -130,12 +129,11 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 		for i := range _course.Section {
 			if _course.Section[i] == order.Section {
 				var newOrder OrderPayload
-				newOrder.ID = order.ID
 				newOrder.ClassNumber = order.ClassNumber
 				newOrder.Subject = order.Subject
 				newOrder.ComponentCode = order.ComponentCode
 				newOrder.CourseTitle = order.CourseTitle
-				newOrder.Semester = order.Semester
+				newOrder.TermCode = order.TermCode
 				newOrder.Section = _course.Section[i]
 				newOrder.CurrentEnrollment, _ = strconv.Atoi(_course.CurrentEnrollment[i])
 				newOrder.EnrollmentCapacity, _ = strconv.Atoi(_course.EnrollmentCapacity[i])

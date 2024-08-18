@@ -18,12 +18,11 @@ import (
 )
 
 type OrderPayload struct {
-	ID                   int     `json:"Id"`
 	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
-	Semester             string  `json:"semester"`
+	TermCode             int     `json:"termCode"`
 	ComponentCode        string  `json:"componentCode"`
 	Section              string  `json:"section"`
 	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
@@ -243,56 +242,57 @@ func (s *server) getCourseSearch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(courses)
 }
 
-// func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
-// 	orders, err := s.OrderDB.GetActiveOrders()
-// 	if err != nil {
-// 		s.errorJSON(w, err, http.StatusBadRequest)
-// 		return
-// 	}
+func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
+	orders, err := s.OrderDB.GetActiveOrders()
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 
-// 	courseIDArray := make([]int, len(orders))
+	courseIDArray := make([]int, len(orders))
 
-// 	for i, order := range orders {
-// 		courseIDArray[i] = order.CourseID
-// 	}
+	for i, order := range orders {
+		courseIDArray[i] = order.ClassNumber
+	}
 
-// 	courses, err := s.CourseDB.GetCoursesByMultpleIDs(courseIDArray)
-// 	if err != nil {
-// 		s.errorJSON(w, err, http.StatusBadRequest)
-// 		return
-// 	}
+	courses, err := s.CourseDB.GetCoursesByMultpleIDs(courseIDArray)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 
-// 	orderMap := make(map[int][]Order)
-// 	for _, order := range orders {
-// 		if _, ok := orderMap[order.CourseID]; !ok {
-// 			newSlice := []Order{{OrderID: order.ID, Name: order.Name, Email: order.Email, Phone: order.Phone}}
-// 			orderMap[order.CourseID] = newSlice
-// 		} else {
-// 			orderMap[order.CourseID] = append(orderMap[order.CourseID],
-// 				Order{OrderID: order.ID, Name: order.Name, Email: order.Email, Phone: order.Phone})
-// 		}
-// 	}
+	orderMap := make(map[int][]Order)
+	for _, order := range orders {
+		if _, ok := orderMap[order.ClassNumber]; !ok {
+			newSlice := []Order{{OrderID: order.ID, Email: order.Email, Phone: order.Phone}}
+			orderMap[order.ClassNumber] = newSlice
+		} else {
+			orderMap[order.ClassNumber] = append(orderMap[order.ClassNumber],
+				Order{OrderID: order.ID, Email: order.Email, Phone: order.Phone})
+		}
+	}
 
-// 	var orderPayload []OrderPayload
+	var orderPayload []OrderPayload
 
-// 	for _, course := range courses {
-// 		var payload OrderPayload
-// 		payload.ID = course.ID
-// 		payload.CourseID = course.CourseID
-// 		payload.CourseCode = course.CourseCode
-// 		payload.CourseTitle = course.CourseTitle
-// 		payload.Semester = course.Semester
-// 		payload.ComponentCode = course.ComponentCode
-// 		payload.Section = course.Section
-// 		payload.OpenSeats = course.OpenSeats
-// 		payload.WaitlistAvailable = course.WaitlistAvailable
-// 		payload.WaitlistCapacity = course.WaitlistCapacity
-// 		payload.Orders = orderMap[course.ID]
-// 		orderPayload = append(orderPayload, payload)
-// 	}
+	for _, course := range courses {
+		var payload OrderPayload
+		payload.ClassNumber = course.CourseID
+		payload.Subject = course.Subject
+		payload.Catalog = course.Catalog
+		payload.CourseTitle = course.CourseTitle
+		payload.TermCode = course.TermCode
+		payload.ComponentCode = course.ComponentCode
+		payload.Section = course.Section
+		payload.EnrollmentCapacity = course.EnrollmentCapacity
+		payload.CurrentEnrollment = course.CurrentEnrollment
+		payload.WaitlistCapacity = course.WaitlistCapacity
+		payload.CurrentWaitlistTotal = course.CurrentWaitlistTotal
+		payload.Orders = orderMap[course.ClassNumber]
+		orderPayload = append(orderPayload, payload)
+	}
 
-// 	json.NewEncoder(w).Encode(orderPayload)
-// }
+	json.NewEncoder(w).Encode(orderPayload)
+}
 
 // slop
 func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {

@@ -13,12 +13,11 @@ type emitter struct {
 }
 
 type OrderPayload struct {
-	ID                   int     `json:"Id"`
 	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
-	Semester             string  `json:"semester"`
+	TermCode             int     `json:"termCode"`
 	ComponentCode        string  `json:"componentCode"`
 	Section              string  `json:"section"`
 	EnrollmentCapacity   int     `json:"enrollmentCapacity"`

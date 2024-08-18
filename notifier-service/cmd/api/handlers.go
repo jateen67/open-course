@@ -14,12 +14,11 @@ import (
 )
 
 type OrderPayload struct {
-	ID                   int     `json:"Id"`
 	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
-	Semester             string  `json:"semester"`
+	TermCode             int     `json:"termCode"`
 	ComponentCode        string  `json:"componentCode"`
 	Section              string  `json:"section"`
 	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
@@ -70,7 +69,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 		Subject: fmt.Sprintf("%s-%s Seat Opened!", reqPayload.Subject, reqPayload.Catalog),
 		Data: fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %s semester. Sign up quickly!",
 			reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
-			reqPayload.Section, reqPayload.Semester),
+			reqPayload.Section, reqPayload.TermCode),
 	}
 
 	// == SEND MAIL ==
@@ -102,9 +101,9 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 		params := &twilioApi.CreateMessageParams{}
 		params.SetFrom(os.Getenv("TWILIO_FROM_PHONE_NUMBER"))
 		params.SetTo(i.Phone)
-		params.SetBody(fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %s semester. Sign up quickly!",
+		params.SetBody(fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %v semester. Sign up quickly!",
 			reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
-			reqPayload.Section, reqPayload.Semester))
+			reqPayload.Section, reqPayload.TermCode))
 
 		_, err := twilioClient.Api.CreateMessage(params)
 		if err != nil {
