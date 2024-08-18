@@ -1,4 +1,4 @@
-import ContactInfoStyles from "./ContactInfo.module.css"
+import ContactFormStyles from "./ContactForm.module.css"
 import { Field, Label, Input } from "@headlessui/react"
 import { useOrderContext } from "contexts";
 
@@ -21,7 +21,7 @@ const inputs = [
     }
 ];
 
-const ContactInfo = () => {
+const ContactForm = () => {
     const { setEmail, setPhone } = useOrderContext();
 
     const handleChange = (id: string, value: string) => {
@@ -33,9 +33,9 @@ const ContactInfo = () => {
         <>
             {inputs.map(input => (
                 <Field key={input.id}>
-                    <Label className={ContactInfoStyles.Label} htmlFor={input.id}>{input.label}</Label>
+                    <Label className={ContactFormStyles.Label} htmlFor={input.id}>{input.label}</Label>
                     <Input 
-                        className={ContactInfoStyles.Input} 
+                        className={ContactFormStyles.Input} 
                         id={input.id} 
                         type={input.type}
                         pattern={input.pattern}
@@ -48,4 +48,4 @@ const ContactInfo = () => {
     );
 };
 
-export default ContactInfo;
+export default ContactForm;
