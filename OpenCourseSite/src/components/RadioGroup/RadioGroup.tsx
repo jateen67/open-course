@@ -8,7 +8,7 @@ interface RadioGroupProps {
     onChange: (termCode: string) => void;
 }
 
-const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => {
+export const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => {
     const { selectedTerm, setSelectedTerm } = useFormContext();
     
     const handleOnChange = (id: string) => {
@@ -40,5 +40,3 @@ const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => {
         </HeadlessRadioGroup>
     );
 }
-
-export default RadioGroup;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import RadioGroup from "../../RadioGroup/RadioGroup";
+import { RadioGroup } from "components/RadioGroup";
 import { SemesterOption } from "../../../typing"; 
 import semestersData from "../../../data/semesters.json";
 import { useFormContext } from "../../../contexts";

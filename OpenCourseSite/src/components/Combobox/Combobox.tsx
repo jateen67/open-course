@@ -17,7 +17,7 @@ const fetchCourseOptions = async (selectedTerm: string, query: string): Promise<
     return response.json();
 };
 
-const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
+export const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
     const [options, setOptions] = useState<Course[]>([]);
     const { selectedTerm, selectedCourses, query, setQuery, setSelectedCourses } = useFormContext();
 
@@ -122,5 +122,3 @@ const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
         </div>
     )
 }
-
-export default CourseCombobox;

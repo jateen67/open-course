@@ -1,4 +1,4 @@
-import CourseCombobox from "../../Combobox/Combobox";
+import { CourseCombobox } from "../../Combobox";
 import { Course } from "../../../models";
 import { useFormContext } from "../../../contexts";
 import FormStyles from "../Form.module.css";

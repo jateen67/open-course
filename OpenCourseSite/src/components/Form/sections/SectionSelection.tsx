@@ -1,4 +1,4 @@
-import CheckboxGroup from "../../CheckboxGroup/CheckboxGroup";
+import { CheckboxGroup } from "../../CheckboxGroup";
 import { useFormContext } from "../../../contexts";
 import FormStyles from "../Form.module.css";
 

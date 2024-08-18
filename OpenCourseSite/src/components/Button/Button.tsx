@@ -2,7 +2,7 @@ import { Button as HeadlessButton } from "@headlessui/react";
 import ButtonStyles from "./Button.module.css";
 import { useFormContext, useOrderContext } from "../../contexts";
 
-const Button: React.FC = () => {
+export const Button: React.FC = () => {
     const { email, phone } = useOrderContext();
     const { selectedCheckboxes } = useFormContext();
 
@@ -45,5 +45,3 @@ const Button: React.FC = () => {
         </HeadlessButton>
     );
 }
-
-export default Button;

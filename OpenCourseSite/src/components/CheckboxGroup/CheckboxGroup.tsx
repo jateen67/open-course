@@ -32,7 +32,7 @@ function formatTime(time: string): string {
     return `${hour}:${minute}`;
 };
 
-const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ onChange }) => {
+export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ onChange }) => {
     const { selectedTerm, selectedCourses, selectedCheckboxes, setSelectedCheckboxes } = useFormContext();
     const [sections, setSections] = useState<Course[]>([]);
 
@@ -93,5 +93,3 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ onChange }) => {
         </div>
     );
 }
-
-export default CheckboxGroup;
