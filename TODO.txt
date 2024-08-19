@@ -1,3 +1,4 @@
 - edit and test scraper
+- remove rabbitmq because too expensive to deploy
 - create db indexes
 - deployment
