@@ -1,0 +1,88 @@
+p {
+    color: var(--secondary300);
+    font-size: 14px;
+    margin: 0;
+}
+
+.Heading {
+    color: var(--secondary100);
+    font-weight: 500;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.Container {
+    background-color: var(--primary700);
+    box-shadow: 0 0 0 1px var(--primary600);
+    border-radius: 4px;
+    padding: 0;
+}
+
+.Row, .HeaderRow, .LabelRow {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 12px;
+}
+.Row, .HeaderRow {
+    padding: 10px 12px;
+}
+.Row:hover, .Row:checked {
+    background-color: var(--primary650);
+    cursor: pointer;
+}
+.Row.Checked {
+    background-color: var(--primary600);
+}
+.LabelRow {
+    cursor: pointer;
+}
+
+.BoxContainer {
+    width: 1rem;
+    height: 1rem;
+}
+
+.SectionContainer, .CRNContainer, .DayContainer {
+    width: 120px;
+}
+
+.TimeContainer {
+    width: 180px;
+}
+
+.CheckboxContainer {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 4px;
+    border: 1px solid var(--primary500);
+}
+.CheckboxContainer:hover {
+    background-color: var(--primary650);
+}
+.CheckboxContainer.checked, .CheckboxContainer.checked:hover {
+    background-color: var(--brightBlue);
+}
+
+.CheckIcon {
+    display: none;
+    stroke: white;
+    opacity: 0;
+}
+
+.CheckboxContainer.Checked, .CheckIcon.checked {
+    display: block;
+    opacity: 100;
+}
+
+.ActiveDay {
+    font-weight: 600;
+    color: var(--primary300);
+}
+
+.InactiveDay {
+    color: var(--primary500);
+}
