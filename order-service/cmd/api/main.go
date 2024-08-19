@@ -165,7 +165,6 @@ func seedOrders(database *sql.DB) {
 
 	if !ordersTablePopulated {
 		addOrder(database, "kalsijatin67@icloud.com", "+14389893868", 6399)
-		addOrder(database, "kalsijatin67@icloud.com", "+14389893868", 1514)
 	}
 }
 
