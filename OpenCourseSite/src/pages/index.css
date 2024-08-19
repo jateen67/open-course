@@ -2,10 +2,13 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  width: 100vw;
 
   color-scheme: light dark;
-  background: radial-gradient(at center bottom, var(--tertiary) 0%, var(--primary900) 67%);
+  background: radial-gradient(
+    at center bottom,
+    var(--tertiary) 0%,
+    var(--primary900) 67%
+  );
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -34,7 +37,7 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  flex-direction: column;
+  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }

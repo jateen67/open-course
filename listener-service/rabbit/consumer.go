@@ -10,12 +10,11 @@ import (
 )
 
 type OrderPayload struct {
-	ID                   int     `json:"Id"`
 	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
-	Semester             string  `json:"semester"`
+	TermCode             int     `json:"termCode"`
 	ComponentCode        string  `json:"componentCode"`
 	Section              string  `json:"section"`
 	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
@@ -88,12 +87,11 @@ func Listen(conn *amqp.Connection) error {
 			}
 
 			notifInfo := OrderPayload{
-				ID:                   orderPayload.ID,
 				ClassNumber:          orderPayload.ClassNumber,
 				Subject:              orderPayload.Subject,
 				Catalog:              orderPayload.Catalog,
 				CourseTitle:          orderPayload.CourseTitle,
-				Semester:             orderPayload.Semester,
+				TermCode:             orderPayload.TermCode,
 				ComponentCode:        orderPayload.ComponentCode,
 				Section:              orderPayload.Section,
 				EnrollmentCapacity:   orderPayload.EnrollmentCapacity,

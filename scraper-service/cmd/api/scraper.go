@@ -3,13 +3,16 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
 
-	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/extensions"
 	event "github.com/jateen67/scraper-service/rabbit"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -19,7 +22,8 @@ type XMLCourse struct {
 	CourseTitle          string   `xml:"title,attr"`
 	Semester             string   `xml:"ssid,attr"`
 	Credits              string   `xml:"credits,attr"`
-	Section              []string `xml:"disp,attr"`
+	ComponentCode        []string `xml:"type,attr"`
+	Section              []string `xml:"secNo,attr"`
 	EnrollmentCapacity   []string `json:"enrollmentCapacity"`
 	CurrentEnrollment    []string `json:"currentEnrollment"`
 	WaitlistCapacity     []string `json:"waitlistCapacity"`
@@ -27,12 +31,11 @@ type XMLCourse struct {
 }
 
 type OrderPayload struct {
-	ID                   int     `json:"Id"`
 	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
-	Semester             string  `json:"semester"`
+	TermCode             int     `json:"termCode"`
 	ComponentCode        string  `json:"componentCode"`
 	Section              string  `json:"section"`
 	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
@@ -100,7 +103,7 @@ func scraperMain(conn *amqp.Connection) {
 
 func sendToNotifier(conn *amqp.Connection, orderList []OrderPayload) {
 	for _, order := range orderList {
-		if (order.EnrollmentCapacity-order.CurrentEnrollment) > 0 || (order.WaitlistCapacity-order.CurrentWaitlistTotal) > 0 {
+		if order.CurrentEnrollment > 0 || order.CurrentWaitlistTotal > 0 {
 			pushToQueue(conn, order)
 		}
 	}
@@ -109,8 +112,25 @@ func sendToNotifier(conn *amqp.Connection, orderList []OrderPayload) {
 func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 	defer wg.Done()
 
-	url := ""
+	var term int
+	if order.TermCode == 2242 {
+		term = 1202430
+	} else if order.TermCode == 2244 {
+		term = 1202510
+	} else {
+		term = 1202440
+	}
+	unix := (time.Now().UnixMilli() / 60000) % 1000
+	url := fmt.Sprintf(
+		"https://vsb.concordia.ca/api/class-data?term=%v&course_0_0=%s-%s&va_0_0=&rq_0_0=&t=%v&e=%v&nouser=1",
+		term,
+		order.Subject,
+		order.Catalog,
+		unix,
+		unix%3+unix%39+unix%42,
+	)
 	c := colly.NewCollector()
+	extensions.RandomUserAgent(c)
 	var _course XMLCourse
 	orderList := []OrderPayload{}
 
@@ -122,25 +142,26 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 	})
 
 	c.OnXML("//classdata/course", func(e *colly.XMLElement) {
-		_course.Section = e.ChildAttrs("uselection/selection/block", "disp")
-		_course.EnrollmentCapacity = e.ChildAttrs("uselection/selection/block", "me")
+		_course.ComponentCode = e.ChildAttrs("uselection/selection/block", "type")
+		_course.Section = e.ChildAttrs("uselection/selection/block", "secNo")
 		_course.CurrentEnrollment = e.ChildAttrs("uselection/selection/block", "os")
+		_course.EnrollmentCapacity = e.ChildAttrs("uselection/selection/block", "me")
 		_course.CurrentWaitlistTotal = e.ChildAttrs("uselection/selection/block", "ws")
 		_course.WaitlistCapacity = e.ChildAttrs("uselection/selection/block", "wc")
 		for i := range _course.Section {
-			if _course.Section[i] == order.Section {
+			if _course.ComponentCode[i] == order.ComponentCode && _course.Section[i] == order.Section {
 				var newOrder OrderPayload
-				newOrder.ID = order.ID
 				newOrder.ClassNumber = order.ClassNumber
 				newOrder.Subject = order.Subject
-				newOrder.ComponentCode = order.ComponentCode
+				newOrder.Catalog = order.Catalog
 				newOrder.CourseTitle = order.CourseTitle
-				newOrder.Semester = order.Semester
-				newOrder.Section = _course.Section[i]
-				newOrder.CurrentEnrollment, _ = strconv.Atoi(_course.CurrentEnrollment[i])
+				newOrder.TermCode = order.TermCode
+				newOrder.ComponentCode = order.ComponentCode
+				newOrder.Section = order.Section
 				newOrder.EnrollmentCapacity, _ = strconv.Atoi(_course.EnrollmentCapacity[i])
-				newOrder.CurrentWaitlistTotal, _ = strconv.Atoi(_course.CurrentWaitlistTotal[i])
+				newOrder.CurrentEnrollment, _ = strconv.Atoi(_course.CurrentEnrollment[i])
 				newOrder.WaitlistCapacity, _ = strconv.Atoi(_course.WaitlistCapacity[i])
+				newOrder.CurrentWaitlistTotal, _ = strconv.Atoi(_course.CurrentWaitlistTotal[i])
 				newOrder.Orders = order.Orders
 				orderList = append(orderList, newOrder)
 			}

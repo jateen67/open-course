@@ -138,9 +138,9 @@ func (d *CourseDBImpl) GetCoursesByMultpleIDs(classNumbers []int) ([]Course, err
 	return courses, nil
 }
 
-func (d *CourseDBImpl) GetCoursesBySemester(semester int) ([]Course, error) {
-	query := "SELECT * FROM tbl_Courses WHERE semester = $1"
-	rows, err := d.DB.Query(query, semester)
+func (d *CourseDBImpl) GetCoursesBySemester(termCode int) ([]Course, error) {
+	query := "SELECT * FROM tbl_Courses WHERE termCode = $1"
+	rows, err := d.DB.Query(query, termCode)
 	if err != nil {
 		return nil, err
 	}

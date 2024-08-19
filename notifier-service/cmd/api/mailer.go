@@ -23,7 +23,7 @@ type Mail struct {
 type Message struct {
 	From        string
 	FromName    string
-	To          string
+	To          []string
 	Subject     string
 	Attachments []string
 	Data        any
@@ -72,7 +72,7 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 
 	email := mail.NewMSG()
 	email.SetFrom(msg.From).
-		AddTo(msg.To).
+		AddTo(msg.To...).
 		SetSubject(msg.Subject).
 		SetBody(mail.TextPlain, plainMessage).
 		AddAlternative(mail.TextHTML, formattedMessage)

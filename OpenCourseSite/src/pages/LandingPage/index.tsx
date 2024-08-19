@@ -1,21 +1,20 @@
 import { useEffect, useState } from "react";
-import Test from "../../components/test";
-import { Nav } from "../../components/Nav/Nav"
-import Colors, { applyTheme } from '../../styles/ColorSystem';
+import { Nav } from "../../components/Nav/Nav";
+import Colors, { applyTheme } from "../../styles/ColorSystem";
 import { MainContent } from "../../components/MainContent/MainContent";
 
 export const LandingPage: React.FC = () => {
-    const [currentTheme, setCurrentTheme] = useState<keyof typeof Colors>("burgundy");
+  const [currentTheme] = useState<keyof typeof Colors>("burgundy");
 
-    useEffect(() => {
-        applyTheme(Colors[currentTheme]);
-    }, [currentTheme]);
+  useEffect(() => {
+    applyTheme(Colors[currentTheme]);
+  }, [currentTheme]);
 
-    return (
-        <>
-            <Nav />
-            <MainContent />
-            {/* <Test /> */}
-        </>
-    );
+  return (
+    <>
+      <Nav />
+      <MainContent />
+      {/* <Test /> */}
+    </>
+  );
 };

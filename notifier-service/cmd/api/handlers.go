@@ -1,19 +1,24 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
-	"github.com/jateen67/notifier-service/internal/data"
+	"github.com/twilio/twilio-go"
+	twilioApi "github.com/twilio/twilio-go/rest/api/v2010"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type OrderPayload struct {
-	ID                   int     `json:"Id"`
 	ClassNumber          int     `json:"classNumber"`
 	Subject              string  `json:"subject"`
 	Catalog              string  `json:"catalog"`
 	CourseTitle          string  `json:"courseTitle"`
-	Semester             string  `json:"semester"`
+	TermCode             int     `json:"termCode"`
 	ComponentCode        string  `json:"componentCode"`
 	Section              string  `json:"section"`
 	EnrollmentCapacity   int     `json:"enrollmentCapacity"`
@@ -29,13 +34,9 @@ type Order struct {
 	Phone   string `json:"phone"`
 }
 
-func (s *server) logNotification(orderId int, notificationTypeId primitive.ObjectID) error {
-	event := data.LogNotification{
-		OrderID:            orderId,
-		NotificationTypeId: notificationTypeId,
-	}
+func (s *server) logNotification(orderIDs []int, notificationTypeId primitive.ObjectID) error {
 
-	err := s.Models.LogNotification.Insert(event)
+	err := s.Models.LogNotification.Insert(orderIDs, notificationTypeId)
 	if err != nil {
 		return err
 	}
@@ -43,98 +44,116 @@ func (s *server) logNotification(orderId int, notificationTypeId primitive.Objec
 	return nil
 }
 
-func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
-	// var reqPayload OrderPayload
+	var reqPayload OrderPayload
 
-	// err := s.readJSON(w, r, &reqPayload)
-	// if err != nil {
-	// 	s.errorJSON(w, err, http.StatusBadRequest)
-	// 	return
-	// }
+	err := s.readJSON(w, r, &reqPayload)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 
-	// msg := Message{
-	// 	From:    os.Getenv("MAIL_FROM_ADDRESS"),
-	// 	To:      reqPayload.Email,
-	// 	Subject: fmt.Sprintf("%s-%s Seat Opened!", reqPayload.Subject, reqPayload.Catalog),
-	// 	Data: fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %s semester. Sign up quickly!",
-	// 		reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
-	// 		reqPayload.Section, reqPayload.Semester),
-	// }
+	var emails []string
+	for _, i := range reqPayload.Orders {
+		emails = append(emails, i.Email)
+	}
 
-	// // == LOG NOTIFICATION TO MONGO ==
-	// objectId, err := primitive.ObjectIDFromHex("66a862e4b2fddb9ea6768279")
-	// if err != nil {
-	// 	s.errorJSON(w, err, http.StatusBadRequest)
-	// 	return
-	// }
+	var orderIDs []int
+	for _, i := range reqPayload.Orders {
+		orderIDs = append(orderIDs, i.OrderID)
+	}
 
-	// err = s.logNotification(reqPayload.OrderID, objectId)
-	// if err != nil {
-	// 	s.errorJSON(w, err, http.StatusBadRequest)
-	// 	return
-	// }
+	msg := Message{
+		From:    os.Getenv("MAIL_FROM_ADDRESS"),
+		To:      emails,
+		Subject: fmt.Sprintf("%s-%s Seat Opened!", reqPayload.Subject, reqPayload.Catalog),
+		Data: fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %s semester. Sign up quickly!",
+			reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
+			reqPayload.Section, reqPayload.TermCode),
+	}
 
-	// // == SEND MAIL ==
-	// err = s.Mailer.SendSMTPMessage(msg)
-	// if err != nil {
-	// 	s.errorJSON(w, err, http.StatusBadRequest)
-	// 	return
-	// }
+	// == SEND MAIL ==
+	err = s.Mailer.SendSMTPMessage(msg)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 
-	// // == SEND SMS ==
-	// twilioClient := twilio.NewRestClient()
+	// == LOG ALL EMAIL NOTIFICATIONS TO MONGO ==
+	objectId, err := primitive.ObjectIDFromHex("66a862e4b2fddb9ea6768279")
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	err = s.logNotification(orderIDs, objectId)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 
-	// params := &api.CreateMessageParams{}
-	// params.SetFrom(os.Getenv("TWILIO_FROM_PHONE_NUMBER"))
-	// params.SetTo(reqPayload.Phone)
-	// params.SetBody(fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %s semester. Sign up quickly!",
-	// 	reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
-	// 	reqPayload.Section, reqPayload.Semester))
+	// == SEND SMS ==
+	twilioClient := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username: os.Getenv("TWILIO_ACCOUNT_SID"),
+		Password: os.Getenv("TWILIO_AUTH_TOKEN"),
+	})
 
-	// resp, err := twilioClient.Api.CreateMessage(params)
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// 	os.Exit(1)
-	// } else {
-	// 	if resp.Body != nil {
-	// 		fmt.Println(*resp.Body)
-	// 	} else {
-	// 		fmt.Println(resp.Body)
-	// 	}
-	// }
+	for _, i := range reqPayload.Orders {
+		params := &twilioApi.CreateMessageParams{}
+		params.SetFrom(os.Getenv("TWILIO_FROM_PHONE_NUMBER"))
+		params.SetTo(i.Phone)
+		params.SetBody(fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %v semester. Sign up quickly!",
+			reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
+			reqPayload.Section, reqPayload.TermCode))
 
-	// // == DISABLE ORDER STATUSES SO THEY DONT GET FUTURE NOTIFS UNTIL MANUALLY SET AGAIN BY USER ==
-	// jsonData, _ := json.MarshalIndent(reqPayload, "", "\t")
+		_, err := twilioClient.Api.CreateMessage(params)
+		if err != nil {
+			log.Println(err.Error())
+			os.Exit(1)
+		} else {
+			log.Printf("sent sms to %s", i.Phone)
+		}
+	}
 
-	// request, err := http.NewRequest("POST", "http://order-service/orderstatus", bytes.NewBuffer(jsonData))
-	// if err != nil {
-	// 	s.errorJSON(w, err, http.StatusBadRequest)
-	// 	return
-	// }
+	// == LOG ALL SMS NOTIFICATIONS TO MONGO ==
+	objectId, err = primitive.ObjectIDFromHex("ok")
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	err = s.logNotification(orderIDs, objectId)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 
-	// request.Header.Set("Content-Type", "application/json")
+	// == DISABLE ORDER STATUSES SO THEY DONT GET FUTURE NOTIFS UNTIL MANUALLY SET AGAIN BY USER ==
+	jsonData, _ := json.MarshalIndent(reqPayload, "", "\t")
 
-	// client := &http.Client{}
-	// res, err := client.Do(request)
-	// if err != nil {
-	// 	s.errorJSON(w, err, http.StatusBadRequest)
-	// 	return
-	// }
-	// defer res.Body.Close()
+	request, err := http.NewRequest("POST", "http://order-service/orderstatus", bytes.NewBuffer(jsonData))
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 
-	// if res.StatusCode != http.StatusAccepted {
-	// 	s.errorJSON(w, err, http.StatusBadRequest)
-	// 	return
-	// }
+	request.Header.Set("Content-Type", "application/json")
 
-	// payload := jsonResponse{
-	// 	Error:   false,
-	// 	Message: fmt.Sprintf("db entry + order update + sms/email notification sent for course %s", reqPayload.ClassNumber),
-	// }
+	client := &http.Client{}
+	res, err := client.Do(request)
+	if err != nil {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	defer res.Body.Close()
 
-	// s.writeJSON(w, payload, http.StatusAccepted)
+	if res.StatusCode != http.StatusAccepted {
+		s.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	payload := jsonResponse{
+		Error:   false,
+		Message: fmt.Sprintf("db entry + order update + sms/email notification sent for course %v", reqPayload.ClassNumber),
+	}
+
+	s.writeJSON(w, payload, http.StatusAccepted)
 }
