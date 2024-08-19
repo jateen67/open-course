@@ -276,7 +276,7 @@ func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 
 	for _, course := range courses {
 		var payload OrderPayload
-		payload.ClassNumber = course.CourseID
+		payload.ClassNumber = course.ClassNumber
 		payload.Subject = course.Subject
 		payload.Catalog = course.Catalog
 		payload.CourseTitle = course.CourseTitle

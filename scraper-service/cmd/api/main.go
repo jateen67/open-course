@@ -16,12 +16,14 @@ func main() {
 	}
 	defer conn.Close()
 
-	// go func() {
-	// 	for {
-	// 		time.Sleep(5 * time.Second)
-	// 		scraperMain(conn)
-	// 	}
-	// }()
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			scraperMain(conn)
+		}
+	}()
+
+	select {}
 }
 
 func connectToRabbitMQ() (*amqp.Connection, error) {
@@ -42,7 +44,7 @@ func connectToRabbitMQ() (*amqp.Connection, error) {
 			return nil, err
 		}
 
-		log.Println("retrying in 5 seconds...")
-		time.Sleep(5 * time.Second)
+		log.Println("retrying in 3 seconds...")
+		time.Sleep(3 * time.Second)
 	}
 }
