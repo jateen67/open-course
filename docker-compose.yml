@@ -15,8 +15,6 @@ services:
     build:
       context: scraper-service
       dockerfile: scraper-service.Dockerfile
-    ports:
-      - "8082:80"
     environment:
       RABBITMQ_CONNECTION_STRING: "amqp://guest:guest@rabbitmq:5672"
   notifier-service:
