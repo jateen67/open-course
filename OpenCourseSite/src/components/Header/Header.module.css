@@ -1,0 +1,10 @@
+.Content {
+    width: 40%;
+    margin: 0px 0px 0px 0px;
+}
+
+@media only screen and (max-width: 1280px) {
+    .Content {
+        width: 100%;
+    }
+}

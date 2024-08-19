@@ -1,9 +1,16 @@
-import Test from "../components/test";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { LandingPage } from "./LandingPage";
+import { AboutPage } from "./AboutPage";
 
 export default function App() {
   return (
     <>
-      <Test />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }

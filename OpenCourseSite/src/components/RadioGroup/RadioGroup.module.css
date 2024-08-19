@@ -1,0 +1,50 @@
+.RadioGroup {
+    gap: 0.5rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.Radio {
+    display: flex;
+    flex-grow: 1;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    background-color: var(--primary700);
+    padding: 10px 12px;
+    color: var(--primary300);
+    box-shadow: 0 0 0 1px var(--primary600);
+    transition: all 150ms ease-in-out;
+}
+.Radio:hover {
+    background-color: var(--primary650);
+}
+.Radio:focus {
+    outline: 1px solid white;
+}
+.Radio.Checked {
+    background-color: var(--primary600);
+    outline: 1px solid white;
+}
+
+.RadioContent {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.RadioLabel {
+    font-size: 0.875rem;
+    color: var(--secondary300)
+}
+
+.CheckCircle {
+    width: 24px;
+    fill: white;
+    opacity: 0;
+    transition: opacity 150ms ease-in-out;
+}
+
+.Radio.Checked, .CheckCircle.Checked {
+    opacity: 1;
+}

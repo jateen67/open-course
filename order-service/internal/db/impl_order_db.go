@@ -174,7 +174,7 @@ func (d *OrderDBImpl) CreateOrder(order Order) (int, error) {
 		isActive,
 		createdAt,
 		updatedAt
-		) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 	err := d.DB.QueryRow(query, order.Email, order.Phone, order.ClassNumber, 1, time.Now(), time.Now()).Scan(&id)
 	if err != nil {
 		return 0, err
