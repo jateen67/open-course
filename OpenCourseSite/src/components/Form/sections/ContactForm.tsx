@@ -1,6 +1,7 @@
 import ContactFormStyles from "./ContactForm.module.css"
 import { Field, Label, Input } from "@headlessui/react"
 import { useOrderContext } from "contexts";
+import { useForm } from "react-hook-form";
 
 const inputs = [
     { 
