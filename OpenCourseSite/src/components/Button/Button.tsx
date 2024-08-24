@@ -1,46 +1,33 @@
 import { Button as HeadlessButton } from "@headlessui/react";
 import ButtonStyles from "./Button.module.css";
 import { useFormContext, useOrderContext } from "../../contexts";
+import { OrderService } from "services";
+import { Order } from "models";
 
 export const Button: React.FC = () => {
     const { email, phone } = useOrderContext();
     const { selectedCheckboxes } = useFormContext();
 
-    console.log("Button.tsx:" + email);
-    console.log("Button.tsx:" + phone);
-    console.log("Button.tsx:" + selectedCheckboxes);
-
-    const createOrder = async (classNumber: number) => {
-        try {
-            const response = await fetch("http://localhost:8081/orders", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ classNumber, email, phone }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to create order");
-            }
-    
-            const data = await response.json();
-            console.log("Order created successfully:", data);
-        } catch (error) {
-            console.error("Error creating order:", error);
-        }
-    
+    const createOrder = (classNumber: number) => {
+        const newOrder = new Order({ classNumber, email, phone });
+        OrderService.CreateOrder(newOrder).subscribe({
+            next: (order) => console.log("Order created successfully:", order),
+            error: (error) => console.error("Error creating order:", error)
+        })
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
+        if (!email || !phone) {
+            return;
+        }
         for (const classNumber of selectedCheckboxes) {
             console.log(classNumber);
-            await createOrder(classNumber);
+            createOrder(classNumber);
         }
     };
 
     return (
-        <HeadlessButton className={ButtonStyles.Button} type="submit" onClick={handleSubmit}>
+        <HeadlessButton className={ButtonStyles.Button} type="submit" onClick={handleSubmit} disabled={!email || !phone}>
             Checkout
         </HeadlessButton>
     );

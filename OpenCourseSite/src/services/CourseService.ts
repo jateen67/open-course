@@ -9,4 +9,11 @@ export class CourseService {
       getParams
     );
   }
+
+  static GetByTermCodeAndCourseId(termCode: string, courseId: number): Observable<Course[]> {
+    return Fetch<Course[]>(
+      `${GlobalEnvironment.GetUrlApi()}/course/${termCode}/${courseId}`,
+      getParams
+    );
+  }
 }

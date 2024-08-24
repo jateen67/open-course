@@ -1,6 +1,7 @@
 import ContactFormStyles from "./ContactForm.module.css";
-import { Field, Label, Input } from "@headlessui/react";
+import { Field, Label, Input, Transition } from "@headlessui/react";
 import { useOrderContext } from "contexts";
+import { useState } from "react";
 //import { useForm } from "react-hook-form";
 
 const inputs = [
@@ -9,7 +10,7 @@ const inputs = [
     label: "Email",
     type: "email",
     pattern:
-      "^([a-zA-Z0-9_-.]+)@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)|(([a-zA-Z0-9-]+.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(]?)$",
+      "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
     required: true,
     errorMessage: "Please enter a valid email.",
   },
@@ -17,7 +18,7 @@ const inputs = [
     id: "phone",
     label: "Phone Number",
     type: "text",
-    pattern: "",
+    pattern: "^[0-9]{10}$",
     required: true,
     errorMessage: "Please enter a valid phone number.",
   },
@@ -25,10 +26,24 @@ const inputs = [
 
 const ContactForm = () => {
   const { setEmail, setPhone } = useOrderContext();
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (id: string, value: string) => {
-    if (id === "email") setEmail(value);
-    if (id === "phone") setPhone(value);
+    const inputConfig = inputs.find(input => input.id === id);
+    if (inputConfig) {
+      const regex = new RegExp(inputConfig.pattern);
+      if (!regex.test(value)) {
+        setErrors(prevErrors => ({ ...prevErrors, [id]: inputConfig.errorMessage }));
+      } else {
+        setErrors(prevErrors => {
+          const newErrors = { ...prevErrors };
+          delete newErrors[id];
+          return newErrors;
+        });
+        if (id === "email") setEmail(value);
+        if (id === "phone") setPhone(value);
+      }
+    }
   };
 
   return (
@@ -46,6 +61,18 @@ const ContactForm = () => {
             required
             onChange={(event) => handleChange(input.id, event.target.value)}
           />
+          <Transition
+            show={Boolean(errors[input.id])}
+            as="div"
+            enter="transition-opacity duration-200"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transition-opacity duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <span className={ContactFormStyles.Error}>{errors[input.id]}</span>
+          </Transition>
         </Field>
       ))}
     </>

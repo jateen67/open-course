@@ -3,6 +3,7 @@ import Checkbox from "./Checkbox";
 import CheckboxGroupStyles from "./CheckboxGroup.module.css";
 import { Course } from "../../models";
 import { useFormContext } from "contexts";
+import { CourseService } from "services";
 
 interface CheckboxGroupProps {
   onChange: (courseIds: number[]) => void;
@@ -14,22 +15,6 @@ const headers = [
   { label: "Days", containerClass: CheckboxGroupStyles.DayContainer },
   { label: "Time", containerClass: CheckboxGroupStyles.TimeContainer },
 ];
-
-const fetchCourseInfo = async (
-  termCode: string,
-  courseId: number
-): Promise<Course[]> => {
-  console.log("selectedTerm:", termCode);
-  console.log("courseId:", courseId);
-
-  const response = await fetch(
-    `http://localhost:8081/course/${termCode}/${courseId}`
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch course sections");
-  }
-  return response.json();
-};
 
 function formatTime(time: string): string {
   const [hour, minute] = time.split(".");
@@ -52,24 +37,17 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ onChange }) => {
       return;
     }
 
-    const fetchData = async () => {
-      try {
-        const data = await fetchCourseInfo(
-          selectedTerm,
-          selectedCourses.courseId
-        );
-        setSections(data);
-      } catch (error) {
-        console.error("Error fetching course sections:", error);
-        setSections([]);
-      }
+    const fetchData = () => {
+      CourseService.GetByTermCodeAndCourseId(selectedTerm, selectedCourses.courseId).subscribe({
+        next: (courses) => setSections(courses),
+        error: () => setSections([])
+      })
     };
 
     fetchData();
   }, [selectedTerm, selectedCourses]);
 
   useEffect(() => {
-    console.log("Selected Sections Updated:", selectedCheckboxes);
     onChange(selectedCheckboxes);
   }, [selectedCheckboxes, onChange]);
 
