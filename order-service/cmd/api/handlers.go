@@ -110,6 +110,11 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if reqPayload.Email == "" || reqPayload.Phone == "" {
+		s.errorJSON(w, errors.New("cannot have empty email or phone"), http.StatusBadRequest)
+		return
+	}
+
 	id, err := s.OrderDB.CreateOrder(reqPayload)
 	if err != nil {
 		s.errorJSON(w, err, http.StatusBadRequest)
