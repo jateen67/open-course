@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -30,15 +31,28 @@ type LogNotification struct {
 	TimeSent           time.Time          `bson:"timeSent" json:"timeSent"`
 }
 
-func (l *LogNotification) Insert(orderIDs []int, notificationTypeId primitive.ObjectID) error {
+type NotificationType struct {
+	ID   primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Type int                `bson:"type" json:"type"`
+}
+
+func (l *LogNotification) Insert(orderIDs []int, notificationType string) error {
 	collection := client.Database("notificationsdb").Collection("notifications")
+
+	filter := bson.D{{Key: "type", Value: notificationType}}
+	var result NotificationType
+	err := collection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		log.Println("error getting notification type: ", err)
+		return err
+	}
 
 	var logs []interface{}
 	for _, i := range orderIDs {
-		logs = append(logs, LogNotification{OrderID: i, NotificationTypeId: notificationTypeId, TimeSent: time.Now()})
+		logs = append(logs, LogNotification{OrderID: i, NotificationTypeId: result.ID, TimeSent: time.Now()})
 	}
 
-	_, err := collection.InsertMany(context.TODO(), logs)
+	_, err = collection.InsertMany(context.TODO(), logs)
 
 	if err != nil {
 		log.Println("error logging notification: ", err)

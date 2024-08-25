@@ -10,7 +10,6 @@ import (
 
 	"github.com/twilio/twilio-go"
 	twilioApi "github.com/twilio/twilio-go/rest/api/v2010"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type OrderPayload struct {
@@ -34,8 +33,8 @@ type Order struct {
 	Phone   string `json:"phone"`
 }
 
-func (s *server) logNotification(orderIDs []int, notificationTypeId primitive.ObjectID) error {
-	err := s.Models.LogNotification.Insert(orderIDs, notificationTypeId)
+func (s *server) logNotification(orderIDs []int, notificationType string) error {
+	err := s.Models.LogNotification.Insert(orderIDs, notificationType)
 	if err != nil {
 		return err
 	}
@@ -81,12 +80,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// == LOG ALL EMAIL NOTIFICATIONS TO MONGO ==
-		objectId, err := primitive.ObjectIDFromHex("66c6a88a117952456c71af25")
-		if err != nil {
-			s.errorJSON(w, err, http.StatusBadRequest)
-			return
-		}
-		err = s.logNotification(orderIDs, objectId)
+		err = s.logNotification(orderIDs, "Email")
 		if err != nil {
 			s.errorJSON(w, err, http.StatusBadRequest)
 			return
@@ -115,12 +109,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// == LOG ALL SMS NOTIFICATIONS TO MONGO ==
-		objectId, err = primitive.ObjectIDFromHex("66c6a88a117952456c71af26")
-		if err != nil {
-			s.errorJSON(w, err, http.StatusBadRequest)
-			return
-		}
-		err = s.logNotification(orderIDs, objectId)
+		err = s.logNotification(orderIDs, "SMS")
 		if err != nil {
 			s.errorJSON(w, err, http.StatusBadRequest)
 			return

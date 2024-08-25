@@ -2,19 +2,22 @@ package main
 
 import (
 	"log"
+	"time"
 )
 
 func main() {
 	log.Println("starting scraper server...")
 
-	//time.Sleep(16 * time.Second)
-	//scraperMain()
-	// go func() {
-	// 	for {
-	// 		time.Sleep(5 * time.Second)
-	// 		scraperMain()
-	// 	}
-	// }()
+	// time.Sleep(60 * time.Second)
+	// log.Println("starting scraperMain() call")
+	// scraperMain()
+	// log.Println("ending scraperMain() call")
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			//scraperMain()
+		}
+	}()
 
-	// select {}
+	select {}
 }
