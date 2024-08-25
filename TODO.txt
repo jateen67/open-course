@@ -1,4 +1,6 @@
 - edit and test scraper
-- remove rabbitmq because too expensive to deploy
+- better error handling throughout backend
 - create db indexes
+
+tuesday:
 - deployment

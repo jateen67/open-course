@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"github.com/go-rod/rod"
-	event "github.com/jateen67/scraper-service/rabbit"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type OrderPayload struct {
@@ -37,7 +35,7 @@ type Order struct {
 	Phone   string `json:"phone"`
 }
 
-func scraperMain(conn *amqp.Connection) {
+func scraperMain() {
 	jsonData, _ := json.MarshalIndent("", "", "\t")
 
 	request, err := http.NewRequest("GET", "http://order-service/scrapercourses", bytes.NewBuffer(jsonData))
@@ -83,14 +81,9 @@ func scraperMain(conn *amqp.Connection) {
 	}()
 
 	for orderList := range ch {
-		sendToNotifier(conn, orderList)
-	}
-}
-
-func sendToNotifier(conn *amqp.Connection, orderList []OrderPayload) {
-	for _, order := range orderList {
-		if order.CurrentEnrollment > 0 || order.CurrentWaitlistTotal > 0 {
-			pushToQueue(conn, order)
+		err := sendToNotifier(orderList)
+		if err != nil {
+			log.Println("error: ", err)
 		}
 	}
 }
@@ -155,23 +148,40 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 	ch <- orderList
 }
 
-func pushToQueue(conn *amqp.Connection, order OrderPayload) error {
-	emitter, q, err := event.NewEventEmitter(conn)
+func sendToNotifier(orders []OrderPayload) error {
+	ordersFiltered := filter(orders)
+	jsonData, err := json.MarshalIndent(ordersFiltered, "", "\t")
 	if err != nil {
 		return err
 	}
 
-	var b bytes.Buffer
-	encoder := json.NewEncoder(&b)
-	err = encoder.Encode(order)
+	request, err := http.NewRequest("POST", "http://notifier-service/notify", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
 
-	err = emitter.Push(&q, b.Bytes())
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(request)
 	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusAccepted {
 		return err
 	}
 
 	return nil
+}
+
+func filter(orders []OrderPayload) []OrderPayload {
+	var ordersFiltered []OrderPayload
+	for _, order := range orders {
+		if order.CurrentEnrollment > 0 || order.CurrentWaitlistTotal > 0 {
+			ordersFiltered = append(ordersFiltered, order)
+		}
+	}
+	return ordersFiltered
 }

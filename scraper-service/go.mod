@@ -10,7 +10,4 @@ require (
 	github.com/ysmood/leakless v0.9.0 // indirect
 )
 
-require (
-	github.com/go-rod/rod v0.116.2
-	github.com/rabbitmq/amqp091-go v1.10.0
-)
+require github.com/go-rod/rod v0.116.2
