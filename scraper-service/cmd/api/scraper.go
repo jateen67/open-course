@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/launcher"
 )
 
 type OrderPayload struct {
@@ -36,11 +37,13 @@ type Order struct {
 }
 
 func scraperMain() {
+	log.Println("s scraperMain()")
 	jsonData, _ := json.MarshalIndent("", "", "\t")
 
 	request, err := http.NewRequest("GET", "http://order-service/scrapercourses", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Fatalf("could not make new http request: %s", err)
+		log.Println("could not make new http request: ", err)
+		return
 	}
 
 	request.Header.Set("Content-Type", "application/json")
@@ -48,23 +51,31 @@ func scraperMain() {
 	client := &http.Client{}
 	res, err := client.Do(request)
 	if err != nil {
-		log.Fatalf("could not do http request: %s", err)
+		log.Println("could not do http request: ", err)
+		return
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		log.Fatalf("error code: %v", res.StatusCode)
+		log.Println("error code: ", res.StatusCode)
+		return
 	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	var orders []OrderPayload
 
 	if err := json.Unmarshal(body, &orders); err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+
+	if len(orders) == 0 {
+		return
 	}
 
 	var wg sync.WaitGroup
@@ -83,14 +94,17 @@ func scraperMain() {
 	for orderList := range ch {
 		err := sendToNotifier(orderList)
 		if err != nil {
-			log.Println("error: ", err)
+			log.Println("error sending to notifier: ", err)
 		}
 	}
+
+	log.Println("e scraperMain()")
 }
 
 func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 	defer wg.Done()
 
+	log.Println("s scrape()")
 	orderList := []OrderPayload{}
 
 	var term int
@@ -111,11 +125,14 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 		unix%3+unix%39+unix%42,
 	)
 
-	page := rod.New().MustConnect().MustPage(url)
+	path, _ := launcher.LookPath()
+	u := launcher.New().Bin(path).MustLaunch()
+	page := rod.New().ControlURL(u).MustConnect().MustPage(url)
 
 	errors := page.MustElement("errors").MustText()
 	if errors != "" {
-		log.Fatal("error: " + errors)
+		log.Println("error fetching: " + errors)
+		return
 	}
 
 	blocks := page.MustElements("block")
@@ -145,10 +162,12 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 		}
 	}
 
+	log.Println("e scrape()")
 	ch <- orderList
 }
 
 func sendToNotifier(orders []OrderPayload) error {
+	log.Println("s sendToNotifier()")
 	ordersFiltered := filter(orders)
 	jsonData, err := json.MarshalIndent(ordersFiltered, "", "\t")
 	if err != nil {
@@ -173,15 +192,19 @@ func sendToNotifier(orders []OrderPayload) error {
 		return err
 	}
 
+	log.Println("e sendToNotifier()")
 	return nil
 }
 
 func filter(orders []OrderPayload) []OrderPayload {
+	log.Println("s filter()")
 	var ordersFiltered []OrderPayload
 	for _, order := range orders {
 		if order.CurrentEnrollment > 0 || order.CurrentWaitlistTotal > 0 {
 			ordersFiltered = append(ordersFiltered, order)
 		}
 	}
+
+	log.Println("s filter()")
 	return ordersFiltered
 }

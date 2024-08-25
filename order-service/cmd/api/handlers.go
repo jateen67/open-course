@@ -303,13 +303,13 @@ func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Println("error: ", err)
+		log.Println("error reading sms command: ", err)
 		return
 	}
 
 	values, err := url.ParseQuery(string(body))
 	if err != nil {
-		log.Println("error: ", err)
+		log.Println("error parsing sms command: ", err)
 		return
 	}
 	phoneNumber := values.Get("From")

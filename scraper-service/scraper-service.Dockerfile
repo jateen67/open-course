@@ -11,6 +11,7 @@ RUN CGO_ENABLED=0 go build -o /app/scraperExec ./cmd/api
 
 FROM alpine:latest
 
+RUN apk add chromium
 RUN mkdir /app
 WORKDIR /app
 
