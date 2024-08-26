@@ -17,7 +17,7 @@
 - [How to Build](#-how-to-build)
 - [Documentation](#-documentation)
 - [License](#-license)
-- [Contact](#-contact)
+- [Contact](#%EF%B8%8F-contact)
 
 ## ❓ About
 
