@@ -3,5 +3,4 @@
 - create db indexes
 
 tuesday:
-- populate courses table with all courses for f2024 and w2025
 - deployment
