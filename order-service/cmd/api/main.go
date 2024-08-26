@@ -91,8 +91,23 @@ func main() {
 
 	log.Println("tables created successfully")
 
-	seedCourses(database, "COMP", 2242) // 2242 = f2024, 2244 = w2025
-	seedOrders(database)
+	coursesTablePopulated, err := db.CoursesTablePopulated(database)
+	if err != nil {
+		log.Fatalf("error checking if courses table populated: %v", err)
+	}
+	if !coursesTablePopulated {
+		seedCourses(database, "*", 2242) // 2242 = f2024
+		seedCourses(database, "*", 2243) // 2243 = f2024/w2025
+		seedCourses(database, "*", 2244) // 2244 = w2025
+	}
+
+	ordersTablePopulated, err := db.OrdersTablePopulated(database)
+	if err != nil {
+		log.Fatalf("error checking if orders table populated: %v", err)
+	}
+	if !ordersTablePopulated {
+		seedOrders(database)
+	}
 
 	courseDB := db.NewCourseDBImpl(database)
 	orderDB := db.NewOrderDBImpl(database)
@@ -109,66 +124,62 @@ func main() {
 }
 
 func seedCourses(database *sql.DB, subject string, termCode int) {
-	coursesTablePopulated, err := db.CoursesTablePopulated(database)
+	jsonData, _ := json.MarshalIndent("", "", "\t")
+
+	request, err := http.NewRequest("GET",
+		fmt.Sprintf("https://opendata.concordia.ca/API/v1/course/scheduleTerm/filter/%s/%v", subject, termCode),
+		bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Fatalf("error checking if courses table populated: %v", err)
+		log.Fatalf("could not make new http request: %s", err)
 	}
 
-	if !coursesTablePopulated {
-		jsonData, _ := json.MarshalIndent("", "", "\t")
+	request.Header.Set("Content-Type", "application/json")
+	request.SetBasicAuth("711", "d77946e392ed877022b6e0825cb36aa0")
 
-		request, err := http.NewRequest("GET",
-			fmt.Sprintf("https://opendata.concordia.ca/API/v1/course/scheduleTerm/filter/%s/%v", subject, termCode),
-			bytes.NewBuffer(jsonData))
-		if err != nil {
-			log.Fatalf("could not make new http request: %s", err)
-		}
-
-		request.Header.Set("Content-Type", "application/json")
-		request.SetBasicAuth("711", "d77946e392ed877022b6e0825cb36aa0")
-
-		client := &http.Client{}
-		res, err := client.Do(request)
-		if err != nil {
-			log.Fatalf("could not do http request: %s", err)
-		}
-		defer res.Body.Close()
-
-		if res.StatusCode != http.StatusOK {
-			log.Fatalf("error code: %v", res.StatusCode)
-		}
-
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		var courses []CourseAPI
-
-		if err := json.Unmarshal(body, &courses); err != nil {
-			log.Fatalln(err)
-		}
-
-		for _, course := range courses {
-			addCourse(database, course)
-		}
-
-		log.Printf("all courses for %s for term %v inserted successfully", subject, termCode)
+	client := &http.Client{}
+	res, err := client.Do(request)
+	if err != nil {
+		log.Fatalf("could not do http request: %s", err)
 	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		log.Fatalf("error code: %v", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var courses []CourseAPI
+
+	if err := json.Unmarshal(body, &courses); err != nil {
+		log.Fatalln(err)
+	}
+
+	for _, course := range courses {
+		addCourse(database, course)
+	}
+
+	log.Printf("all courses for %s for term %v inserted successfully", subject, termCode)
 }
 
 func seedOrders(database *sql.DB) {
-	ordersTablePopulated, err := db.OrdersTablePopulated(database)
-	if err != nil {
-		log.Fatalf("error checking if orders table populated: %v", err)
-	}
-
-	if !ordersTablePopulated {
-		addOrder(database, "kalsijatin67@icloud.com", "+14389893868", 6399)
-	}
+	addOrder(database, "kalsijatin67@icloud.com", "+14389893868", 6399)
 }
 
 func addCourse(database *sql.DB, course CourseAPI) {
+	classNumber, _ := strconv.Atoi(course.ClassNumber)
+	exists, err := db.ContainsClassNumber(database, classNumber)
+	if err != nil {
+		log.Fatalf("error checking if class number exists: %s", err)
+		return
+	}
+	if exists {
+		return
+	}
+
 	idx := 0
 	for _, r := range course.CourseID {
 		if r == '0' {
@@ -178,7 +189,6 @@ func addCourse(database *sql.DB, course CourseAPI) {
 		}
 	}
 	courseID, _ := strconv.Atoi(course.CourseID[idx:])
-	classNumber, _ := strconv.Atoi(course.ClassNumber)
 	termCode, _ := strconv.Atoi(course.TermCode)
 	classAssociation, _ := strconv.Atoi(course.ClassAssociation)
 	enrollmentCapacity, _ := strconv.Atoi(course.EnrollmentCapacity)
@@ -186,7 +196,7 @@ func addCourse(database *sql.DB, course CourseAPI) {
 	waitlistCapacity, _ := strconv.Atoi(course.WaitlistCapacity)
 	currentWaitlistTotal, _ := strconv.Atoi(course.CurrentWaitlistTotal)
 
-	err := db.CreateDefaultCourse(database, classNumber, courseID, termCode, course.Session, course.Subject, course.Catalog,
+	err = db.CreateDefaultCourse(database, classNumber, courseID, termCode, course.Session, course.Subject, course.Catalog,
 		course.Section, course.ComponentCode, course.ComponentDescription, classAssociation, course.CourseTitle,
 		course.ClassStartTime, course.ClassEndTime, course.Mondays == "Y", course.Tuesdays == "Y", course.Wednesdays == "Y",
 		course.Thursdays == "Y", course.Fridays == "Y", course.Saturdays == "Y", course.Sundays == "Y", course.ClassStartDate,

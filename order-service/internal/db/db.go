@@ -57,7 +57,7 @@ func CreateTables(db *sql.DB) error {
             catalog VARCHAR(4) NOT NULL,
             section VARCHAR(10) NOT NULL,
             componentCode VARCHAR(3) NOT NULL,
-            componentDescription VARCHAR(20) NOT NULL,
+            componentDescription VARCHAR(40) NOT NULL,
             classAssociation INT NOT NULL,
             courseTitle TEXT NOT NULL,
             classStartTime VARCHAR(10) NOT NULL,
@@ -130,4 +130,14 @@ func CreateDefaultOrder(db *sql.DB, email, phone string, classNumber int) error 
 	query := "INSERT INTO tbl_Orders (email, phone, classNumber, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6)"
 	_, err := db.Exec(query, email, phone, classNumber, 1, time.Now(), time.Now())
 	return err
+}
+
+func ContainsClassNumber(db *sql.DB, classNumber int) (bool, error) {
+	query := "SELECT COUNT(1) WHERE EXISTS (SELECT * FROM tbl_Courses WHERE classNumber = $1)"
+	var count int
+	err := db.QueryRow(query, classNumber).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
