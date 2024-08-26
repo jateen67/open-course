@@ -41,7 +41,7 @@ func main() {
 
 	seed(mongoClient)
 
-	log.Printf("starting notifier service on port %s\n", port)
+	log.Println("starting notifier service...")
 	srv := newServer(mongoClient).Router
 
 	err = http.ListenAndServe(fmt.Sprintf(":%s", port), srv)

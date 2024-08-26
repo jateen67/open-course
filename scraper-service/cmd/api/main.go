@@ -7,10 +7,9 @@ import (
 func main() {
 	log.Println("starting scraper server...")
 
-	// time.Sleep(60 * time.Second)
-	// log.Println("starting scraperMain() call")
+	// time.Sleep(30 * time.Second)
+	// log.Println("starting scraperMain...")
 	// scraperMain()
-	// log.Println("ending scraperMain() call")
 	// go func() {
 	// 	for {
 	// 		time.Sleep(5 * time.Second)

@@ -37,7 +37,6 @@ type Order struct {
 }
 
 func scraperMain() {
-	log.Println("s scraperMain()")
 	jsonData, _ := json.MarshalIndent("", "", "\t")
 
 	request, err := http.NewRequest("GET", "http://order-service/scrapercourses", bytes.NewBuffer(jsonData))
@@ -98,13 +97,11 @@ func scraperMain() {
 		}
 	}
 
-	log.Println("e scraperMain()")
 }
 
 func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 	defer wg.Done()
 
-	log.Println("s scrape()")
 	orderList := []OrderPayload{}
 
 	var term int
@@ -129,9 +126,9 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 	u := launcher.New().Bin(path).MustLaunch()
 	page := rod.New().ControlURL(u).MustConnect().MustPage(url)
 
-	errors := page.MustElement("errors").MustText()
-	if errors != "" {
-		log.Println("error fetching: " + errors)
+	errors := page.MustElements("error")
+	if errors.First() != nil {
+		log.Println("error fetching from vsb...")
 		return
 	}
 
@@ -162,12 +159,10 @@ func scrape(wg *sync.WaitGroup, order OrderPayload, ch chan<- []OrderPayload) {
 		}
 	}
 
-	log.Println("e scrape()")
 	ch <- orderList
 }
 
 func sendToNotifier(orders []OrderPayload) error {
-	log.Println("s sendToNotifier()")
 	ordersFiltered := filter(orders)
 	jsonData, err := json.MarshalIndent(ordersFiltered, "", "\t")
 	if err != nil {
@@ -192,12 +187,10 @@ func sendToNotifier(orders []OrderPayload) error {
 		return err
 	}
 
-	log.Println("e sendToNotifier()")
 	return nil
 }
 
 func filter(orders []OrderPayload) []OrderPayload {
-	log.Println("s filter()")
 	var ordersFiltered []OrderPayload
 	for _, order := range orders {
 		if order.CurrentEnrollment > 0 || order.CurrentWaitlistTotal > 0 {
@@ -205,6 +198,5 @@ func filter(orders []OrderPayload) []OrderPayload {
 		}
 	}
 
-	log.Println("s filter()")
 	return ordersFiltered
 }

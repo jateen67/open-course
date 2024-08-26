@@ -63,13 +63,20 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 			orderIDs = append(orderIDs, i.OrderID)
 		}
 
+		terms := map[int]string{
+			2242: "Fall 2024",
+			2243: "Fall 2024/Winter 2025",
+			2244: "Winter 2025",
+		}
+
 		msg := Message{
-			From:    os.Getenv("MAIL_FROM_ADDRESS"),
-			To:      emails,
-			Subject: fmt.Sprintf("%s-%s Seat Opened!", reqPayload.Subject, reqPayload.Catalog),
-			Data: fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %v semester. Sign up quickly!",
+			From: os.Getenv("MAIL_FROM_ADDRESS"),
+			To:   emails,
+			Subject: fmt.Sprintf("%s-%s (%s %s) Seat Opened!", reqPayload.Subject, reqPayload.Catalog, reqPayload.ComponentCode,
+				reqPayload.Section),
+			Data: fmt.Sprintf("Hi,\n\nA seat in %s-%s - %s (%s %s) has opened up for %s. Sign up quickly!\n\nOpenCourse",
 				reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
-				reqPayload.Section, reqPayload.TermCode),
+				reqPayload.Section, terms[reqPayload.TermCode]),
 		}
 
 		// == SEND MAIL ==
