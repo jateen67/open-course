@@ -74,7 +74,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 			To:   emails,
 			Subject: fmt.Sprintf("%s-%s (%s %s) Seat Opened!", reqPayload.Subject, reqPayload.Catalog, reqPayload.ComponentCode,
 				reqPayload.Section),
-			Data: fmt.Sprintf("Hi,\n\nA seat in %s-%s - %s (%s %s) has opened up for %s. Sign up quickly!\n\nOpenCourse",
+			Data: fmt.Sprintf("Hi,\n\nA seat in %s-%s - %s (%s %s) has opened up for %s. Sign up quickly!\n\n-OpenCourse",
 				reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
 				reqPayload.Section, terms[reqPayload.TermCode]),
 		}
@@ -103,9 +103,9 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 			params := &twilioApi.CreateMessageParams{}
 			params.SetFrom(os.Getenv("TWILIO_FROM_PHONE_NUMBER"))
 			params.SetTo(i.Phone)
-			params.SetBody(fmt.Sprintf("Hi,\nA seat in %s-%s - %s (%s %s) has opened up for the %v semester. Sign up quickly!",
+			params.SetBody(fmt.Sprintf("Hi,\n\nA seat in %s-%s - %s (%s %s) has opened up for %s. Sign up quickly!\n\n-OpenCourse",
 				reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
-				reqPayload.Section, reqPayload.TermCode))
+				reqPayload.Section, terms[reqPayload.TermCode]))
 
 			_, err := twilioClient.Api.CreateMessage(params)
 			if err != nil {
