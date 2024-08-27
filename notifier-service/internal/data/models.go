@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -43,17 +42,15 @@ func (l *LogNotification) Insert(orderID int, notificationType string) error {
 	var result NotificationType
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
-		log.Println("error getting notification type: ", err)
 		return err
 	}
 
 	var logs []interface{}
 	logs = append(logs, LogNotification{OrderID: orderID, NotificationTypeId: result.ID, TimeSent: time.Now()})
 
-	_, err = collection.InsertMany(context.TODO(), logs)
+	_, err = collection.InsertOne(context.TODO(), logs)
 
 	if err != nil {
-		log.Println("error logging notification: ", err)
 		return err
 	}
 

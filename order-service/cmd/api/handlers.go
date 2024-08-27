@@ -245,7 +245,7 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 			orders, err := s.OrderDB.GetOrdersByUserPhone(phoneNumber)
 			if err != nil {
 				message = &twiml.MessagingMessage{
-					Body: "Error: Could not retrieve all your orders",
+					Body: "Internal server error: Could not retrieve all your orders. Please try again later",
 				}
 			} else {
 				var classNumbers []int
@@ -255,7 +255,7 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 				courses, err := s.CourseDB.GetCoursesByMultpleIDs(classNumbers)
 				if err != nil {
 					message = &twiml.MessagingMessage{
-						Body: "Error: Could not retrieve all course info for your orders",
+						Body: "Internal server error: Could not retrieve all course info for your orders. Please try again later",
 					}
 				} else {
 					var buffer bytes.Buffer
@@ -287,7 +287,7 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 				err = s.OrderDB.UpdateOrderStatusTwilio(classNumber, phoneNumber, command == "START")
 				if err != nil {
 					message = &twiml.MessagingMessage{
-						Body: "Error: Could not change order status",
+						Body: "Internal server error: Could not change order status. Please try again later",
 					}
 				} else {
 					if command == "START" {
