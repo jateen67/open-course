@@ -67,7 +67,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 			params := &twilioApi.CreateMessageParams{}
 			params.SetFrom(os.Getenv("TWILIO_FROM_PHONE_NUMBER"))
 			params.SetTo(i.Phone)
-			params.SetBody(fmt.Sprintf("Hi,\n\nA seat in %s-%s - %s (%s %s) has opened up for %s. Sign up quickly!\n\n-OpenCourse",
+			params.SetBody(fmt.Sprintf("Hi,\n\nA seat in %s-%s - %s (%s %s) has opened up for %s. Sign up quickly!\n\n-ConUAlerts",
 				reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
 				reqPayload.Section, terms[reqPayload.TermCode]))
 

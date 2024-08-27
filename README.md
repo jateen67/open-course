@@ -1,4 +1,4 @@
-﻿# 🚀 OpenCourse
+﻿# 🚀 ConUAlerts
 
 [![language](https://img.shields.io/badge/language-Go-00ADD8)](https://go.dev/learn)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-%235351FB)](#-license)
@@ -21,7 +21,7 @@
 
 ## ❓ About
 
-**OpenCourse** is a service designed to provide a way for students of Concordia University to know exactly when course seats open up. By automating this process, students will no longer have to worry about going to VSB Concordia and constantly refreshing until their desired course opens up.
+**ConUAlerts** is a service designed to provide a way for students of Concordia University to know exactly when course seats open up. By automating this process, students will no longer have to worry about going to VSB Concordia and constantly refreshing until their desired course opens up.
 
 ## 📝 How to Build
 
@@ -81,7 +81,7 @@ TWILIO_AUTH_TOKEN: "<Your Twilio auth token>"
 
 The order service is the way the user creates an order (by adding a new entry in tbl_Orders for an existing course in tbl_Courses). All orders and courses can be viewed using [BeeKeeper Studio](https://www.beekeeperstudio.io), a lightweight relational database manager, using the connection string `host=postgres port=5432 user=postgres password=password dbname=order_db sslmode=disable`
 
-A user can also view/enable/disable their existing orders by texting `ORDERS`, `START <course_id>`, or `STOP <course_id>` to the OpenCourse phone number
+A user can also view/enable/disable their existing orders by texting `ORDERS`, `START <course_id>`, or `STOP <course_id>` to the ConUAlerts phone number
 
 ### Scraper service
 
@@ -95,12 +95,12 @@ Sent SMS messages can be viewed by accessing the Twilio console at `https://www.
 
 ## 📃 License
 
-OpenCourse is licensed under the PolyForm Noncommercial 1.0.0 license - free to use, fork, modify, and redistribute for personal and nonprofit use under the same license.
+ConUAlerts is licensed under the PolyForm Noncommercial 1.0.0 license - free to use, fork, modify, and redistribute for personal and nonprofit use under the same license.
 
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-%235351FB)](https://github.com/jateen67/open-course/blob/main/LICENSE.md)
 
 ## 🗨️ Contact
 
-For more details about our product, service, or any general information regarding OpenCourse, feel free to reach out to us. We are here to provide support and answer any questions you may have. Below is the best way to contact us:
+For more details about our product, service, or any general information regarding ConUAlerts, feel free to reach out to us. We are here to provide support and answer any questions you may have. Below is the best way to contact us:
 
-- **Email**: Send us your inquiries or support requests at [help@opencourse.com](mailto:help@opencourse.com).
+- **Email**: Send us your inquiries or support requests at [help@conualerts.com](mailto:help@conualerts.com).

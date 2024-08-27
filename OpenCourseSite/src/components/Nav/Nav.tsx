@@ -7,7 +7,7 @@ export const Nav = () => {
     <div className={NavStyles.Content}>
       <div className={NavStyles.ContentLeft}>
         <Link to="/" className={NavStyles.Text}>
-          OpenCourse
+          ConUAlerts
         </Link>
         <SelectMenu />
       </div>

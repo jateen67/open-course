@@ -14,7 +14,7 @@ export const AboutPage: React.FC = () => {
     <>
       <Nav />
       <div className={MainContentStyles.AboutContent}>
-        <h3>About OpenCourse</h3>
+        <h3>About ConUAlerts</h3>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris et
           nisi eget ligula scelerisque euismod sed ac metus. Praesent vel nisi
