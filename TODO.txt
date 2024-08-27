@@ -1,3 +1,2 @@
 backend:
-- better error handling throughout backend
 - deploy backend with swarm/caddy (frontend can be deployed separately on firebase or smtg)
