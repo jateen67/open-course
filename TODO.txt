@@ -1,6 +1,3 @@
-- edit and test scraper
+backend:
 - better error handling throughout backend
 - create db indexes
-
-tuesday:
-- deployment
