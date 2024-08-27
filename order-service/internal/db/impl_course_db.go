@@ -168,22 +168,3 @@ func (d *CourseDBImpl) GetCoursesBySemester(termCode int) ([]Course, error) {
 
 	return courses, nil
 }
-
-func (d *CourseDBImpl) CreateCourse(course Course) (int, error) {
-	var id int
-	query := `INSERT INTO tbl_Courses (classNumber, courseId, termCode, session, subject, catalog, section, componentCode,
-			  componentDescription, classAssociation, courseTitle, classStartTime, classEndTime, mondays, tuesdays, wednesdays,
-			  thursdays, fridays, saturdays, sundays, classStartDate, classEndDate, enrollmentCapacity, currentEnrollment,
-			  waitlistCapacity, currentWaitlistTotal) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
-			  $16, $17, $18, $19, $20, $21, $22, $23, $24, $25) RETURNING id`
-	err := d.DB.QueryRow(query, course.ClassNumber, course.CourseID, course.TermCode, course.Session, course.Subject, course.Catalog,
-		course.Section, course.ComponentCode, course.ComponentDescription, course.ClassAssociation, course.CourseTitle,
-		course.ClassStartTime, course.ClassEndTime, course.Mondays, course.Tuesdays, course.Wednesdays, course.Thursdays,
-		course.Fridays, course.Saturdays, course.Sundays, course.ClassStartDate, course.ClassEndDate, course.EnrollmentCapacity,
-		course.CurrentEnrollment, course.WaitlistCapacity, course.CurrentWaitlistTotal).Scan(&id)
-	if err != nil {
-		return 0, err
-	}
-
-	return id, nil
-}

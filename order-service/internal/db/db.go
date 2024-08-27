@@ -78,7 +78,7 @@ func CreateTables(db *sql.DB) error {
         );
 
 		CREATE TABLE IF NOT EXISTS tbl_Orders (
-            Id SERIAL PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             email TEXT NOT NULL,
 			phone TEXT NOT NULL,
 			classNumber INT REFERENCES tbl_Courses (classNumber),
