@@ -43,64 +43,6 @@ type Text struct {
 	Body string
 }
 
-func (s *server) getOrderByID(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	order, err := s.OrderDB.GetOrder(id)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	json.NewEncoder(w).Encode(order)
-}
-
-func (s *server) getOrdersByEmail(w http.ResponseWriter, r *http.Request) {
-	email := chi.URLParam(r, "email")
-	if email == "" {
-		s.errorJSON(w, errors.New("no email passed in url"), http.StatusBadRequest)
-		return
-	}
-
-	order, err := s.OrderDB.GetOrdersByUserEmail(email)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	json.NewEncoder(w).Encode(order)
-}
-
-func (s *server) getOrdersByClassNumber(w http.ResponseWriter, r *http.Request) {
-	classNumber, err := strconv.Atoi(chi.URLParam(r, "classNumber"))
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	order, err := s.OrderDB.GetOrdersByClassNumber(classNumber)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	json.NewEncoder(w).Encode(order)
-}
-
-func (s *server) getOrders(w http.ResponseWriter, r *http.Request) {
-	orders, err := s.OrderDB.GetOrders()
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	json.NewEncoder(w).Encode(orders)
-}
-
 func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 	var reqPayload db.Order
 
@@ -133,35 +75,6 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("order service: successful user order creation")
-}
-
-func (s *server) editOrder(w http.ResponseWriter, r *http.Request) {
-	var reqPayload db.Order
-
-	err := s.readJSON(w, r, &reqPayload)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	err = s.OrderDB.UpdateOrder(reqPayload)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-
-	resPayload := jsonResponse{
-		Error:   false,
-		Message: fmt.Sprintf("user %s order for course %d updated successfully", reqPayload.Phone, reqPayload.ClassNumber),
-	}
-
-	err = s.writeJSON(w, resPayload, http.StatusOK)
-	if err != nil {
-		s.errorJSON(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	log.Println("order service: successful update")
 }
 
 func (s *server) updateOrderStatus(w http.ResponseWriter, r *http.Request) {
