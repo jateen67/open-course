@@ -40,7 +40,7 @@ func scraperMain() {
 
 	request, err := http.NewRequest("GET", "http://order-service/scrapercourses", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Println("could not make new http request: ", err)
+		log.Println("could not make new http request to /scrapercourses: ", err)
 		return
 	}
 
@@ -49,13 +49,13 @@ func scraperMain() {
 	client := &http.Client{}
 	res, err := client.Do(request)
 	if err != nil {
-		log.Println("could not do http request: ", err)
+		log.Println("could not do http request to /scrapercourses: ", err)
 		return
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		log.Println("error code: ", res.StatusCode)
+		log.Println("error code /scrapercourses: ", res.StatusCode)
 		return
 	}
 

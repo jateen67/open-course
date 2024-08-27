@@ -215,19 +215,19 @@ func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Println("error reading sms command: ", err)
+		log.Println("ERROR - could not read SMS command: ", err)
 		return
 	}
 
 	values, err := url.ParseQuery(string(body))
 	if err != nil {
-		log.Println("error parsing sms command: ", err)
+		log.Println("ERROR - could not parse SMS command: ", err)
 		return
 	}
 	phoneNumber := values.Get("From")
 
 	if phoneNumber == "" {
-		s.errorJSON(w, errors.New("couldnt retrieve phone number from received twilio message"), http.StatusBadRequest)
+		log.Println("ERROR - could not retrieve phone number from received twilio message: ", err)
 		return
 	}
 
@@ -306,7 +306,7 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 
 	twimlResult, err := twiml.Messages([]twiml.Element{message})
 	if err != nil {
-		s.errorJSON(w, err, http.StatusInternalServerError)
+		log.Println("ERROR - could not send construct twilio message: ", err)
 		return
 	}
 
@@ -314,7 +314,7 @@ func (s *server) ManageOrders(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/xml")
 	_, err = w.Write([]byte(twimlResult))
 	if err != nil {
-		s.errorJSON(w, err, http.StatusInternalServerError)
+		log.Println("ERROR - could not retrieve phone number from received twilio message: ", err)
 		return
 	}
 }

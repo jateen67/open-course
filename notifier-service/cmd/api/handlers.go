@@ -32,8 +32,8 @@ type Order struct {
 	Phone   string `json:"phone"`
 }
 
-func (s *server) logNotification(orderIDs []int, notificationType string) error {
-	err := s.Models.LogNotification.Insert(orderIDs, notificationType)
+func (s *server) logNotification(orderID int, notificationType string) error {
+	err := s.Models.LogNotification.Insert(orderID, notificationType)
 	if err != nil {
 		return err
 	}
@@ -46,16 +46,11 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 
 	err := s.readJSON(w, r, &reqPayloads)
 	if err != nil {
-		s.errorJSON(w, err, http.StatusBadRequest)
+		log.Println("ERROR - could not read /notify request body: ", err)
 		return
 	}
 
 	for _, reqPayload := range reqPayloads {
-		var orderIDs []int
-		for _, i := range reqPayload.Orders {
-			orderIDs = append(orderIDs, i.OrderID)
-		}
-
 		terms := map[int]string{
 			2242: "Fall 2024",
 			2243: "Fall 2024/Winter 2025",
@@ -78,17 +73,13 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 
 			_, err := twilioClient.Api.CreateMessage(params)
 			if err != nil {
-				log.Println(err.Error())
+				log.Printf("ERROR - could not send SMS for order %v of class %v: %s\n", i.OrderID, reqPayload.ClassNumber, err.Error())
 			} else {
-				log.Printf("sent sms to %s", i.Phone)
+				err = s.logNotification(i.OrderID, "SMS")
+				if err != nil {
+					log.Printf("ERROR - could not log notif for order %v of class %v: %s\n", i.OrderID, reqPayload.ClassNumber, err)
+				}
 			}
-		}
-
-		// == LOG ALL SMS NOTIFICATIONS TO MONGO ==
-		err = s.logNotification(orderIDs, "SMS")
-		if err != nil {
-			s.errorJSON(w, err, http.StatusBadRequest)
-			return
 		}
 
 		// == DISABLE ORDER STATUSES SO THEY DONT GET FUTURE NOTIFS UNTIL MANUALLY SET AGAIN BY USER ==
@@ -96,8 +87,8 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 
 		request, err := http.NewRequest("POST", "http://order-service/orderstatus", bytes.NewBuffer(jsonData))
 		if err != nil {
-			s.errorJSON(w, err, http.StatusBadRequest)
-			return
+			log.Printf("ERROR - could not make request to disable all orders of class %v: %s\n", reqPayload.ClassNumber, err)
+			continue
 		}
 
 		request.Header.Set("Content-Type", "application/json")
@@ -105,21 +96,33 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 		client := &http.Client{}
 		res, err := client.Do(request)
 		if err != nil {
-			s.errorJSON(w, err, http.StatusBadRequest)
-			return
+			log.Printf("ERROR - could not do request to disable all orders of class %v: %s\n", reqPayload.ClassNumber, err)
+			continue
 		}
 		defer res.Body.Close()
 
 		if res.StatusCode != http.StatusAccepted {
-			s.errorJSON(w, err, http.StatusBadRequest)
-			return
+			log.Printf("ERROR - could not disable all orders of class %v -- status %v\n", reqPayload.ClassNumber, res.StatusCode)
+			continue
 		}
 
-		payload := jsonResponse{
-			Error:   false,
-			Message: fmt.Sprintf("db entry + order update + sms notification sent for course %v", reqPayload.ClassNumber),
+		var jsonFromService jsonResponse
+
+		err = json.NewDecoder(res.Body).Decode(&jsonFromService)
+		if err != nil {
+			log.Printf("ERROR - could not decode /orderstatus response: %s\n", jsonFromService.Message)
+			continue
 		}
 
-		s.writeJSON(w, payload, http.StatusAccepted)
+		if jsonFromService.Error {
+			log.Printf("ERROR - could not disable all orders of class %v: %s\n", reqPayload.ClassNumber, jsonFromService.Message)
+		}
 	}
+
+	payload := jsonResponse{
+		Error:   false,
+		Message: "db entries + order updates + sms notifications sent",
+	}
+
+	s.writeJSON(w, payload, http.StatusAccepted)
 }

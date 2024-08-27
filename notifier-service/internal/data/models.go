@@ -36,7 +36,7 @@ type NotificationType struct {
 	Type int                `bson:"type" json:"type"`
 }
 
-func (l *LogNotification) Insert(orderIDs []int, notificationType string) error {
+func (l *LogNotification) Insert(orderID int, notificationType string) error {
 	collection := client.Database("notificationsdb").Collection("notifications")
 
 	filter := bson.D{{Key: "type", Value: notificationType}}
@@ -48,9 +48,7 @@ func (l *LogNotification) Insert(orderIDs []int, notificationType string) error 
 	}
 
 	var logs []interface{}
-	for _, i := range orderIDs {
-		logs = append(logs, LogNotification{OrderID: i, NotificationTypeId: result.ID, TimeSent: time.Now()})
-	}
+	logs = append(logs, LogNotification{OrderID: orderID, NotificationTypeId: result.ID, TimeSent: time.Now()})
 
 	_, err = collection.InsertMany(context.TODO(), logs)
 
