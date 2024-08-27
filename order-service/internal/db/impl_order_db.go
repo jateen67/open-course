@@ -27,8 +27,8 @@ func (d *OrderDBImpl) GetOrdersByUserPhone(phone string) ([]Order, error) {
 
 	for rows.Next() {
 		var order Order
-		if err := rows.Scan(&order.ID, &order.Email,
-			&order.Phone, &order.ClassNumber, &order.IsActive, &order.CreatedAt,
+		if err := rows.Scan(&order.ID, &order.Phone,
+			&order.ClassNumber, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
 			return orders, err
 		}
@@ -54,8 +54,8 @@ func (d *OrderDBImpl) GetActiveOrders() ([]Order, error) {
 
 	for rows.Next() {
 		var order Order
-		if err := rows.Scan(&order.ID, &order.Email,
-			&order.Phone, &order.ClassNumber, &order.IsActive, &order.CreatedAt,
+		if err := rows.Scan(&order.ID, &order.Phone,
+			&order.ClassNumber, &order.IsActive, &order.CreatedAt,
 			&order.UpdatedAt); err != nil {
 			return orders, err
 		}
@@ -72,14 +72,13 @@ func (d *OrderDBImpl) GetActiveOrders() ([]Order, error) {
 func (d *OrderDBImpl) CreateOrder(order Order) (int, error) {
 	var id int
 	query := `INSERT INTO tbl_Orders (
-		email,
 		phone,
 		classNumber,
 		isActive,
 		createdAt,
 		updatedAt
-		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
-	err := d.DB.QueryRow(query, order.Email, order.Phone, order.ClassNumber, 1, time.Now(), time.Now()).Scan(&id)
+		) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	err := d.DB.QueryRow(query, order.Phone, order.ClassNumber, 1, time.Now(), time.Now()).Scan(&id)
 	if err != nil {
 		return 0, err
 	}

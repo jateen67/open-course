@@ -59,25 +59,7 @@ func seed(client *mongo.Client) {
 	ntExists := true
 
 	collection := client.Database("notificationsdb").Collection("notificationTypes")
-	err := collection.FindOne(context.TODO(), bson.D{{Key: "type", Value: "Email"}}, opts).Decode(&result)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			ntExists = false
-		}
-	}
-
-	if !ntExists {
-		_, err = collection.InsertOne(context.TODO(), NotificationType{
-			Type: "Email",
-		})
-		if err != nil {
-			log.Fatalf("error seeding notificationTypes collection: %s", err)
-		}
-	}
-
-	ntExists = true
-
-	err = collection.FindOne(context.TODO(), bson.D{{Key: "type", Value: "SMS"}}, opts).Decode(&result)
+	err := collection.FindOne(context.TODO(), bson.D{{Key: "type", Value: "SMS"}}, opts).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			ntExists = false

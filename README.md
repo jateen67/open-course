@@ -89,9 +89,8 @@ The scraper service works by first getting all active orders, then scraping VSB 
 
 ### Notifier Service
 
-the notifier service allows the user to send an email out with [MailHog](https://github.com/mailhog/MailHog) and SMS messages with Twilio. A new notification entry also gets logged in a Mongo notification collection, which can be accessed with [MongoDB Compass](https://www.mongodb.com/products/tools/compass) using the connection string `mongodb://admin:password@localhost:27017/?ssl=false`
+the notifier service allows the user to send an SMS message with [Twilio](https://www.twilio.com/en-us). A new notification entry also gets logged in a Mongo notification collection, which can be accessed with [MongoDB Compass](https://www.mongodb.com/products/tools/compass) using the connection string `mongodb://admin:password@localhost:27017/?ssl=false`
 
-Sent emails can be viewed by accessing the MailHog management UI at `http://localhost:8025/` <br />
 Sent SMS messages can be viewed by accessing the Twilio console at `https://www.twilio.com/console`
 
 ## 📃 License

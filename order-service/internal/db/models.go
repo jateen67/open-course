@@ -33,7 +33,6 @@ type Course struct {
 
 type Order struct {
 	ID          int       `json:"Id"`
-	Email       string    `json:"email"`
 	Phone       string    `json:"phone"`
 	ClassNumber int       `json:"classNumber"`
 	IsActive    bool      `json:"isActive"`

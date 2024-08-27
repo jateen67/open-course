@@ -6,15 +6,6 @@ import { useState } from "react";
 
 const inputs = [
   {
-    id: "email",
-    label: "Email",
-    type: "email",
-    pattern:
-      "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
-    required: true,
-    errorMessage: "Please enter a valid email.",
-  },
-  {
     id: "phone",
     label: "Phone Number",
     type: "text",
@@ -25,22 +16,24 @@ const inputs = [
 ];
 
 const ContactForm = () => {
-  const { setEmail, setPhone } = useOrderContext();
+  const { setPhone } = useOrderContext();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (id: string, value: string) => {
-    const inputConfig = inputs.find(input => input.id === id);
+    const inputConfig = inputs.find((input) => input.id === id);
     if (inputConfig) {
       const regex = new RegExp(inputConfig.pattern);
       if (!regex.test(value)) {
-        setErrors(prevErrors => ({ ...prevErrors, [id]: inputConfig.errorMessage }));
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [id]: inputConfig.errorMessage,
+        }));
       } else {
-        setErrors(prevErrors => {
+        setErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
           delete newErrors[id];
           return newErrors;
         });
-        if (id === "email") setEmail(value);
         if (id === "phone") setPhone(value);
       }
     }

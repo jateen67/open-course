@@ -34,7 +34,6 @@ type OrderPayload struct {
 
 type Order struct {
 	OrderID int    `json:"orderId"`
-	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 }
 
@@ -52,8 +51,8 @@ func (s *server) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if reqPayload.Email == "" || reqPayload.Phone == "" {
-		s.errorJSON(w, errors.New("cannot have empty email or phone"), http.StatusBadRequest)
+	if reqPayload.Phone == "" {
+		s.errorJSON(w, errors.New("cannot have empty phone"), http.StatusBadRequest)
 		return
 	}
 
@@ -182,11 +181,11 @@ func (s *server) getAllScraperCourses(w http.ResponseWriter, r *http.Request) {
 	orderMap := make(map[int][]Order)
 	for _, order := range orders {
 		if _, ok := orderMap[order.ClassNumber]; !ok {
-			newSlice := []Order{{OrderID: order.ID, Email: order.Email, Phone: order.Phone}}
+			newSlice := []Order{{OrderID: order.ID, Phone: order.Phone}}
 			orderMap[order.ClassNumber] = newSlice
 		} else {
 			orderMap[order.ClassNumber] = append(orderMap[order.ClassNumber],
-				Order{OrderID: order.ID, Email: order.Email, Phone: order.Phone})
+				Order{OrderID: order.ID, Phone: order.Phone})
 		}
 	}
 

@@ -1,6 +1,5 @@
 export class Order {
   // public id: number;
-  public email: string;
   public phone: string;
   public classNumber: number;
   // public isActive: boolean;
@@ -9,7 +8,6 @@ export class Order {
 
   constructor(other?: Partial<Order>) {
     // this.id = other?.id || 0;
-    this.email = other?.email || "";
     this.phone = other?.phone || "";
     this.classNumber = other?.classNumber || 0;
     // this.isActive = other?.isActive || true;

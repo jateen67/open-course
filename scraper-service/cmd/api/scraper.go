@@ -32,7 +32,6 @@ type OrderPayload struct {
 
 type Order struct {
 	OrderID int    `json:"orderId"`
-	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 }
 

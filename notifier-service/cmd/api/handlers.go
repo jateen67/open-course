@@ -29,7 +29,6 @@ type OrderPayload struct {
 
 type Order struct {
 	OrderID int    `json:"orderId"`
-	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 }
 
@@ -52,12 +51,6 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, reqPayload := range reqPayloads {
-
-		var emails []string
-		for _, i := range reqPayload.Orders {
-			emails = append(emails, i.Email)
-		}
-
 		var orderIDs []int
 		for _, i := range reqPayload.Orders {
 			orderIDs = append(orderIDs, i.OrderID)
@@ -67,30 +60,6 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 			2242: "Fall 2024",
 			2243: "Fall 2024/Winter 2025",
 			2244: "Winter 2025",
-		}
-
-		msg := Message{
-			From: os.Getenv("MAIL_FROM_ADDRESS"),
-			To:   emails,
-			Subject: fmt.Sprintf("%s-%s (%s %s) Seat Opened!", reqPayload.Subject, reqPayload.Catalog, reqPayload.ComponentCode,
-				reqPayload.Section),
-			Data: fmt.Sprintf("Hi,\n\nA seat in %s-%s - %s (%s %s) has opened up for %s. Sign up quickly!\n\n-OpenCourse",
-				reqPayload.Subject, reqPayload.Catalog, reqPayload.CourseTitle, reqPayload.ComponentCode,
-				reqPayload.Section, terms[reqPayload.TermCode]),
-		}
-
-		// == SEND MAIL ==
-		err = s.Mailer.SendSMTPMessage(msg)
-		if err != nil {
-			s.errorJSON(w, err, http.StatusBadRequest)
-			return
-		}
-
-		// == LOG ALL EMAIL NOTIFICATIONS TO MONGO ==
-		err = s.logNotification(orderIDs, "Email")
-		if err != nil {
-			s.errorJSON(w, err, http.StatusBadRequest)
-			return
 		}
 
 		// == SEND SMS ==
@@ -148,7 +117,7 @@ func (s *server) SendNotifications(w http.ResponseWriter, r *http.Request) {
 
 		payload := jsonResponse{
 			Error:   false,
-			Message: fmt.Sprintf("db entry + order update + sms/email notification sent for course %v", reqPayload.ClassNumber),
+			Message: fmt.Sprintf("db entry + order update + sms notification sent for course %v", reqPayload.ClassNumber),
 		}
 
 		s.writeJSON(w, payload, http.StatusAccepted)

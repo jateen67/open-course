@@ -171,7 +171,7 @@ func seedCourses(database *sql.DB, subject string, termCode int) {
 }
 
 func seedOrders(database *sql.DB) {
-	addOrder(database, "kalsijatin67@icloud.com", "+14389893868", 6399)
+	addOrder(database, "+14389893868", 6399)
 }
 
 func addCourse(database *sql.DB, course CourseAPI) {
@@ -211,8 +211,8 @@ func addCourse(database *sql.DB, course CourseAPI) {
 	}
 }
 
-func addOrder(database *sql.DB, email, phone string, classNumber int) {
-	err := db.CreateDefaultOrder(database, email, phone, classNumber)
+func addOrder(database *sql.DB, phone string, classNumber int) {
+	err := db.CreateDefaultOrder(database, phone, classNumber)
 	if err != nil {
 		log.Fatalf("error inserting order: %s", err)
 	}

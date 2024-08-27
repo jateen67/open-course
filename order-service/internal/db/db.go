@@ -79,7 +79,6 @@ func CreateTables(db *sql.DB) error {
 
 		CREATE TABLE IF NOT EXISTS tbl_Orders (
             id SERIAL PRIMARY KEY,
-            email TEXT NOT NULL,
 			phone TEXT NOT NULL,
 			classNumber INT REFERENCES tbl_Courses (classNumber),
 			isActive BOOLEAN NOT NULL,
@@ -136,9 +135,9 @@ func OrdersTablePopulated(db *sql.DB) (bool, error) {
 	return count > 0, nil
 }
 
-func CreateDefaultOrder(db *sql.DB, email, phone string, classNumber int) error {
-	query := "INSERT INTO tbl_Orders (email, phone, classNumber, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6)"
-	_, err := db.Exec(query, email, phone, classNumber, 1, time.Now(), time.Now())
+func CreateDefaultOrder(db *sql.DB, phone string, classNumber int) error {
+	query := "INSERT INTO tbl_Orders (phone, classNumber, isActive, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5)"
+	_, err := db.Exec(query, phone, classNumber, 1, time.Now(), time.Now())
 	return err
 }
 
