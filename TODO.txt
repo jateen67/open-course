@@ -1,2 +1,3 @@
 backend:
+- remove email
 - better error handling throughout backend

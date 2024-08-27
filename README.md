@@ -28,11 +28,6 @@
 To build the packages, follow these steps:
 
 ```shell
-# Open a terminal
-
-# Ensure Git is installed
-# Visit https://git-scm.com to download and install console Git if not already installed
-
 # Clone the repository
 git clone https://github.com/jateen67/open-course.git
 
@@ -72,6 +67,11 @@ make down # Stop up all Docker containers
 make build_order_service # Build the order-service executable, likewise for the other two services
 make clean # Clean all backend Go executables
 make help # Get help with commands
+
+# Enter in the following in the docker-compose.yml file
+TWILIO_FROM_PHONE_NUMBER: "<Your Twilio number>"
+TWILIO_ACCOUNT_SID: "<Your Twilio account SID>"
+TWILIO_AUTH_TOKEN: "<Your Twilio auth token>"
 
 ```
 
