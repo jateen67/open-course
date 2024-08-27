@@ -91,6 +91,16 @@ func CreateTables(db *sql.DB) error {
 	return err
 }
 
+func CreateIndexes(db *sql.DB) error {
+	query := `
+		CREATE INDEX idx_course_id ON tbl_Courses(courseId);
+		CREATE INDEX idx_class_number ON tbl_Orders(classNumber);
+		CREATE INDEX idx_phone ON tbl_Orders(phone);
+	`
+	_, err := db.Exec(query)
+	return err
+}
+
 func CoursesTablePopulated(db *sql.DB) (bool, error) {
 	query := "SELECT COUNT(1) WHERE EXISTS (SELECT * FROM tbl_Courses)"
 	var count int

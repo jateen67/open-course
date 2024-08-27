@@ -78,7 +78,7 @@ const port = "80"
 func main() {
 	database, err := db.ConnectToDB()
 	if err != nil {
-		log.Fatalf("could not connect to postgres: %v", err)
+		log.Fatalf("could not connect to postgres: %s", err)
 	}
 	defer database.Close()
 
@@ -86,14 +86,14 @@ func main() {
 
 	err = db.CreateTables(database)
 	if err != nil {
-		log.Fatalf("could not create tables: %v", err)
+		log.Fatalf("could not create tables: %s", err)
 	}
 
 	log.Println("tables created successfully")
 
 	coursesTablePopulated, err := db.CoursesTablePopulated(database)
 	if err != nil {
-		log.Fatalf("error checking if courses table populated: %v", err)
+		log.Fatalf("error checking if courses table populated: %s", err)
 	}
 	if !coursesTablePopulated {
 		seedCourses(database, "*", 2242) // 2242 = f2024
@@ -103,10 +103,15 @@ func main() {
 
 	ordersTablePopulated, err := db.OrdersTablePopulated(database)
 	if err != nil {
-		log.Fatalf("error checking if orders table populated: %v", err)
+		log.Fatalf("error checking if orders table populated: %s", err)
 	}
 	if !ordersTablePopulated {
 		seedOrders(database)
+	}
+
+	err = db.CreateIndexes(database)
+	if err != nil {
+		log.Fatalf("error creating indexes: %s", err)
 	}
 
 	courseDB := db.NewCourseDBImpl(database)
@@ -202,14 +207,14 @@ func addCourse(database *sql.DB, course CourseAPI) {
 		course.Thursdays == "Y", course.Fridays == "Y", course.Saturdays == "Y", course.Sundays == "Y", course.ClassStartDate,
 		course.ClassEndDate, enrollmentCapacity, CurrentEnrollment, waitlistCapacity, currentWaitlistTotal)
 	if err != nil {
-		log.Fatalf("error inserting course: %v", err)
+		log.Fatalf("error inserting course: %s", err)
 	}
 }
 
 func addOrder(database *sql.DB, email, phone string, classNumber int) {
 	err := db.CreateDefaultOrder(database, email, phone, classNumber)
 	if err != nil {
-		log.Fatalf("error inserting order: %v", err)
+		log.Fatalf("error inserting order: %s", err)
 	}
 	log.Println("order inserted successfully")
 }
