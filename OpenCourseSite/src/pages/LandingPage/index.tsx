@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Nav } from "../../components/Nav/Nav";
 import Colors, { applyTheme } from "../../styles/ColorSystem";
 import { MainContent } from "../../components/MainContent/MainContent";
+import { Footer } from "components/Footer";
 
 export const LandingPage: React.FC = () => {
   const [currentTheme] = useState<keyof typeof Colors>("burgundy");
@@ -14,7 +15,7 @@ export const LandingPage: React.FC = () => {
     <>
       <Nav />
       <MainContent />
-      {/* <Test /> */}
+      <Footer />
     </>
   );
 };

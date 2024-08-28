@@ -1,4 +1,3 @@
-import { SelectMenu } from "./SelectMenu";
 import NavStyles from "./Nav.module.css";
 import { Link } from "react-router-dom";
 
@@ -9,7 +8,6 @@ export const Nav = () => {
         <Link to="/" className={NavStyles.Text}>
           ConUAlerts
         </Link>
-        <SelectMenu />
       </div>
       <div>
         <Link to="/about" className={NavStyles.Text}>
