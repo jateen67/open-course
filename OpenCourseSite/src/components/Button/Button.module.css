@@ -1,12 +1,13 @@
 .Button {
-    padding: 12px 20px 12px 20px;
-    background-color: var(--primary300);
-    color: var(--brightBlue);
-    text-align: center;
-    border-radius: 8px;
+  padding: 12px 20px 12px 20px;
+  background-color: var(--primary300);
+  color: var(--brightBlue);
+  text-align: center;
+  border-radius: 8px;
 }
 
 .Button:hover {
-    background-color: var(--primary400);
-    transition: background-color 0.2s ease;
+  background-color: var(--primary400);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
 }
