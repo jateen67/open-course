@@ -15,6 +15,5 @@ FROM alpine:latest
 RUN mkdir /app
 
 COPY --from=builder /app/notifierExec /app
-COPY --from=builder /app/templates /templates
 
 CMD [ "/app/notifierExec" ]
