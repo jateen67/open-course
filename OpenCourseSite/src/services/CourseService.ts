@@ -16,4 +16,11 @@ export class CourseService {
       getParams
     );
   }
+
+  static CourseSearch(termCode: string, query: string): Observable<Course[]> {
+    return Fetch<Course[]>(
+      `${GlobalEnvironment.GetUrlApi()}/coursesearch/${termCode}/${query}`,
+      getParams
+    );
+  }
 }

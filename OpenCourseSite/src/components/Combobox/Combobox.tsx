@@ -10,47 +10,36 @@ import {
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import ComboboxStyles from "./Combobox.module.css";
 import { useFormContext } from "../../contexts";
+import { CourseService } from "services";
+import { useSnackbar } from "notistack";
 
 interface CourseComboboxProps {
   onChange: (course: Course | null) => void;
 }
 
-const fetchCourseOptions = async (
-  selectedTerm: string,
-  query: string
-): Promise<Course[]> => {
-  const response = await fetch(
-    `http://localhost:8081/coursesearch/${selectedTerm}/${query}`
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch course options");
-  }
-  return response.json();
-};
 
 export const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
   const [options, setOptions] = useState<Course[]>([]);
   const { selectedTerm, selectedCourses, query, setQuery, setSelectedCourses } =
     useFormContext();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const fetchCourseOptions = (selectedTerm: string, query: string) => {
+    if (!query) return
+    CourseService.CourseSearch(selectedTerm, query).subscribe({
+      next: (courses) => setOptions(courses),
+      error: () => {
+        setOptions([]);
+        enqueueSnackbar("Error fetching course options", { variant: 'error' })
+      },
+    })
+  }
 
   useEffect(() => {
     if (query.length === 0) {
       setOptions([]);
       return;
     }
-
-    const fetchData = async () => {
-      try {
-        const data = await fetchCourseOptions(selectedTerm, query);
-        console.log("Fetched course options:", data);
-        setOptions(data);
-      } catch (error) {
-        console.error("Error fetching course options:", error);
-        setOptions([]);
-      }
-    };
-
-    fetchData();
   }, [selectedTerm, query]);
 
   const getCourseDisplay = (course: Course | null) => {
@@ -85,10 +74,10 @@ export const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
     setSelectedCourses(course);
     setQuery(getCourseDisplay(course));
 
-    fetch(`http://localhost:8081/course/${selectedTerm}/${course.courseId}`)
-      .then((res) => res.json())
-      .then(() => onChange(course))
-      .catch((err) => console.error("Failed to fetch course details:", err));
+    CourseService.GetByTermCodeAndCourseId(selectedTerm, course.courseId).subscribe({
+      next: () => onChange(course),
+      error: (err) => console.error("Failed to fetch course details:", err),
+    })
   };
 
   return (
@@ -99,8 +88,11 @@ export const CourseCombobox: React.FC<CourseComboboxProps> = ({ onChange }) => {
             aria-label="Selected Course"
             placeholder="Search for courses..."
             displayValue={getCourseDisplay}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            value={(query)}
+            onChange={(event) => {
+              fetchCourseOptions(selectedTerm, event.target.value)
+              setQuery(event.target.value)
+            }}
             className={ComboboxStyles.Input}
           />
           <ComboboxButton className={ComboboxStyles.Button}>
