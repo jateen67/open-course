@@ -6,14 +6,20 @@ import { Order } from "models";
 import { useSnackbar } from "notistack";
 
 export const Button: React.FC = () => {
-  const { phone } = useOrderContext();
-  const { selectedCheckboxes } = useFormContext();
+  const { phone, setPhone } = useOrderContext();
+  const { selectedCheckboxes, setSelectedCourses, setSelectedCheckboxes, setQuery } = useFormContext();
   const { enqueueSnackbar } = useSnackbar()
 
   const createOrder = (classNumber: number) => {
     const newOrder = new Order({ classNumber, phone });
     OrderService.CreateOrder(newOrder).subscribe({
-      next: () => enqueueSnackbar("Order created successfuly", { variant: 'success' }),
+      next: () => {
+        enqueueSnackbar("Order created successfuly", { variant: 'success' })
+        setQuery("");
+        setSelectedCourses(null);
+        setSelectedCheckboxes([]);
+        setPhone("");
+      },
       error: (error) => enqueueSnackbar(error.message, { variant: 'error' }),
     });
   };
