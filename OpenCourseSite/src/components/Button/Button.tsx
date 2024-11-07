@@ -3,16 +3,24 @@ import ButtonStyles from "./Button.module.css";
 import { useFormContext, useOrderContext } from "../../contexts";
 import { OrderService } from "services";
 import { Order } from "models";
+import { useSnackbar } from "notistack";
 
 export const Button: React.FC = () => {
-  const { phone } = useOrderContext();
-  const { selectedCheckboxes } = useFormContext();
+  const { phone, setPhone } = useOrderContext();
+  const { selectedCheckboxes, setSelectedCourses, setSelectedCheckboxes, setQuery } = useFormContext();
+  const { enqueueSnackbar } = useSnackbar()
 
   const createOrder = (classNumber: number) => {
     const newOrder = new Order({ classNumber, phone });
     OrderService.CreateOrder(newOrder).subscribe({
-      next: (order) => console.log("Order created successfully:", order),
-      error: (error) => console.error("Error creating order:", error),
+      next: () => {
+        enqueueSnackbar("Order created successfuly", { variant: 'success' })
+        setQuery("");
+        setSelectedCourses(null);
+        setSelectedCheckboxes([]);
+        setPhone("");
+      },
+      error: (error) => enqueueSnackbar(error.message, { variant: 'error' }),
     });
   };
 
@@ -21,7 +29,6 @@ export const Button: React.FC = () => {
       return;
     }
     for (const classNumber of selectedCheckboxes) {
-      console.log(classNumber);
       createOrder(classNumber);
     }
   };

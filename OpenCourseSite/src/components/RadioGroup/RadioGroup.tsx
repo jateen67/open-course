@@ -10,9 +10,8 @@ interface RadioGroupProps {
 
 export const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => {
     const { selectedTerm, setSelectedTerm } = useFormContext();
-    
+
     const handleOnChange = (id: string) => {
-        console.log("RadioGroup.tsx: " + id);
         setSelectedTerm(id);
         onChange(id);
     };
@@ -30,11 +29,11 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({ options, onChange }) => 
                     value={option.id}
                     className={`${RadioGroupStyles.Radio} ${(selectedTerm === option.id) ? RadioGroupStyles.Checked : ""}`}
                 >
-                <div className={RadioGroupStyles.RadioContent}>
-                    <div className={RadioGroupStyles.RadioLabel}>
-                        <p>{option.label}</p>
+                    <div className={RadioGroupStyles.RadioContent}>
+                        <div className={RadioGroupStyles.RadioLabel}>
+                            <p>{option.label}</p>
+                        </div>
                     </div>
-                </div>
                 </HeadlessRadio>
             ))}
         </HeadlessRadioGroup>
