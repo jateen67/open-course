@@ -52,6 +52,8 @@ npm i && npm run dev
 
 # Ensure that you are logged in to the Twilio CLI
 twilio login
+# Uncomment the following code in the for-loop in scraper-service/cmd/api/main.go:
+// scraperMain()
 # Start a tunnel on port 8081, add a new webhook via the Twilio console with the ngrok terminal URL
 ngrok http 8081
 # Build + run the Docker containers
